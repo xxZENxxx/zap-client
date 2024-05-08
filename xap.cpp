@@ -429,7 +429,7 @@ bool IsOutdated() { // Scan possible Steam installation paths for libraryfolders
 
     const std::string steamPaths[] = {
       "/.steam/steam/config/libraryfolders.vdf",
-      "(/.local/share/Steam/config/libraryfolders.vdf",
+      "/.local/share/Steam/config/libraryfolders.vdf",
       "/.var/app/com.valvesoftware.Steam/data/Steam/config/libraryfolders.vdf"
     };
 
