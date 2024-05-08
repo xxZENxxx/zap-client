@@ -668,7 +668,7 @@ struct Sense
 		int ScreenHeight;
 		OverlayWindow.GetScreenResolution(ScreenWidth, ScreenHeight);
 
-		bool GetWeaponID = true; //For finding weapon IDs (Local Player)
+		bool GetWeaponID = false; //For finding weapon IDs (Local Player)
 		if (GetWeaponID) {
 			if (!Myself->IsDead) {
 
