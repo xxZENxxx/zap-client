@@ -408,6 +408,7 @@ std::string slurpFile(const std::string& absolutePath) {
 
     file.close();
     std::erase(contents, '\n');
+    std::erase(contents, '\r');
     return contents;
 }
 
