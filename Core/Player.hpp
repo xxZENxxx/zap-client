@@ -2,10 +2,12 @@
 #include <string>
 #include "Offsets.hpp"
 #include "LocalPlayer.hpp"
+#include "Level.hpp"
 #include "../Utils/Config.hpp"
 #include "../Utils/Features.hpp"
 #include "../Utils/Memory.hpp"
 #include "../Utils/HitboxType.hpp"
+#include "../Utils/Weapons.hpp"
 #include "../Math/Vector2D.hpp"
 #include "../Math/Vector3D.hpp"
 #include "../Math/FloatVector2D.hpp"
@@ -18,9 +20,8 @@
 #include "../imgui/imgui_impl_glfw.h"
 #include "../imgui/imgui_impl_opengl3.h"
 
-struct Player
-{
-    LocalPlayer *Myself;
+struct Player {
+    LocalPlayer* Myself;
 
     int Index;
     long BasePointer;
@@ -82,23 +83,20 @@ struct Player
     float aimbotScore;
     FloatVector2D aimbotDesiredAnglesSmoothedNoRecoil;
 
-    Player(int PlayerIndex, LocalPlayer *Me)
-    {
+    Player(int PlayerIndex, LocalPlayer* Me) {
         this->Index = PlayerIndex;
         this->Myself = Me;
     }
 
-    void Read()
-    {
+    void Read() {
         BasePointer = Memory::Read<long>(OFF_REGION + OFF_ENTITY_LIST + ((Index + 1) << 5));
         if (BasePointer == 0)
             return;
 
-        Name = Memory::ReadString1(BasePointer + OFF_NAME);
+        Name = Memory::ReadString(BasePointer + OFF_NAME);
         Team = Memory::Read<int>(BasePointer + OFF_TEAM_NUMBER);
 
-        if (!IsPlayer() && !IsDummy())
-        {
+        if (!IsPlayer() && !IsDummy()) {
             BasePointer = 0;
             return;
         }
@@ -118,10 +116,6 @@ struct Player
         IsAimedAt = LastTimeAimedAtPrevious < LastTimeAimedAt;
         LastTimeAimedAtPrevious = LastTimeAimedAt;
 
-        /*LastVisibleTime = Memory::Read<int>(BasePointer + OFF_LAST_VISIBLE_TIME);
-        IsVisible = IsAimedAt || LastTimeVisiblePrevious < LastVisibleTime;
-        LastTimeVisiblePrevious = LastVisibleTime;*/
-
         float WorldTime = Memory::Read<float>(Myself->BasePointer + OFF_TIME_BASE);
         float Time1;
         Time1 = Memory::Read<float>(BasePointer + OFF_LAST_VISIBLE_TIME);
@@ -132,8 +126,20 @@ struct Player
         Shield = Memory::Read<int>(BasePointer + OFF_SHIELD);
         MaxShield = Memory::Read<int>(BasePointer + OFF_MAXSHIELD);
 
-        if (!IsDead && !IsKnocked && IsHostile)
-        {
+        if (Myself->IsValid()) {
+            IsLocal = Myself->BasePointer == BasePointer;
+            IsAlly = IsTeammate();
+            IsHostile = !IsAlly;
+            DistanceToLocalPlayer = Myself->LocalOrigin.Distance(LocalOrigin);
+            Distance2DToLocalPlayer = Myself->LocalOrigin.To2D().Distance(LocalOrigin.To2D());
+            if (IsVisible) { // For AimbotMode Grinder
+                aimbotDesiredAngles = calcDesiredAngles();
+                aimbotDesiredAnglesIncrement = calcDesiredAnglesIncrement();
+                aimbotScore = calcAimbotScore();
+            }
+        }
+
+        if (!IsDead && !IsKnocked && IsHostile) {
             long WeaponHandle = Memory::Read<long>(BasePointer + OFF_WEAPON_HANDLE);
             long WeaponHandleMasked = WeaponHandle & 0xffff;
             WeaponEntity = Memory::Read<long>(OFF_REGION + OFF_ENTITY_LIST + (WeaponHandleMasked << 5));
@@ -144,126 +150,26 @@ struct Player
             WeaponIndex = Memory::Read<int>(WeaponEntity + OFF_WEAPON_INDEX);
         }
 
-        if (Myself->IsValid()) {
-        	IsLocal = Myself->BasePointer == BasePointer;
-                IsAlly = IsTeammate();
-                IsHostile = !IsAlly;
-                DistanceToLocalPlayer = Myself->LocalOrigin.Distance(LocalOrigin);
-                Distance2DToLocalPlayer = Myself->LocalOrigin.To2D().Distance(LocalOrigin.To2D());
-		    if (IsVisible) {
-		        aimbotDesiredAngles = calcDesiredAngles();
-		        aimbotDesiredAnglesIncrement = calcDesiredAnglesIncrement();
-		        aimbotScore = calcAimbotScore();
-		    }
-        }
-
         // For AimbotMode Grinder
         localOrigin = Memory::Read<FloatVector3D>(BasePointer + OFF_LOCAL_ORIGIN);
         absoluteVelocity = Memory::Read<FloatVector3D>(BasePointer + OFF_ABSVELOCITY);
         FloatVector3D localOrigin_diff = localOrigin.subtract(localOrigin_prev).normalize().multiply(20);
         localOrigin_predicted = localOrigin.add(localOrigin_diff);
         localOrigin_prev = FloatVector3D(localOrigin.x, localOrigin.y, localOrigin.z);
-
-        DistanceToLocalPlayer = Myself->LocalOrigin.Distance(LocalOrigin);
-        Distance2DToLocalPlayer = Myself->LocalOrigin.To2D().Distance(LocalOrigin.To2D());
     }
 
-    std::string GetPlayerName()
-    {
-        uintptr_t NameIndex = Memory::Read<uintptr_t>(BasePointer + OFF_NAME_INDEX);
-        uintptr_t NameOffset = Memory::Read<uintptr_t>(OFF_REGION + OFF_NAME_LIST + ((NameIndex - 1) * 24));
-        std::string PlayerName = Memory::ReadPlayerName(NameOffset, 64);
-        return PlayerName;
-    }
-
-    std::string getPlayerModelName()
-    {
-        uintptr_t modelOffset = Memory::Read<uintptr_t>(BasePointer + OFF_MODELNAME);
-        std::string modelName = Memory::ReadLegend(modelOffset, 1024);
-        // Check for different player names
-        if (modelName.find("dummie") != std::string::npos)
-            modelName = "Dummy";
-        else if (modelName.find("ash") != std::string::npos)
-            modelName = "Ash";
-        else if (modelName.find("ballistic") != std::string::npos)
-            modelName = "Ballistic";
-        else if (modelName.find("bangalore") != std::string::npos)
-            modelName = "Bangalore";
-        else if (modelName.find("bloodhound") != std::string::npos)
-            modelName = "Bloodhound";
-        else if (modelName.find("catalyst") != std::string::npos)
-            modelName = "Catalyst";
-        else if (modelName.find("caustic") != std::string::npos)
-            modelName = "Caustic";
-        else if (modelName.find("conduit") != std::string::npos)
-            modelName = "Conduit";
-        else if (modelName.find("crypto") != std::string::npos)
-            modelName = "Crypto";
-        else if (modelName.find("fuse") != std::string::npos)
-            modelName = "Fuse";
-        else if (modelName.find("gibraltar") != std::string::npos)
-            modelName = "Gibraltar";
-        else if (modelName.find("horizon") != std::string::npos)
-            modelName = "Horizon";
-        else if (modelName.find("nova") != std::string::npos)
-            modelName = "Horizon";
-        else if (modelName.find("holo") != std::string::npos)
-            modelName = "Mirage";
-        else if (modelName.find("mirage") != std::string::npos)
-            modelName = "Mirage";
-        else if (modelName.find("lifeline") != std::string::npos)
-            modelName = "Lifeline";
-        else if (modelName.find("loba") != std::string::npos)
-            modelName = "Loba";
-        else if (modelName.find("madmaggie") != std::string::npos)
-            modelName = "Mad Maggie";
-        else if (modelName.find("newcastle") != std::string::npos)
-            modelName = "Newcastle";
-        else if (modelName.find("octane") != std::string::npos)
-            modelName = "Octane";
-        else if (modelName.find("pathfinder") != std::string::npos)
-            modelName = "Pathfinder";
-        else if (modelName.find("rampart") != std::string::npos)
-            modelName = "Rampart";
-        else if (modelName.find("revenant") != std::string::npos)
-            modelName = "Revenant";
-        else if (modelName.find("seer") != std::string::npos)
-            modelName = "Seer";
-        else if (modelName.find("stim") != std::string::npos)
-            modelName = "Octane";
-        else if (modelName.find("valkyrie") != std::string::npos)
-            modelName = "Valkyrie";
-        else if (modelName.find("vantage") != std::string::npos)
-            modelName = "Vantage";
-        else if (modelName.find("wattson") != std::string::npos)
-            modelName = "Wattson";
-        else if (modelName.find("wraith") != std::string::npos)
-            modelName = "Wraith";
-
-        return modelName;
-    }
-
-    bool IsItem()
-    {
-        return Name == "prop_survival"; //CPropSurvival, add check after name read and print check
-    }
-
-    float GetViewYaw()
-    {
-        if (!IsDummy() || IsPlayer())
-        {
+    float GetViewYaw() {
+        if (!IsDummy() || IsPlayer()) {
             return Memory::Read<float>(BasePointer + OFF_YAW);
         }
         return 0.0f;
     }
 
-    bool IsValid()
-    {
-        return BasePointer != 0 && Health > 0 && (IsPlayer() || IsDummy());
+    bool IsValid() {
+        return BasePointer != 0 && Health > 0 && !IsDead && (IsPlayer() || IsDummy());
     }
 
-    bool IsCombatReady()
-    {
+    bool IsCombatReady() {
         if (!IsValid())
             return false;
         if (IsDummy())
@@ -275,31 +181,24 @@ struct Player
         return true;
     }
 
-    bool IsPlayer()
-    {
+    bool IsPlayer() {
         return Name == "player";
     }
 
-    bool IsDummy()
-    {
+    bool IsDummy() {
         return Team == 97;
     }
 
-    bool IsTeammate()
-    {
-        if (LvMap::m_mixtape && Myself->Squad == -1)
-        {
+    bool IsTeammate() {
+        if (LvMap::m_mixtape && Myself->Squad == -1) {
             return (Team & 1) == (Myself->Team & 1);
-        }
-        else
-        {
+        } else {
             return Team == Myself->Team;
         }
     }
 
     // Bones //
-    int GetBoneFromHitbox(HitboxType HitBox) const
-    {
+    int GetBoneFromHitbox(HitboxType HitBox) const {
         long ModelPointer = Memory::Read<long>(BasePointer + OFF_STUDIOHDR);
         if (!Memory::IsValidPointer(ModelPointer))
             return -1;
@@ -322,8 +221,7 @@ struct Player
         return Memory::Read<uint16_t>(BonePointer);
     }
 
-    Vector3D GetBonePosition(HitboxType HitBox) const
-    {
+    Vector3D GetBonePosition(HitboxType HitBox) const {
         Vector3D Offset = Vector3D(0.0f, 0.0f, 0.0f);
 
         int Bone = GetBoneFromHitbox(HitBox);
@@ -346,8 +244,7 @@ struct Player
     }
 
     // For AimbotMode Grinder
-    float calcDesiredPitch()
-    {
+    float calcDesiredPitch() {
         if (IsLocal)
             return 0;
         const FloatVector3D shift = FloatVector3D(100000, 100000, 100000);
@@ -360,8 +257,7 @@ struct Player
         return degrees;
     }
 
-    float calcDesiredYaw()
-    {
+    float calcDesiredYaw() {
         if (IsLocal)
             return 0;
         const FloatVector2D shift = FloatVector2D(100000, 100000);
@@ -373,18 +269,15 @@ struct Player
         return degrees;
     }
 
-    FloatVector2D calcDesiredAngles()
-    {
+    FloatVector2D calcDesiredAngles() {
         return FloatVector2D(calcDesiredPitch(), calcDesiredYaw());
     }
 
-    FloatVector2D calcDesiredAnglesIncrement()
-    {
+    FloatVector2D calcDesiredAnglesIncrement() {
         return FloatVector2D(calcPitchIncrement(), calcYawIncrement());
     }
 
-    float calcPitchIncrement()
-    {
+    float calcPitchIncrement() {
         float wayA = aimbotDesiredAngles.x - Myself->viewAngles.x;
         float wayB = 180 - abs(wayA);
         if (wayA > 0 && wayB > 0)
@@ -394,8 +287,7 @@ struct Player
         return wayB;
     }
 
-    float calcYawIncrement()
-    {
+    float calcYawIncrement() {
         float wayA = aimbotDesiredAngles.y - Myself->viewAngles.y;
         float wayB = 360 - abs(wayA);
         if (wayA > 0 && wayB > 0)
@@ -405,8 +297,116 @@ struct Player
         return wayB;
     }
 
-    float calcAimbotScore()
-    {
+    float calcAimbotScore() {
         return (1000 - (fabs(aimbotDesiredAnglesIncrement.x) + fabs(aimbotDesiredAnglesIncrement.y)));
+    }
+
+    std::string GetPlayerName() {
+        if (IsDummy()) {
+            return "Dummie";
+        } else {
+            uintptr_t NameIndex = Memory::Read<uintptr_t>(BasePointer + OFF_NAME_INDEX);
+            uintptr_t NameOffset = Memory::Read<uintptr_t>(OFF_REGION + OFF_NAME_LIST + ((NameIndex - 1) * 24));
+            std::string PlayerName = Memory::ReadStringSize(NameOffset, 64);
+            return PlayerName;
+        }
+    }
+
+    std::string getPlayerModelName() {
+        uintptr_t ModelOffset = Memory::Read<uintptr_t>(BasePointer + OFF_MODELNAME);
+        std::string ModelName = Memory::ReadStringSize(ModelOffset, 1024);
+
+        static std::unordered_map<std::string, std::string> ModelNameMap = { {"dummie", "Dummie"}, {"ash", "Ash"}, {"ballistic", "Ballistic"}, {"bangalore", "Bangalore"}, {"bloodhound", "Bloodhound"}, {"catalyst", "Catalyst"}, {"caustic", "Caustic"}, {"conduit", "Conduit"}, {"crypto", "Crypto"}, {"fuse", "Fuse"}, {"gibraltar", "Gibraltar"}, {"horizon", "Horizon"}, {"nova", "Horizon"}, {"holo", "Mirage"}, {"mirage", "Mirage"}, {"lifeline", "Lifeline"}, {"loba", "Loba"}, {"madmaggie", "Mad Maggie"}, {"newcastle", "Newcastle"}, {"octane", "Octane"}, {"pathfinder", "Pathfinder"}, {"rampart", "Rampart"}, {"revenant", "Revenant"}, {"seer", "Seer"}, {"stim", "Octane"}, {"valkyrie", "Valkyrie"}, {"vantage", "Vantage"}, {"wattson", "Wattson"}, {"wraith", "Wraith"}, {"alter", "Alter"}, };
+
+        std::string replacedName = ModelName;
+        for (auto& entry : ModelNameMap) {
+            if (ModelName.find(entry.first) != std::string::npos) {
+                replacedName = entry.second;
+                break;
+            }
+        }
+
+        return replacedName;
+    }
+
+    std::string GetWeaponHeldName() {
+        // Variables
+        int WeaponID = WeaponIndex;
+        // Check if Holding Grenade
+        if (IsHoldingGrenade) {
+            std::string WeaponName = "Throwable";
+            return WeaponName;
+        } else {
+            static std::unordered_map<int, std::string> WeaponMap = { {WeaponIDs::WEAPON_P2020, "P2020"}, {WeaponIDs::WEAPON_RE45, "RE-45"}, {WeaponIDs::WEAPON_ALTERNATOR, "Alternator"}, {WeaponIDs::WEAPON_R301, "R-301"}, {WeaponIDs::WEAPON_R99, "R-99"}, {WeaponIDs::WEAPON_SPITFIRE, "Spitfire"}, {WeaponIDs::WEAPON_G7, "G7 Scout"}, {WeaponIDs::WEAPON_FLATLINE, "Flatline"}, {WeaponIDs::WEAPON_PROWLER, "Prowler"}, {WeaponIDs::WEAPON_HEMLOCK, "Hemlock"}, {WeaponIDs::WEAPON_REPEATER, "30-30 Repeater"}, {WeaponIDs::WEAPON_RAMPAGE, "Rampage"}, {WeaponIDs::WEAPON_CAR, "CAR-SMG"}, {WeaponIDs::WEAPON_HAVOC, "Havoc"}, {WeaponIDs::WEAPON_DEVOTION, "Devotion"}, {WeaponIDs::WEAPON_LSTAR, "L-STAR"}, {WeaponIDs::WEAPON_TRIPLETAKE, "Triple Take"}, {WeaponIDs::WEAPON_VOLT, "Volt"}, {WeaponIDs::WEAPON_NEMESIS, "Nemesis"}, {WeaponIDs::WEAPON_MOZAMBIQUE, "Mozambique"}, {WeaponIDs::WEAPON_PEACEKEEPER, "Peacekeeper"}, {WeaponIDs::WEAPON_MASTIFF, "Mastiff"}, {WeaponIDs::WEAPON_SENTINEL, "Sentinel"}, {WeaponIDs::WEAPON_CHARGE_RIFLE, "Charge Rifle"}, {WeaponIDs::WEAPON_LONGBOW, "Longbow"}, {WeaponIDs::WEAPON_WINGMAN, "Wingman"}, {WeaponIDs::WEAPON_EVA8, "EVA-8 Auto"}, {WeaponIDs::WEAPON_BOCEK, "Bocek"}, {WeaponIDs::WEAPON_KRABER, "Kraber"}, {WeaponIDs::WEAPON_KNIFE, "Throwing Knife"}, {WeaponIDs::WEAPON_HANDS, "Melee"}, };
+
+            auto it = WeaponMap.find(WeaponID);
+            if (it != WeaponMap.end()) {
+                return it->second;
+            } else {
+                return "Unknown";
+            }
+        }
+    }
+
+    ImColor GetWeaponHeldColor() {
+        // Variables
+        int WeaponID = WeaponIndex;
+        ImColor LightCol, HeavyCol, EnergyCol, ShotgunCol, SniperCol, LegendaryCol, MeleeCol, ThrowableCol;
+        if (IsHoldingGrenade) {
+            if (IsHostile) {
+                ThrowableCol = ImColor(Features::Colors::Enemy::ThrowableWeaponColor[0], Features::Colors::Enemy::ThrowableWeaponColor[1], Features::Colors::Enemy::ThrowableWeaponColor[2], Features::Colors::Enemy::ThrowableWeaponColor[3]);
+                return ThrowableCol;
+            } else if (!IsHostile) {
+                ThrowableCol = ImColor(Features::Colors::Teammate::ThrowableWeaponColor[0], Features::Colors::Teammate::ThrowableWeaponColor[1], Features::Colors::Teammate::ThrowableWeaponColor[2], Features::Colors::Teammate::ThrowableWeaponColor[3]);
+                return ThrowableCol;
+            }
+        } else {
+            if (IsHostile) {
+                LightCol = ImColor(Features::Colors::Enemy::LightWeaponColor[0], Features::Colors::Enemy::LightWeaponColor[1], Features::Colors::Enemy::LightWeaponColor[2], Features::Colors::Enemy::LightWeaponColor[3]);
+                HeavyCol = ImColor(Features::Colors::Enemy::HeavyWeaponColor[0], Features::Colors::Enemy::HeavyWeaponColor[1], Features::Colors::Enemy::HeavyWeaponColor[2], Features::Colors::Enemy::HeavyWeaponColor[3]);
+                EnergyCol = ImColor(Features::Colors::Enemy::EnergyWeaponColor[0], Features::Colors::Enemy::EnergyWeaponColor[1], Features::Colors::Enemy::EnergyWeaponColor[2], Features::Colors::Enemy::EnergyWeaponColor[3]);
+                ShotgunCol = ImColor(Features::Colors::Enemy::ShotgunWeaponColor[0], Features::Colors::Enemy::ShotgunWeaponColor[1], Features::Colors::Enemy::ShotgunWeaponColor[2], Features::Colors::Enemy::ShotgunWeaponColor[3]);
+                SniperCol = ImColor(Features::Colors::Enemy::SniperWeaponColor[0], Features::Colors::Enemy::SniperWeaponColor[1], Features::Colors::Enemy::SniperWeaponColor[2], Features::Colors::Enemy::SniperWeaponColor[3]);
+                LegendaryCol = ImColor(Features::Colors::Enemy::LegendaryWeaponColor[0], Features::Colors::Enemy::LegendaryWeaponColor[1], Features::Colors::Enemy::LegendaryWeaponColor[2], Features::Colors::Enemy::LegendaryWeaponColor[3]);
+                MeleeCol = ImColor(Features::Colors::Enemy::MeleeWeaponColor[0], Features::Colors::Enemy::MeleeWeaponColor[1], Features::Colors::Enemy::MeleeWeaponColor[2], Features::Colors::Enemy::MeleeWeaponColor[3]);
+                ThrowableCol = ImColor(Features::Colors::Enemy::ThrowableWeaponColor[0], Features::Colors::Enemy::ThrowableWeaponColor[1], Features::Colors::Enemy::ThrowableWeaponColor[2], Features::Colors::Enemy::ThrowableWeaponColor[3]);
+            } else if (!IsHostile) {
+                LightCol = ImColor(Features::Colors::Teammate::LightWeaponColor[0], Features::Colors::Teammate::LightWeaponColor[1], Features::Colors::Teammate::LightWeaponColor[2], Features::Colors::Teammate::LightWeaponColor[3]);
+                HeavyCol = ImColor(Features::Colors::Teammate::HeavyWeaponColor[0], Features::Colors::Teammate::HeavyWeaponColor[1], Features::Colors::Teammate::HeavyWeaponColor[2], Features::Colors::Teammate::HeavyWeaponColor[3]);
+                EnergyCol = ImColor(Features::Colors::Teammate::EnergyWeaponColor[0], Features::Colors::Teammate::EnergyWeaponColor[1], Features::Colors::Teammate::EnergyWeaponColor[2], Features::Colors::Teammate::EnergyWeaponColor[3]);
+                ShotgunCol = ImColor(Features::Colors::Teammate::ShotgunWeaponColor[0], Features::Colors::Teammate::ShotgunWeaponColor[1], Features::Colors::Teammate::ShotgunWeaponColor[2], Features::Colors::Teammate::ShotgunWeaponColor[3]);
+                SniperCol = ImColor(Features::Colors::Teammate::SniperWeaponColor[0], Features::Colors::Teammate::SniperWeaponColor[1], Features::Colors::Teammate::SniperWeaponColor[2], Features::Colors::Teammate::SniperWeaponColor[3]);
+                LegendaryCol = ImColor(Features::Colors::Teammate::LegendaryWeaponColor[0], Features::Colors::Teammate::LegendaryWeaponColor[1], Features::Colors::Teammate::LegendaryWeaponColor[2], Features::Colors::Teammate::LegendaryWeaponColor[3]);
+                MeleeCol = ImColor(Features::Colors::Teammate::MeleeWeaponColor[0], Features::Colors::Teammate::MeleeWeaponColor[1], Features::Colors::Teammate::MeleeWeaponColor[2], Features::Colors::Teammate::MeleeWeaponColor[3]);
+                ThrowableCol = ImColor(Features::Colors::Teammate::ThrowableWeaponColor[0], Features::Colors::Teammate::ThrowableWeaponColor[1], Features::Colors::Teammate::ThrowableWeaponColor[2], Features::Colors::Teammate::ThrowableWeaponColor[3]);
+            }
+
+            static std::unordered_map<int, ImColor> WeaponMap = { {WeaponIDs::WEAPON_P2020, LightCol}, {WeaponIDs::WEAPON_RE45, LightCol}, {WeaponIDs::WEAPON_ALTERNATOR, LightCol}, {WeaponIDs::WEAPON_R301, LightCol}, {WeaponIDs::WEAPON_R99, LightCol}, {WeaponIDs::WEAPON_SPITFIRE, LightCol}, {WeaponIDs::WEAPON_G7, LightCol}, {WeaponIDs::WEAPON_FLATLINE, HeavyCol}, {WeaponIDs::WEAPON_PROWLER, HeavyCol}, {WeaponIDs::WEAPON_HEMLOCK, HeavyCol}, {WeaponIDs::WEAPON_REPEATER, HeavyCol}, {WeaponIDs::WEAPON_RAMPAGE, HeavyCol}, {WeaponIDs::WEAPON_CAR, HeavyCol}, {WeaponIDs::WEAPON_HAVOC, EnergyCol}, {WeaponIDs::WEAPON_DEVOTION, EnergyCol}, {WeaponIDs::WEAPON_LSTAR, EnergyCol}, {WeaponIDs::WEAPON_TRIPLETAKE, EnergyCol}, {WeaponIDs::WEAPON_VOLT, EnergyCol}, {WeaponIDs::WEAPON_NEMESIS, EnergyCol}, {WeaponIDs::WEAPON_MOZAMBIQUE, ShotgunCol}, {WeaponIDs::WEAPON_PEACEKEEPER, ShotgunCol}, {WeaponIDs::WEAPON_MASTIFF, ShotgunCol}, {WeaponIDs::WEAPON_SENTINEL, SniperCol}, {WeaponIDs::WEAPON_CHARGE_RIFLE, SniperCol}, {WeaponIDs::WEAPON_LONGBOW, SniperCol}, {WeaponIDs::WEAPON_WINGMAN, LegendaryCol}, {WeaponIDs::WEAPON_EVA8, LegendaryCol}, {WeaponIDs::WEAPON_BOCEK, LegendaryCol}, {WeaponIDs::WEAPON_KRABER, LegendaryCol}, {WeaponIDs::WEAPON_KNIFE, LegendaryCol}, {WeaponIDs::WEAPON_HANDS, MeleeCol}, };
+            
+            auto it = WeaponMap.find(WeaponID);
+            if (it != WeaponMap.end()) {
+                return it->second;
+            } else {
+                return ImColor(255, 255, 255);
+            }
+        
+        }
+    }
+
+    ImColor GetShieldColor() {
+        // Variables
+        ImColor ShieldColor;
+        if (MaxShield == 50) { // white
+            ShieldColor = ImColor(247, 247, 247);
+        } else if (MaxShield == 75) { // blue
+            ShieldColor = ImColor(39, 178, 255);
+        } else if (MaxShield == 100) { // purple
+            ShieldColor = ImColor(206, 59, 255);
+        } else if (MaxShield == 125) { // red
+            ShieldColor = ImColor(219, 2, 2);
+        } else {
+            ShieldColor = ImColor(247, 247, 247);
+        }
+        return ShieldColor;
     }
 };

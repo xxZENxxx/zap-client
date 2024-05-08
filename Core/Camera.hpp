@@ -28,8 +28,8 @@ struct Camera {
 
     bool WorldToScreen(Vector3D WorldPosition, Vector2D& ScreenPosition) const {
         Vector3D transformed = GameViewMatrix.Transform(WorldPosition);
- 
-        if (transformed.z < 0.001){
+
+        if (transformed.z < 0.001) {
             return false;
         }
 

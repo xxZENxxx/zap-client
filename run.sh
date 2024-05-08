@@ -47,23 +47,14 @@ log "Binary copied: $script_dir/$original_binary_name to $temp_binary_path"
 # Log the binary being executed
 log "Executing binary: $temp_binary_name"
 
-# Credits and such
-sleep 1
-echo "Run Script For zap-client"
-sleep 1
-echo "Credits to: "
-sleep 0.5
-echo "0xAgartha - https://www.unknowncheats.me/forum/members/5290135.html"
-sleep 0.2
-echo "ghostrazzor - https://www.unknowncheats.me/forum/members/2764232.html"
-sleep 1
-echo "-----------------------------------------------------------------------"
-#Shit way of adding a separator but sorry not sorry
-echo "Executing $original_binary_name as $temp_binary_name"
-sleep 0.5
-
 # Execute the binary
-(sudo "./$temp_binary_name") & pid=$! # Get the PID of the executed binary
+sleep 0.3
+echo "Executing $original_binary_name as $temp_binary_name"
+sleep 0.3
+# Execute the binary with XDG_RUNTIME_DIR set to avoid ugly error in console, the dir (usually doesn't exist)
+# but it doesn't matter, it breaks nothing... if we run the binary as sudo it just doesn't have that env variable set
+# meaning random stuff that's looking for that variable is warning us in console without actually needing the folder lol
+(sudo env XDG_RUNTIME_DIR="/run/user/0" "./$temp_binary_name") & pid=$! # Get the PID of the executed binary
 log "Binary executed with PID: $pid"
  
 # Hide the PID of the executed binary and its child processes

@@ -10,13 +10,15 @@ struct GlowMode {
         bodyStyle(static_cast<std::byte>(x_val)),
         borderStyle(static_cast<std::byte>(y_val)),
         borderWidth(static_cast<std::byte>(z_val)),
-        transparency(static_cast<std::byte>(transparency_val)) {}
+        transparency(static_cast<std::byte>(transparency_val)) {
+    }
 
     GlowMode(std::byte x_val, std::byte y_val, std::byte z_val, std::byte transparency_val) :
         bodyStyle(x_val),
         borderStyle(y_val),
         borderWidth(z_val),
-        transparency(transparency_val) {}
+        transparency(transparency_val) {
+    }
 
     bool IsZeroVector() const {
         return bodyStyle == std::byte(0)

@@ -8,7 +8,7 @@
 #include <unistd.h>
 
 typedef unsigned long DWORD;
-typedef int *DWORD_PTR;
+typedef int* DWORD_PTR;
 
 #include "../Core/Player.hpp"
 #include "../Core/LocalPlayer.hpp"
@@ -154,33 +154,33 @@ struct Glow
     int ItemGlowInsideFunction = 0;    // Leave
     int ItemGlowOutlineFunction = 138; // Leave
 
+    const GlowMode SetGlowOff = { 0, 0, 0, 0 };
+
     std::chrono::milliseconds LastLoopTime;
 
-    std::vector<GlowMode> *StoredGlowMode = new std::vector<GlowMode>;
+    std::vector<GlowMode>* StoredGlowMode = new std::vector<GlowMode>;
 
     // Variables
-    Camera *GameCamera;
-    Level *Map;
-    LocalPlayer *Myself;
-    std::vector<Player *> *Players;
+    Camera* GameCamera;
+    Level* Map;
+    LocalPlayer* Myself;
+    std::vector<Player*>* Players;
     std::chrono::milliseconds LastUpdateTime;
     int TotalSpectators = 0;
     std::vector<std::string> Spectators;
 
-    Glow(Level *Map, std::vector<Player *> *Players, Camera *GameCamera, LocalPlayer *Myself)
-    {
+    Glow(Level* Map, std::vector<Player*>* Players, Camera* GameCamera, LocalPlayer* Myself) {
         this->Players = Players;
         this->Map = Map;
         this->GameCamera = GameCamera;
         this->Myself = Myself;
     }
 
-    bool Save()
-    {
-        try
-        {
-            
+    static bool Save() {
+        try {
+
             Config::Glow::NewGlow = Features::Glow::NewGlow;
+            Config::Glow::KnockedCheck = Features::Glow::KnockedCheck;
             Config::Glow::GlowMaxDistance = Features::Glow::GlowMaxDistance;
             Config::Glow::GlowColorMode = Features::Glow::GlowColorMode;
             Config::Glow::GlowColorShieldMode = Features::Glow::GlowColorShieldMode;
@@ -192,7 +192,6 @@ struct Glow
             Config::Glow::ViewModelGlowCombo = Features::Glow::ViewModelGlowCombo;
 
             Config::ItemGlow::ItemGlow = Features::Glow::Item::ItemGlow;
-            Config::ItemGlow::SelectedItemSelection = Features::Glow::Item::SelectedItemSelection;
             Config::ItemGlow::Common = Features::Glow::Item::Common;
             Config::ItemGlow::Rare = Features::Glow::Item::Rare;
             Config::ItemGlow::Epic = Features::Glow::Item::Epic;
@@ -200,6 +199,7 @@ struct Glow
             Config::ItemGlow::Legendary = Features::Glow::Item::Legendary;
             Config::ItemGlow::Weapons = Features::Glow::Item::Weapons;
             Config::ItemGlow::Ammo = Features::Glow::Item::Ammo;
+            Config::ItemGlow::Deathbox = Features::Glow::Item::Deathbox;
             Config::ItemGlow::ItemGlowThickness = Features::Glow::Item::ItemGlowThickness;
             Config::ItemGlow::SelectedInsideStyle = Features::Glow::Item::SelectedInsideStyle;
             Config::ItemGlow::SelectedOutlineStyle = Features::Glow::Item::SelectedOutlineStyle;
@@ -210,6 +210,9 @@ struct Glow
             Config::EnemyColors::VisibleGlowColorR = Features::Colors::Enemy::VisibleGlowColor[0];
             Config::EnemyColors::VisibleGlowColorG = Features::Colors::Enemy::VisibleGlowColor[1];
             Config::EnemyColors::VisibleGlowColorB = Features::Colors::Enemy::VisibleGlowColor[2];
+            Config::EnemyColors::KnockedGlowColorR = Features::Colors::Enemy::KnockedGlowColor[0];
+            Config::EnemyColors::KnockedGlowColorG = Features::Colors::Enemy::KnockedGlowColor[1];
+            Config::EnemyColors::KnockedGlowColorB = Features::Colors::Enemy::KnockedGlowColor[2];
             Config::EnemyColors::RedShieldColorR = Features::Colors::Enemy::RedShieldColor[0];
             Config::EnemyColors::RedShieldColorG = Features::Colors::Enemy::RedShieldColor[1];
             Config::EnemyColors::RedShieldColorB = Features::Colors::Enemy::RedShieldColor[2];
@@ -222,11 +225,12 @@ struct Glow
             Config::EnemyColors::GreyShieldColorR = Features::Colors::Enemy::GreyShieldColor[0];
             Config::EnemyColors::GreyShieldColorG = Features::Colors::Enemy::GreyShieldColor[1];
             Config::EnemyColors::GreyShieldColorB = Features::Colors::Enemy::GreyShieldColor[2];
+            Config::EnemyColors::LowGlowColorR = Features::Colors::Enemy::LowGlowColor[0];
+            Config::EnemyColors::LowGlowColorG = Features::Colors::Enemy::LowGlowColor[1];
+            Config::EnemyColors::LowGlowColorB = Features::Colors::Enemy::LowGlowColor[2];
 
             return true;
-        }
-        catch (...)
-        {
+        } catch (...) {
             return false;
         }
     }
@@ -251,26 +255,22 @@ struct Glow
     }*/
 
     // Old Glow & Item Glow
-    void SetGlowState(long HighlightSettingsPointer, long HighlightSize, int HighlightID, GlowMode NewGlowMode)
-    {
+    void SetGlowState(long HighlightSettingsPointer, long HighlightSize, int HighlightID, GlowMode NewGlowMode) {
         const GlowMode oldGlowMode = Memory::Read<GlowMode>(HighlightSettingsPointer + (HighlightSize * HighlightID) + 0);
         if (NewGlowMode != oldGlowMode)
             Memory::Write<GlowMode>(HighlightSettingsPointer + (HighlightSize * HighlightID) + 0, NewGlowMode);
     }
 
-    void SetColorState(long HighlightSettingsPointer, long HighlightSize, int HighlightID, Color NewColor)
-    {
+    void SetColorState(long HighlightSettingsPointer, long HighlightSize, int HighlightID, Color NewColor) {
         const Color oldColor = Memory::Read<Color>(HighlightSettingsPointer + (HighlightSize * HighlightID) + 4);
         if (oldColor != NewColor)
             Memory::Write<Color>(HighlightSettingsPointer + (HighlightSize * HighlightID) + 4, NewColor);
     }
 
-    void SetGlow(Player *Target, int GlowEnabled, int GlowThroughWall, int HighlightID)
-    {
+    void SetGlow(Player* Target, int GlowEnabled, int GlowThroughWall, int HighlightID) {
         if (Target->GlowEnable != GlowEnabled)
             Memory::Write<int>(Target->BasePointer + OFF_GLOW_ENABLE, GlowEnabled);
-        if (Target->GlowThroughWall != GlowThroughWall)
-        {
+        if (Target->GlowThroughWall != GlowThroughWall) {
             Memory::Write<int>(Target->BasePointer + OFF_GLOW_THROUGH_WALL, GlowThroughWall);
             Memory::Write<int>(Target->BasePointer + OFF_GLOW_FIX, 1);
         }
@@ -279,615 +279,398 @@ struct Glow
     }
 
     // New Glow
-    void setGlowEnable(Player *Target, int glowEnable)
-    {
+    void setGlowEnable(Player* Target, int glowEnable) {
         long ptrLong = Target->BasePointer + OFF_GLOW_ENABLE;
         Memory::Write<int>(ptrLong, glowEnable);
     }
-    void setGlowThroughWall(Player *Target, int glowThroughWall)
-    {
+    void setGlowThroughWall(Player* Target, int glowThroughWall) {
         long ptrLong = Target->BasePointer + OFF_GLOW_THROUGH_WALL;
         Memory::Write<int>(ptrLong, glowThroughWall);
     }
-    int getGlowThroughWall(Player *Target)
-    {
+    int getGlowThroughWall(Player* Target) {
         int ptrInt = Memory::Read<int>(Target->BasePointer + OFF_GLOW_THROUGH_WALL);
         if (!Memory::IsValidPointer(ptrInt))
             return -1;
         return ptrInt;
     }
-    int getGlowEnable(Player *Target)
-    {
+    int getGlowEnable(Player* Target) {
         int ptrInt = Memory::Read<int>(Target->BasePointer + OFF_GLOW_ENABLE);
         if (!Memory::IsValidPointer(ptrInt))
             return -1;
         return ptrInt;
     }
 
-    void setCustomGlow(Player *Target, int health, bool isVisible, bool isSameTeam)
-    {
-        static const int contextId = 0; // Same as glow enable
-        long basePointer = Target->BasePointer;
-        int settingIndex = 65;
+    void setCustomGlow(Player* Target, bool isVisible, bool isKnocked, bool isSameTeam, bool GlowEnabled) {
+        if (GlowEnabled) {
+            static const int contextId = 0; // 
+            long basePointer = Target->BasePointer;
+            int settingIndex = 65;
 
-        // Glow
-        int InsideFunction = 2;    // Leave
-        int OutlineFunction = 125; // Leave
+            // Glow
+            int InsideFunction = 2;    // Leave
+            int OutlineFunction = 125; // Leave
 
-        // Custom Glow Body Style
-        if (Features::Glow::BodyStyle == 0)
-        { // None
-            InsideFunction = 0;
-        }
-        if (Features::Glow::BodyStyle == 1)
-        { // Pink
-            InsideFunction = 1;
-        }
-        if (Features::Glow::BodyStyle == 2)
-        { // Pink Visible Only
-            InsideFunction = 110;
-        }
-        if (Features::Glow::BodyStyle == 3)
-        { // Pulsing 1
-            InsideFunction = 117;
-        }
-        if (Features::Glow::BodyStyle == 4)
-        { // Pulsing Line Invisible Only
-            InsideFunction = 12;
-        }
-        if (Features::Glow::BodyStyle == 5)
-        { // Dark Pulsing Line
-            InsideFunction = 13;
-        }
-        if (Features::Glow::BodyStyle == 6)
-        { // Sharp Pulsing Visible Only
-            InsideFunction = 124;
-        }
-        if (Features::Glow::BodyStyle == 7)
-        { // Sharp Pulsing
-            InsideFunction = 126;
-        }
-        if (Features::Glow::BodyStyle == 8)
-        { // Pulsing Red Line
-            InsideFunction = 3;
-        }
-        if (Features::Glow::BodyStyle == 9)
-        { // Fast Pulsing Invisible
-            InsideFunction = -500;
-        }
-        if (Features::Glow::BodyStyle == 10)
-        { // Pulsing Up
-            InsideFunction = 132;
-        }
-        if (Features::Glow::BodyStyle == 11)
-        { // Solid Pulsing
-            InsideFunction = 14;
-        }
-        if (Features::Glow::BodyStyle == 12)
-        { // Solid Pulsing 2
-            InsideFunction = 117;
-        }
-        if (Features::Glow::BodyStyle == 13)
-        { // Bright
-            InsideFunction = 109;
-        }
-        if (Features::Glow::BodyStyle == 14)
-        { // Bright 2
-            InsideFunction = 118;
-        }
-        if (Features::Glow::BodyStyle == 15)
-        { // Light
-            InsideFunction = 101;
-        }
-        if (Features::Glow::BodyStyle == 16)
-        { // Light Solid
-            InsideFunction = 112;
-        }
-        if (Features::Glow::BodyStyle == 17)
-        { // Red Pulsing Visible Only
-            InsideFunction = 115;
-        }
-        if (Features::Glow::BodyStyle == 18)
-        { // Wave
-            InsideFunction = 103;
-        }
-        if (Features::Glow::BodyStyle == 19)
-        { // Shaded Visible
-            InsideFunction = 136;
-        }
-        if (Features::Glow::BodyStyle == 20)
-        { // Wireframe
-            InsideFunction = 134;
-        }
-        if (Features::Glow::BodyStyle == 21)
-        { // Wireframe Visible Only
-            InsideFunction = 133;
-        }
-        if (Features::Glow::BodyStyle == 22)
-        { // Black
-            InsideFunction = 75;
-        }
-        if (Features::Glow::BodyStyle == 23)
-        { // Black Visible Only
-            InsideFunction = 77;
-        }
+            // Custom Glow Body Style
+            int bodyStyleArray[] = {
+                0, // None
+                1, // Pink
+                110, // Pink Visible Only
+                117, // Pulsing 1
+                12, // Pulsing Line Invisible Only
+                13, // Dark Pulsing Line
+                124, // Sharp Pulsing Visible Only
+                126, // Sharp Pulsing
+                3, // Pulsing Red Line
+                -500, // Fast Pulsing Invisible
+                132, // Pulsing Up
+                14, // Solid Pulsing
+                117, // Solid Pulsing 2
+                109, // Bright
+                118, // Bright 2
+                101, // Light
+                112, // Light Solid
+                115, // Red Pulsing Visible Only
+                103, // Wave
+                136, // Shaded Visible
+                134, // Wireframe
+                133, // Wireframe Visible Only
+                75, // Black
+                77 // Black Visible Only
+            };
 
-        // Custom Outline Style
-        if (Features::Glow::OutlineStyle == 0)
-        { // None
-            OutlineFunction = 0;
-        }
-        if (Features::Glow::OutlineStyle == 1)
-        { // Bright
-            OutlineFunction = 6;
-        }
-        if (Features::Glow::OutlineStyle == 2)
-        { // Bright Invisible Only
-            OutlineFunction = 102;
-        }
-        if (Features::Glow::OutlineStyle == 3)
-        { // Dark
-            OutlineFunction = 101;
-        }
-        if (Features::Glow::OutlineStyle == 4)
-        { // Pink
-            OutlineFunction = 1;
-        }
-        if (Features::Glow::OutlineStyle == 5)
-        { // White
-            OutlineFunction = 4;
-        }
-        if (Features::Glow::OutlineStyle == 6)
-        { // Gold Flashing
-            OutlineFunction = 5;
-        }
-        if (Features::Glow::OutlineStyle == 7)
-        { // Gold
-            OutlineFunction = 7;
-        }
-        if (Features::Glow::OutlineStyle == 8)
-        { // Brown
-            OutlineFunction = 8;
-        }
-        if (Features::Glow::OutlineStyle == 9)
-        { // Wave
-            OutlineFunction = 103;
-        }
-        if (Features::Glow::OutlineStyle == 10)
-        { // Red
-            OutlineFunction = 107;
-        }
-        if (Features::Glow::OutlineStyle == 11)
-        { // Red Bright
-            OutlineFunction = 108;
-        }
-        if (Features::Glow::OutlineStyle == 12)
-        { // Heartbeat Visible Only
-            OutlineFunction = 110;
-        }
-        if (Features::Glow::OutlineStyle == 13)
-        { // Invisible Only Green
-            OutlineFunction = -372;
-        }
-        if (Features::Glow::OutlineStyle == 15)
-        { // Orange
-            OutlineFunction = -249;
-        }
-        if (Features::Glow::OutlineStyle == 14)
-        { // Visible Only
-            OutlineFunction = -151;
-        }
-        if (Features::Glow::OutlineStyle == 16)
-        { // Red
-            OutlineFunction = 364;
-        }
+            int outlineStyleArray[] = {
+                0, // None
+                6, // Bright
+                102, // Bright Invisible Only
+                101, // Dark
+                1, // Pink
+                4, // White
+                5, // Gold Flashing
+                7, // Gold
+                8, // Brown
+                103, // Wave
+                107, // Red
+                108, // Red Bright
+                110, // Heartbeat Visible Only
+                -372, // Green Invisible Only
+                -249, // Orange
+                -151, // Visible Only
+                364 // Red
+            };
 
-        std::array<unsigned char, 4> highlightFunctionBits = {
-            InsideFunction,             // InsideFunction							2
-            OutlineFunction,            // OutlineFunction: HIGHLIGHT_OUTLINE_OBJECTIVE			125
-            Features::Glow::GlowRadius, // OutlineRadius: size * 255 / 8				64
-            64                          // (EntityVisible << 6) | State & 0x3F | (AfterPostProcess << 7) 	64
-        };
-        std::array<float, 3> glowColorRGB = {0, 0, 0};
-        if (Features::Glow::GlowColorMode == 0)
-        {
-            if (Features::Glow::GlowColorShieldMode == 0)
-            {
-                if (!isVisible)
-                {
-                    settingIndex = 65;
-                    glowColorRGB = {Features::Colors::Enemy::VisibleGlowColor[0], Features::Colors::Enemy::VisibleGlowColor[1], Features::Colors::Enemy::VisibleGlowColor[2]}; // Visible Enemies
+            if (Features::Glow::BodyStyle >= 0 && Features::Glow::BodyStyle <= 23)
+                InsideFunction = bodyStyleArray[Features::Glow::BodyStyle];
+
+            if (Features::Glow::OutlineStyle >= 0 && Features::Glow::OutlineStyle <= 16)
+                OutlineFunction = outlineStyleArray[Features::Glow::OutlineStyle];
+
+            std::array<unsigned char, 4> highlightFunctionBits = {
+                InsideFunction,             // InsideFunction							2
+                OutlineFunction,            // OutlineFunction: HIGHLIGHT_OUTLINE_OBJECTIVE			125
+                Features::Glow::GlowRadius, // OutlineRadius: size * 255 / 8				64
+                64                          // (EntityVisible << 6) | State & 0x3F | (AfterPostProcess << 7) 	64
+            };
+            std::array<float, 3> glowColorRGB = { 0, 0, 0 };
+            if (Features::Glow::GlowColorMode == 0) {
+                int shield = Target->Shield;
+                int maxShield = Target->MaxShield;
+                if (Features::Glow::GlowColorShieldMode == 0) { // Current Shield
+                    if (Features::Glow::KnockedCheck) {
+                        if (isVisible) {
+                            settingIndex = 65;
+                            glowColorRGB = { Features::Colors::Enemy::VisibleGlowColor[0], Features::Colors::Enemy::VisibleGlowColor[1], Features::Colors::Enemy::VisibleGlowColor[2] }; // Visible Enemies
+                        } else if (!isVisible) {
+                            if (shield >= 101) { // Red Shield
+                                settingIndex = 66;
+                                glowColorRGB = { Features::Colors::Enemy::RedShieldColor[0], Features::Colors::Enemy::RedShieldColor[1], Features::Colors::Enemy::RedShieldColor[2] }; // red shield
+                            } else if (shield >= 76) { // Purple Shield
+                                settingIndex = 67;
+                                glowColorRGB = { Features::Colors::Enemy::PurpleShieldColor[0], Features::Colors::Enemy::PurpleShieldColor[1], Features::Colors::Enemy::PurpleShieldColor[2] }; // purple shield
+                            } else if (shield >= 51) { // Blue Shield
+                                settingIndex = 68;
+                                glowColorRGB = { Features::Colors::Enemy::BlueShieldColor[0], Features::Colors::Enemy::BlueShieldColor[1], Features::Colors::Enemy::BlueShieldColor[2] }; // blue shield
+                            } else if (shield >= 1) { // Grey Shield
+                                settingIndex = 69;
+                                glowColorRGB = { Features::Colors::Enemy::GreyShieldColor[0], Features::Colors::Enemy::GreyShieldColor[1], Features::Colors::Enemy::GreyShieldColor[2] }; // gray shield 
+                            } else if (shield == 0) { // Cracked / No Shield
+                                settingIndex = 70;
+                                glowColorRGB = { Features::Colors::Enemy::LowGlowColor[0], Features::Colors::Enemy::LowGlowColor[1], Features::Colors::Enemy::LowGlowColor[2] }; // low health enemies
+                            }
+                        }
+                    } else if (!Features::Glow::KnockedCheck) {
+                        if (!isKnocked) {
+                            if (isVisible) {
+                                settingIndex = 65;
+                                glowColorRGB = { Features::Colors::Enemy::VisibleGlowColor[0], Features::Colors::Enemy::VisibleGlowColor[1], Features::Colors::Enemy::VisibleGlowColor[2] }; // Visible Enemies
+                            } else if (!isVisible) {
+                                if (shield >= 101) { // Red Shield
+                                    settingIndex = 66;
+                                    glowColorRGB = { Features::Colors::Enemy::RedShieldColor[0], Features::Colors::Enemy::RedShieldColor[1], Features::Colors::Enemy::RedShieldColor[2] }; // red shield
+                                } else if (shield >= 76) { // Purple Shield
+                                    settingIndex = 67;
+                                    glowColorRGB = { Features::Colors::Enemy::PurpleShieldColor[0], Features::Colors::Enemy::PurpleShieldColor[1], Features::Colors::Enemy::PurpleShieldColor[2] }; // purple shield
+                                } else if (shield >= 51) { // Blue Shield
+                                    settingIndex = 68;
+                                    glowColorRGB = { Features::Colors::Enemy::BlueShieldColor[0], Features::Colors::Enemy::BlueShieldColor[1], Features::Colors::Enemy::BlueShieldColor[2] }; // blue shield
+                                } else if (shield >= 1) { // Grey Shield
+                                    settingIndex = 69;
+                                    glowColorRGB = { Features::Colors::Enemy::GreyShieldColor[0], Features::Colors::Enemy::GreyShieldColor[1], Features::Colors::Enemy::GreyShieldColor[2] }; // gray shield 
+                                } else if (shield == 0) { // Cracked / No Shield
+                                    settingIndex = 70;
+                                    glowColorRGB = { Features::Colors::Enemy::LowGlowColor[0], Features::Colors::Enemy::LowGlowColor[1], Features::Colors::Enemy::LowGlowColor[2] }; // low health enemies
+                                }
+                            }
+                        } else if (isKnocked) {
+                            settingIndex = 64;
+                            glowColorRGB = { Features::Colors::Enemy::KnockedGlowColor[0], Features::Colors::Enemy::KnockedGlowColor[1], Features::Colors::Enemy::KnockedGlowColor[2] }; // Knocked Enemies
+                        }
+                    }
                 }
-                else if (health >= 201)
-                {
-                    settingIndex = 66;
-                    glowColorRGB = {Features::Colors::Enemy::RedShieldColor[0], Features::Colors::Enemy::RedShieldColor[1], Features::Colors::Enemy::RedShieldColor[2]}; // red shield
-                }
-                else if (health >= 176)
-                {
-                    settingIndex = 67;
-                    glowColorRGB = {Features::Colors::Enemy::PurpleShieldColor[0], Features::Colors::Enemy::PurpleShieldColor[1], Features::Colors::Enemy::PurpleShieldColor[2]}; // purple shield
-                }
-                else if (health >= 151)
-                {
-                    settingIndex = 68;
-                    glowColorRGB = {Features::Colors::Enemy::BlueShieldColor[0], Features::Colors::Enemy::BlueShieldColor[1], Features::Colors::Enemy::BlueShieldColor[2]}; // blue shield
-                }
-                else if (health >= 101)
-                {
-                    settingIndex = 69;
-                    glowColorRGB = {Features::Colors::Enemy::GreyShieldColor[0], Features::Colors::Enemy::GreyShieldColor[1], Features::Colors::Enemy::GreyShieldColor[2]}; // gray shield // cyan
-                }
-                else
-                {
-                    settingIndex = 70;
-                    glowColorRGB = {Features::Colors::Enemy::LowGlowColor[0], Features::Colors::Enemy::LowGlowColor[1], Features::Colors::Enemy::LowGlowColor[2]}; // low health enemies // greeen
+
+                if (Features::Glow::GlowColorShieldMode == 1) { // Max Shield
+                    if (Features::Glow::KnockedCheck) {
+                        if (isVisible) {
+                            settingIndex = 65;
+                            glowColorRGB = { Features::Colors::Enemy::VisibleGlowColor[0], Features::Colors::Enemy::VisibleGlowColor[1], Features::Colors::Enemy::VisibleGlowColor[2] }; // Visible Enemies
+                        } else if (!isVisible) {
+                            if (shield != 0 && maxShield == 125) { // Red Shield
+                                settingIndex = 66;
+                                glowColorRGB = { Features::Colors::Enemy::RedShieldColor[0], Features::Colors::Enemy::RedShieldColor[1], Features::Colors::Enemy::RedShieldColor[2] }; // red shield
+                            } else if (shield != 0 && maxShield == 100) { // Purple Shield
+                                settingIndex = 67;
+                                glowColorRGB = { Features::Colors::Enemy::PurpleShieldColor[0], Features::Colors::Enemy::PurpleShieldColor[1], Features::Colors::Enemy::PurpleShieldColor[2] }; // purple shield
+                            } else if (shield != 0 && maxShield == 75) { // Blue Shield
+                                settingIndex = 68;
+                                glowColorRGB = { Features::Colors::Enemy::BlueShieldColor[0], Features::Colors::Enemy::BlueShieldColor[1], Features::Colors::Enemy::BlueShieldColor[2] }; // blue shield
+                            } else if (shield != 0 && maxShield == 50) { // Grey Shield
+                                settingIndex = 69;
+                                glowColorRGB = { Features::Colors::Enemy::GreyShieldColor[0], Features::Colors::Enemy::GreyShieldColor[1], Features::Colors::Enemy::GreyShieldColor[2] }; // gray shield 
+                            } else if (shield == 0) { // Cracked / No Shield
+                                settingIndex = 70;
+                                glowColorRGB = { Features::Colors::Enemy::LowGlowColor[0], Features::Colors::Enemy::LowGlowColor[1], Features::Colors::Enemy::LowGlowColor[2] }; // low health enemies
+                            }
+                        }
+                    } else if (!Features::Glow::KnockedCheck) {
+                        if (!isKnocked) {
+                            if (isVisible) {
+                                settingIndex = 65;
+                                glowColorRGB = { Features::Colors::Enemy::VisibleGlowColor[0], Features::Colors::Enemy::VisibleGlowColor[1], Features::Colors::Enemy::VisibleGlowColor[2] }; // Visible Enemies
+                            } else if (!isVisible) {
+                                if (shield != 0 && maxShield == 125) { // Red Shield
+                                    settingIndex = 66;
+                                    glowColorRGB = { Features::Colors::Enemy::RedShieldColor[0], Features::Colors::Enemy::RedShieldColor[1], Features::Colors::Enemy::RedShieldColor[2] }; // red shield
+                                } else if (shield != 0 && maxShield == 100) { // Purple Shield
+                                    settingIndex = 67;
+                                    glowColorRGB = { Features::Colors::Enemy::PurpleShieldColor[0], Features::Colors::Enemy::PurpleShieldColor[1], Features::Colors::Enemy::PurpleShieldColor[2] }; // purple shield
+                                } else if (shield != 0 && maxShield == 75) { // Blue Shield
+                                    settingIndex = 68;
+                                    glowColorRGB = { Features::Colors::Enemy::BlueShieldColor[0], Features::Colors::Enemy::BlueShieldColor[1], Features::Colors::Enemy::BlueShieldColor[2] }; // blue shield
+                                } else if (shield != 0 && maxShield == 50) { // Grey Shield
+                                    settingIndex = 69;
+                                    glowColorRGB = { Features::Colors::Enemy::GreyShieldColor[0], Features::Colors::Enemy::GreyShieldColor[1], Features::Colors::Enemy::GreyShieldColor[2] }; // gray shield 
+                                } else if (shield == 0) { // Cracked / No Shield
+                                    settingIndex = 70;
+                                    glowColorRGB = { Features::Colors::Enemy::LowGlowColor[0], Features::Colors::Enemy::LowGlowColor[1], Features::Colors::Enemy::LowGlowColor[2] }; // low health enemies
+                                }
+                            }
+                        } else if (isKnocked) {
+                            settingIndex = 70;
+                            glowColorRGB = { Features::Colors::Enemy::KnockedGlowColor[0], Features::Colors::Enemy::KnockedGlowColor[1], Features::Colors::Enemy::KnockedGlowColor[2] }; // Knocked Enemies
+                        }
+                    }
                 }
             }
 
-            if (Features::Glow::GlowColorShieldMode == 1)
-            {
-                if (!isVisible)
-                {
-                    settingIndex = 65;
-                    glowColorRGB = {Features::Colors::Enemy::VisibleGlowColor[0], Features::Colors::Enemy::VisibleGlowColor[1], Features::Colors::Enemy::VisibleGlowColor[2]}; // Visible Enemies
-                }
-                else if (health >= 125)
-                {
-                    settingIndex = 66;
-                    glowColorRGB = {Features::Colors::Enemy::RedShieldColor[0], Features::Colors::Enemy::RedShieldColor[1], Features::Colors::Enemy::RedShieldColor[2]}; // red shield
-                }
-                else if (health >= 100)
-                {
-                    settingIndex = 67;
-                    glowColorRGB = {Features::Colors::Enemy::PurpleShieldColor[0], Features::Colors::Enemy::PurpleShieldColor[1], Features::Colors::Enemy::PurpleShieldColor[2]}; // purple shield
-                }
-                else if (health >= 75)
-                {
-                    settingIndex = 68;
-                    glowColorRGB = {Features::Colors::Enemy::BlueShieldColor[0], Features::Colors::Enemy::BlueShieldColor[1], Features::Colors::Enemy::BlueShieldColor[2]}; // blue shield
-                }
-                else if (health >= 50)
-                {
-                    settingIndex = 69;
-                    glowColorRGB = {Features::Colors::Enemy::GreyShieldColor[0], Features::Colors::Enemy::GreyShieldColor[1], Features::Colors::Enemy::GreyShieldColor[2]}; // gray shield // cyan
-                }
-                else
-                {
-                    settingIndex = 70;
-                    glowColorRGB = {Features::Colors::Enemy::LowGlowColor[0], Features::Colors::Enemy::LowGlowColor[1], Features::Colors::Enemy::LowGlowColor[2]}; // low health enemies // greeen
+            if (Features::Glow::GlowColorMode == 1) {
+                if (Features::Glow::KnockedCheck) {
+                    if (isVisible) {
+                        settingIndex = 65;
+                        glowColorRGB = { Features::Colors::Enemy::VisibleGlowColor[0], Features::Colors::Enemy::VisibleGlowColor[1], Features::Colors::Enemy::VisibleGlowColor[2] }; // Visible Enemies
+                    } else if (!isVisible) {
+                        settingIndex = 70;
+                        glowColorRGB = { Features::Colors::Enemy::InvisibleGlowColor[0], Features::Colors::Enemy::InvisibleGlowColor[1], Features::Colors::Enemy::InvisibleGlowColor[2] }; // Invisible Enemies
+                    }
+                } else if (!Features::Glow::KnockedCheck) {
+                    if (!isKnocked && isVisible) {
+                        settingIndex = 65;
+                        glowColorRGB = { Features::Colors::Enemy::VisibleGlowColor[0], Features::Colors::Enemy::VisibleGlowColor[1], Features::Colors::Enemy::VisibleGlowColor[2] }; // Visible Enemies
+                    } else if (!isKnocked && !isVisible) {
+                        settingIndex = 66;
+                        glowColorRGB = { Features::Colors::Enemy::InvisibleGlowColor[0], Features::Colors::Enemy::InvisibleGlowColor[1], Features::Colors::Enemy::InvisibleGlowColor[2] }; // Invisible Enemies
+                    } else if (isKnocked) {
+                        settingIndex = 70;
+                        glowColorRGB = { Features::Colors::Enemy::KnockedGlowColor[0], Features::Colors::Enemy::KnockedGlowColor[1], Features::Colors::Enemy::KnockedGlowColor[2] }; // Knocked Enemies
+                    }
                 }
             }
-        }
 
-        if (Features::Glow::GlowColorMode == 1)
-        {
-            if (!isVisible)
-            {
-                settingIndex = 65;
-                glowColorRGB = {Features::Colors::Enemy::VisibleGlowColor[0], Features::Colors::Enemy::VisibleGlowColor[1], Features::Colors::Enemy::VisibleGlowColor[2]}; // Visible Enemies
+            Memory::Write<unsigned char>(Target->BasePointer + OFF_GLOW_HIGHLIGHT_ID + contextId, settingIndex);
+            long highlightSettingsPtr = Memory::Read<long>(OFF_REGION + OFF_GLOW_HIGHLIGHTS);
+            if (!isSameTeam) {
+                Memory::Write<typeof(highlightFunctionBits)>(highlightSettingsPtr + OFF_HIGHLIGHT_TYPE_SIZE * settingIndex + 0, highlightFunctionBits);
+                Memory::Write<typeof(glowColorRGB)>(highlightSettingsPtr + OFF_HIGHLIGHT_TYPE_SIZE * settingIndex + 4, glowColorRGB);
+                Memory::Write<int>(Target->BasePointer + OFF_GLOW_FIX, 0);
             }
-            else if (isVisible)
-            {
-                settingIndex = 70;
-                glowColorRGB = {Features::Colors::Enemy::InvisibleGlowColor[0], Features::Colors::Enemy::InvisibleGlowColor[1], Features::Colors::Enemy::InvisibleGlowColor[2]}; // Invisible Enemies
+        } else if (!GlowEnabled) { // Disable Glow
+            std::array<unsigned char, 4> highlightFunctionBits = {
+                0, // InsideFunction
+                0, // OutlineFunction: HIGHLIGHT_OUTLINE_OBJECTIVE
+                0, // OutlineRadius: size * 255 / 8
+                0  // (EntityVisible << 6) | State & 0x3F | (AfterPostProcess << 7)
+            };
+            std::array<float, 3> glowColorRGB = { 0, 0, 0 };
+            Memory::Write<unsigned char>(Target->BasePointer + OFF_GLOW_HIGHLIGHT_ID + 0, 0);
+            long highlightSettingsPtr = Memory::Read<long>(OFF_REGION + OFF_GLOW_HIGHLIGHTS);
+            if (!isSameTeam) {
+                Memory::Write<typeof(highlightFunctionBits)>(highlightSettingsPtr + OFF_HIGHLIGHT_TYPE_SIZE * 0 + 0, highlightFunctionBits);
+                Memory::Write<typeof(glowColorRGB)>(highlightSettingsPtr + OFF_HIGHLIGHT_TYPE_SIZE * 0 + 4, glowColorRGB);
+                Memory::Write<int>(Target->BasePointer + OFF_GLOW_FIX, 0);
             }
-        }
-
-        Memory::Write<unsigned char>(Target->BasePointer + OFF_GLOW_HIGHLIGHT_ID + contextId, settingIndex);
-        long highlightSettingsPtr = Memory::Read<long>(OFF_REGION + OFF_GLOW_HIGHLIGHTS);
-        if (!isSameTeam)
-        {
-            Memory::Write<typeof(highlightFunctionBits)>(
-                highlightSettingsPtr + OFF_HIGHLIGHT_TYPE_SIZE * settingIndex + 0, highlightFunctionBits);
-            Memory::Write<typeof(glowColorRGB)>(
-                highlightSettingsPtr + OFF_HIGHLIGHT_TYPE_SIZE * settingIndex + 4, glowColorRGB);
-            Memory::Write<int>(Target->BasePointer + OFF_GLOW_FIX, 0);
         }
     }
 
-    void Update()
-    {
+    void Update() {
         if (!Map->IsPlayable)
             return;
         const long HighlightSettingsPointer = Memory::Read<long>(OFF_REGION + OFF_GLOW_HIGHLIGHTS);
         const long HighlightSize = OFF_HIGHLIGHT_TYPE_SIZE;
 
-        int highlightID1;
-        int highlightID2;
-
-        // Item Glow Options
-        if (!Features::Glow::Item::Ammo && !Features::Glow::Item::Weapons)
-        {
-            highlightID1 = 34;
-            highlightID2 = 39;
-        }
-
-        else if (Features::Glow::Item::Ammo && !Features::Glow::Item::Weapons)
-        {
-            highlightID1 = 34;
-            highlightID2 = 47;
-        }
-
-        else if (!Features::Glow::Item::Ammo && Features::Glow::Item::Weapons)
-        {
-            highlightID1 = 26;
-            highlightID2 = 39;
-        }
-
-        else if (Features::Glow::Item::Ammo && Features::Glow::Item::Weapons)
-        {
-            highlightID1 = 26;
-            highlightID2 = 47;
-        }
-
         ItemGlowSettings(); // Updates Item Glow Settings
 
-        const GlowMode newGlowMode = {
+        const GlowMode ItemGlowHighlightFunctions = {
             ItemGlowInsideFunction,                  // Inside Glow
             ItemGlowOutlineFunction,                 // Outline (Border)
             Features::Glow::Item::ItemGlowThickness, // Outline Thickness
             127                                      // ItemGlowPostProcessing
         };
 
-        const GlowMode SetGlowOff = {
-            0,
-            0,
-            0,
-            0
-        };
-
         // Item Glow //
-        if (Features::Glow::Item::ItemGlow)
-        {
-            if (Features::Glow::Item::SelectedItemSelection == 0)
-            {
-                for (int highlightId = 34; highlightId < 39; highlightId++)
-                {
-                    SetGlowState(HighlightSettingsPointer, HighlightSize, highlightId, newGlowMode);
-                }
+        if (Features::Glow::Item::ItemGlow) {
+            if (Features::Glow::Item::Common) {
+                SetGlowState(HighlightSettingsPointer, HighlightSize, 63, ItemGlowHighlightFunctions);
+            } else if (!Features::Glow::Item::Common) {
+                SetGlowState(HighlightSettingsPointer, HighlightSize, 63, SetGlowOff);
             }
-
-            if (Features::Glow::Item::SelectedItemSelection == 1)
-            {
-                if (Features::Glow::Item::Weapons)
-                {
-                    SetGlowState(HighlightSettingsPointer, HighlightSize, 26, newGlowMode);
-                }
-
-                else
-                {
-                    const GlowMode newGlowMode = StoredGlowMode->at(26);
-                    SetGlowState(HighlightSettingsPointer, HighlightSize, 26, SetGlowOff);
-                }
-
-                if (Features::Glow::Item::Common)
-                {
-                    SetGlowState(HighlightSettingsPointer, HighlightSize, 34, newGlowMode);
-                }
-
-                else
-                {
-                    const GlowMode newGlowMode = StoredGlowMode->at(34);
-                    SetGlowState(HighlightSettingsPointer, HighlightSize, 34, SetGlowOff);
-                }
-
-                if (Features::Glow::Item::Rare)
-                {
-                    SetGlowState(HighlightSettingsPointer, HighlightSize, 35, newGlowMode);
-                }
-
-                else
-                {
-                    SetGlowState(HighlightSettingsPointer, HighlightSize, 35, SetGlowOff);
-                }
-
-                if (Features::Glow::Item::Epic)
-                {
-                    SetGlowState(HighlightSettingsPointer, HighlightSize, 36, newGlowMode);
-                }
-
-                else
-                {
-                    SetGlowState(HighlightSettingsPointer, HighlightSize, 36, SetGlowOff);
-                }
-
-                if (Features::Glow::Item::Gold)
-                {
-                    SetGlowState(HighlightSettingsPointer, HighlightSize, 37, newGlowMode);
-                }
-
-                else
-                {
-                    SetGlowState(HighlightSettingsPointer, HighlightSize, 37, SetGlowOff);
-                }
-
-                if (Features::Glow::Item::Legendary)
-                {
-                    SetGlowState(HighlightSettingsPointer, HighlightSize, 38, newGlowMode);
-                }
-
-                else
-                {
-                    SetGlowState(HighlightSettingsPointer, HighlightSize, 38, SetGlowOff);
-                }
-
-                SetGlowState(HighlightSettingsPointer, HighlightSize, 39, newGlowMode); // IDK what ID this is (currently)
-
-                if (Features::Glow::Item::Ammo)
-                {
-                    SetGlowState(HighlightSettingsPointer, HighlightSize, 46, newGlowMode);
-                }
-
-                else
-                {
-                    SetGlowState(HighlightSettingsPointer, HighlightSize, 46, SetGlowOff);
-                }
+            if (Features::Glow::Item::Rare) {
+                SetGlowState(HighlightSettingsPointer, HighlightSize, 52, ItemGlowHighlightFunctions);
+            } else if (!Features::Glow::Item::Rare) {
+                SetGlowState(HighlightSettingsPointer, HighlightSize, 52, SetGlowOff);
+            }
+            if (Features::Glow::Item::Epic) {
+                SetGlowState(HighlightSettingsPointer, HighlightSize, 45, ItemGlowHighlightFunctions);
+            } else if (!Features::Glow::Item::Epic) {
+                SetGlowState(HighlightSettingsPointer, HighlightSize, 45, SetGlowOff);
+            }
+            if (Features::Glow::Item::Gold) {
+                SetGlowState(HighlightSettingsPointer, HighlightSize, 15, ItemGlowHighlightFunctions);
+            } else if (!Features::Glow::Item::Gold) {
+                SetGlowState(HighlightSettingsPointer, HighlightSize, 15, SetGlowOff);
+            }
+            if (Features::Glow::Item::Legendary) {
+                SetGlowState(HighlightSettingsPointer, HighlightSize, 40, ItemGlowHighlightFunctions);
+            } else if (!Features::Glow::Item::Legendary) {
+                SetGlowState(HighlightSettingsPointer, HighlightSize, 40, SetGlowOff);
+            }
+            if (Features::Glow::Item::Ammo) {
+                SetGlowState(HighlightSettingsPointer, HighlightSize, 55, ItemGlowHighlightFunctions);
+            } else if (!Features::Glow::Item::Ammo) {
+                SetGlowState(HighlightSettingsPointer, HighlightSize, 55, SetGlowOff);
+            }
+            if (Features::Glow::Item::Weapons) {
+                SetGlowState(HighlightSettingsPointer, HighlightSize, 9, ItemGlowHighlightFunctions);
+            } else if (!Features::Glow::Item::Weapons) {
+                SetGlowState(HighlightSettingsPointer, HighlightSize, 9, SetGlowOff);
+            }
+            if (Features::Glow::Item::Deathbox) {
+                SetGlowState(HighlightSettingsPointer, HighlightSize, 70, ItemGlowHighlightFunctions);
+            } else if (!Features::Glow::Item::Deathbox) {
+                SetGlowState(HighlightSettingsPointer, HighlightSize, 70, SetGlowOff);
             }
         }
 
         /*
-        26 = all weapons except legendary, also kinda hard to see when moving
-        34 = grey items & attachments (e.g. shield cells)
-        35 = blue items & attachments
-        36 = purple
-        37 = gold
-        38 = red/legendary
-        39 = ?
-        47 = ammo
+        9 = all weapons except legendary
+        63 = grey items & attachments (e.g. shield cells)
+        52 = blue items & attachments
+        45 = purple
+        15 = gold
+        40 = red/legendary
+        70 = deathbox
+        55 = ammo
         */
 
-        // Player Glow //
-        // -> Visible
-        // const GlowMode VisibleMode = { 2, 4, 20, 127 };
-        // const Color VisibleColor = { 0, 255, 0 };
-        // SetGlowState(HighlightSettingsPointer, HighlightSize, 0, VisibleMode);
-        // SetColorState(HighlightSettingsPointer, HighlightSize, 0, VisibleColor);
-
-        // -> Invisible
-        // const GlowMode InvisibleMode = { 2, 4, 20, 127 };
-        // const Color InvisibleColor = { 255, 0, 0 };
-        // SetGlowState(HighlightSettingsPointer, HighlightSize, 1, InvisibleMode);
-        // SetColorState(HighlightSettingsPointer, HighlightSize, 1, InvisibleColor);
-
-        // -> Knocked
-        // const GlowMode KnockedMode = { 2, 4, 20, 127 };
-        // const Color KnockedColor = { 255, 150, 0 };
-        // SetGlowState(HighlightSettingsPointer, HighlightSize, 90, KnockedMode);
-        // SetColorState(HighlightSettingsPointer, HighlightSize, 90, KnockedColor);
-
-        // -> Disabled
-        // const GlowMode DisabledMode = { 0, 0, 0, 0 };
-        // const Color DisabledColor = { 1, 1, 1 };
-        // SetGlowState(HighlightSettingsPointer, HighlightSize, 91, DisabledMode);
-        // SetColorState(HighlightSettingsPointer, HighlightSize, 91, DisabledColor);
-
-        // -> Locked On
-        // const GlowMode LockedOnMode = { 136, 6, 32, 127 };
-        // const Color LockedOnColor = { 0, 0.75, 0.75 };
-        // SetGlowState(HighlightSettingsPointer, HighlightSize, 92, LockedOnMode);
-        // SetColorState(HighlightSettingsPointer, HighlightSize, 92, LockedOnColor);
-
-        for (int i = 0; i < Players->size(); i++)
-        {
-            Player *Target = Players->at(i);
+        for (int i = 0; i < Players->size(); i++) {
+            Player* Target = Players->at(i);
             if (!Target->IsValid())
                 continue;
             if (!Target->IsHostile)
                 continue;
 
-            // Old Glow
-            // if (GlowEnabled) {
-            // if (Target->IsLockedOn) {
-            // SetGlow(Target, 1, 2, 92);
-            // continue;
-            //}
-
-            // if (Target->Distance2DToLocalPlayer < Conversion::ToGameUnits(GlowMaxDistance)) {
-            // if (Target->IsKnocked) {
-            // SetGlow(Target, 1, 2, 90);
-            // continue;
-            //}
-
-            // int Highlight = (Target->IsVisible) ? 0 : 1;
-            // SetGlow(Target, 1, 2, Highlight);
-            // continue;
-            //}
-            //}
-
-            // SetGlow(Target, 0, 0, 91);
-
-            if (Features::Glow::NewGlow)
-            {
-                if (Features::Glow::GlowColorMode == 0)
-                {
-                    if (Features::Glow::GlowColorShieldMode == 0)
-                    {
-                        if (Target->IsVisible && !Target->IsKnocked && Target->Distance2DToLocalPlayer < Conversion::ToGameUnits(Features::Glow::GlowMaxDistance))
-                        {
+            if (Features::Glow::NewGlow) {
+                if (Features::Glow::GlowColorMode == 0) {
+                    if (Features::Glow::GlowColorShieldMode == 0) {
+                        if (Target->IsVisible && Target->Distance2DToLocalPlayer < Conversion::ToGameUnits(Features::Glow::GlowMaxDistance)) {
                             setGlowEnable(Target, 1);
                             setGlowThroughWall(Target, 1);
-                            int healthShield = Target->Health + Target->Shield;
-                            setCustomGlow(Target, healthShield, true, false);
+                            setCustomGlow(Target, true, Target->IsKnocked, false, true);
                         }
-                        if (!Target->IsVisible && !Target->IsKnocked && Target->Distance2DToLocalPlayer < Conversion::ToGameUnits(Features::Glow::GlowMaxDistance))
-                        {
+                        if (!Target->IsVisible && Target->Distance2DToLocalPlayer < Conversion::ToGameUnits(Features::Glow::GlowMaxDistance)) {
                             setGlowEnable(Target, 1);
                             setGlowThroughWall(Target, 1);
-                            int healthShield = Target->Health + Target->Shield;
-                            setCustomGlow(Target, healthShield, true, false);
+                            setCustomGlow(Target, false, Target->IsKnocked, false, true);
                         }
                         // If player is out of max distance
-                        else if (Target->Distance2DToLocalPlayer > Conversion::ToGameUnits(Features::Glow::GlowMaxDistance))
-                        {
+                        else if (Target->Distance2DToLocalPlayer > Conversion::ToGameUnits(Features::Glow::GlowMaxDistance)) {
                             setGlowEnable(Target, 0);
                             setGlowThroughWall(Target, 0);
-                            setCustomGlow(Target, 0, false, false);
-                        }
-                        else if (getGlowEnable(Target) == 1 && getGlowThroughWall(Target) == 1)
-                        {
+                            setCustomGlow(Target, false, false, false, false);
+                        } else if (getGlowEnable(Target) == 1 && getGlowThroughWall(Target) == 1) {
                             setGlowEnable(Target, 0);
                             setGlowThroughWall(Target, 0);
                         }
                     }
 
-                    if (Features::Glow::GlowColorShieldMode == 1)
-                    {
-                        if (Target->IsVisible && !Target->IsKnocked && Target->Distance2DToLocalPlayer < Conversion::ToGameUnits(Features::Glow::GlowMaxDistance))
-                        {
+                    if (Features::Glow::GlowColorShieldMode == 1) {
+                        if (Target->IsVisible && Target->Distance2DToLocalPlayer < Conversion::ToGameUnits(Features::Glow::GlowMaxDistance)) {
                             setGlowEnable(Target, 1);
                             setGlowThroughWall(Target, 1);
-                            int healthShield = Target->MaxShield;
-                            setCustomGlow(Target, healthShield, true, false);
+                            setCustomGlow(Target, true, Target->IsKnocked, false, true);
                         }
-                        if (!Target->IsVisible && !Target->IsKnocked && Target->Distance2DToLocalPlayer < Conversion::ToGameUnits(Features::Glow::GlowMaxDistance))
-                        {
+                        if (!Target->IsVisible && !Target->IsKnocked && Target->Distance2DToLocalPlayer < Conversion::ToGameUnits(Features::Glow::GlowMaxDistance)) {
                             setGlowEnable(Target, 1);
                             setGlowThroughWall(Target, 1);
-                            int healthShield = Target->MaxShield;
-                            setCustomGlow(Target, healthShield, false, false);
+                            setCustomGlow(Target, false, Target->IsKnocked, false, true);
                         }
                         // If player is out of max distance
-                        else if (Target->Distance2DToLocalPlayer > Conversion::ToGameUnits(Features::Glow::GlowMaxDistance))
-                        {
+                        else if (Target->Distance2DToLocalPlayer > Conversion::ToGameUnits(Features::Glow::GlowMaxDistance)) {
                             setGlowEnable(Target, 0);
                             setGlowThroughWall(Target, 0);
-                            setCustomGlow(Target, 0, false, false);
-                        }
-                        else if (getGlowEnable(Target) == 1 && getGlowThroughWall(Target) == 1)
-                        {
+                            setCustomGlow(Target, false, false, false, false);
+                        } else if (getGlowEnable(Target) == 1 && getGlowThroughWall(Target) == 1) {
                             setGlowEnable(Target, 0);
                             setGlowThroughWall(Target, 0);
                         }
                     }
                 }
 
-                if (Features::Glow::GlowColorMode == 1)
-                {
-                    if (Target->IsVisible && !Target->IsKnocked && Target->Distance2DToLocalPlayer < Conversion::ToGameUnits(Features::Glow::GlowMaxDistance))
-                    {
+                if (Features::Glow::GlowColorMode == 1) {
+                    if (Target->IsVisible && Target->Distance2DToLocalPlayer < Conversion::ToGameUnits(Features::Glow::GlowMaxDistance)) {
                         setGlowEnable(Target, 1);
                         setGlowThroughWall(Target, 1);
-                        int healthShield = Target->MaxShield;
-                        setCustomGlow(Target, healthShield, false, false);
+                        setCustomGlow(Target, true, Target->IsKnocked, false, true);
                     }
-                    if (!Target->IsVisible && !Target->IsKnocked && Target->Distance2DToLocalPlayer < Conversion::ToGameUnits(Features::Glow::GlowMaxDistance))
-                    {
+                    if (!Target->IsVisible && !Target->IsKnocked && Target->Distance2DToLocalPlayer < Conversion::ToGameUnits(Features::Glow::GlowMaxDistance)) {
                         setGlowEnable(Target, 1);
                         setGlowThroughWall(Target, 1);
-                        int healthShield = Target->MaxShield;
-                        setCustomGlow(Target, healthShield, true, false);
+                        setCustomGlow(Target, false, Target->IsKnocked, false, true);
                     }
 
                     // If player is out of max distance
-                    else if (Target->Distance2DToLocalPlayer > Conversion::ToGameUnits(Features::Glow::GlowMaxDistance))
-                    {
+                    else if (Target->Distance2DToLocalPlayer > Conversion::ToGameUnits(Features::Glow::GlowMaxDistance)) {
                         setGlowEnable(Target, 0);
                         setGlowThroughWall(Target, 0);
-                        setCustomGlow(Target, 0, false, false);
-                    }
-                    else if (getGlowEnable(Target) == 1 && getGlowThroughWall(Target) == 1)
-                    {
+                        setCustomGlow(Target, false, false, false, false);
+                    } else if (getGlowEnable(Target) == 1 && getGlowThroughWall(Target) == 1) {
                         setGlowEnable(Target, 0);
                         setGlowThroughWall(Target, 0);
                     }
@@ -896,20 +679,25 @@ struct Glow
         }
     }
 
-    void ViewModelGlow()
-    {
+    void ViewModelGlow() {
         // Viewmodel Glow
-        if (Features::Glow::ViewModelGlow)
-        {
+        if (Features::Glow::ViewModelGlow) {
+            // Weapon Glow
             ViewmodelGlowSettings(); // Updates the ID for what glow you want (bottom of this file)
             uint64_t actWeaponID = Memory::Read<uint64_t>(Myself->BasePointer + OFF_VIEWMODELS) & 0xFFFF;
             uint64_t currentWeapon = Memory::Read<uint64_t>(OFF_REGION + OFF_ENTITY_LIST + (actWeaponID << 5));
 
             Memory::Write<uint8_t>(currentWeapon + OFF_GLOW_HIGHLIGHT_ID, ViewmodelGlowID);
+
+            // Arm Glow
+            /*uint64_t armID = Memory::Read<uint64_t>(Myself->BasePointer + OFF_ARM_VIEWMODELS) & 0xFFFF;
+            uint64_t currentArms = Memory::Read<uint64_t>(OFF_REGION + OFF_ENTITY_LIST + (armID << 5));
+
+            Memory::Write<uint8_t>(currentArms + OFF_GLOW_HIGHLIGHT_ID, ViewmodelGlowID);*/
         }
 
-        if (!Features::Glow::ViewModelGlow)
-        {
+        if (!Features::Glow::ViewModelGlow) {
+            // Weapon Glow
             uint64_t actWeaponID = Memory::Read<uint64_t>(Myself->BasePointer + OFF_VIEWMODELS) & 0xFFFF;
             uint64_t currentWeapon = Memory::Read<uint64_t>(OFF_REGION + OFF_ENTITY_LIST + (actWeaponID << 5));
 
@@ -917,172 +705,61 @@ struct Glow
         }
     }
 
-    void ViewmodelGlowSettings()
-    {
-        if (Features::Glow::ViewModelGlowCombo == 0)
-        { // Cyan Outline
-            ViewmodelGlowID = 13;
-        }
-        if (Features::Glow::ViewModelGlowCombo == 1)
-        { // Light Red Outline
-            ViewmodelGlowID = 15;
-        }
-        if (Features::Glow::ViewModelGlowCombo == 2)
-        { // White Outline
-            ViewmodelGlowID = 17;
-        }
-        if (Features::Glow::ViewModelGlowCombo == 3)
-        { // Orange Outline
-            ViewmodelGlowID = 18;
-        }
-        if (Features::Glow::ViewModelGlowCombo == 4)
-        { // Yellow Outline
-            ViewmodelGlowID = 24;
-        }
-        if (Features::Glow::ViewModelGlowCombo == 5)
-        { // Solid Green
-            ViewmodelGlowID = 27;
-        }
-        if (Features::Glow::ViewModelGlowCombo == 6)
-        { // Solid Orange
-            ViewmodelGlowID = 28;
-        }
-        if (Features::Glow::ViewModelGlowCombo == 7)
-        { // Solid Yellow
-            ViewmodelGlowID = 29;
-        }
-        if (Features::Glow::ViewModelGlowCombo == 8)
-        { // Solid Yellow Pulsing
-            ViewmodelGlowID = 25;
-        }
-        if (Features::Glow::ViewModelGlowCombo == 9)
-        { // Solid Purple
-            ViewmodelGlowID = 30;
-        }
-        if (Features::Glow::ViewModelGlowCombo == 10)
-        { // Solid Light Blue
-            ViewmodelGlowID = 31;
-        }
-        if (Features::Glow::ViewModelGlowCombo == 11)
-        { // Solid Light Grey
-            ViewmodelGlowID = 32;
-        }
-        if (Features::Glow::ViewModelGlowCombo == 12)
-        { // Solid White
-            ViewmodelGlowID = 34;
-        }
-        if (Features::Glow::ViewModelGlowCombo == 13)
-        { // Solid Cyan
-            ViewmodelGlowID = 35;
-        }
-        if (Features::Glow::ViewModelGlowCombo == 14)
-        { // Solid Hot Pink
-            ViewmodelGlowID = 36;
-        }
-        if (Features::Glow::ViewModelGlowCombo == 15)
-        { // Solid Light Yellow
-            ViewmodelGlowID = 37;
-        }
-        if (Features::Glow::ViewModelGlowCombo == 16)
-        { // Solid Light Orange
-            ViewmodelGlowID = 38;
-        }
-        if (Features::Glow::ViewModelGlowCombo == 17)
-        { // Solid Light Green
-            ViewmodelGlowID = 39;
-        }
-        if (Features::Glow::ViewModelGlowCombo == 18)
-        { // Solid Black
-            ViewmodelGlowID = 74;
-        }
-        if (Features::Glow::ViewModelGlowCombo == 19)
-        { // Chrome
-            ViewmodelGlowID = 49;
-        }
+    void ViewmodelGlowSettings() {
+        int viewModelGlowIDs[] = {
+          13, // Cyan outline
+          15, // Light red outline
+          17, // White outline
+          18, // Orange outline
+          24, // Yellow outline
+          27, // Green solid
+          28, // Orange solid
+          29, // Yellow solid
+          25, // Yellow solid pulsing
+          30, // Purple solid
+          31, // Light Blue solid
+          32, // Light Grey solid
+          34, // White solid
+          35, // Cyan solid
+          36, // Hot Pink solid
+          37, // Light Yellow solid
+          38, // Light Orange solid
+          39, // Light Green solid
+          74, // Black solid
+          49 // Chrome
+        };
+
+        if (Features::Glow::ViewModelGlowCombo >= 0 && Features::Glow::ViewModelGlowCombo <= 19)
+            ViewmodelGlowID = viewModelGlowIDs[Features::Glow::ViewModelGlowCombo];
     }
 
-    void ItemGlowSettings()
-    {
-        // Inside Function (Body Style)
-        if (Features::Glow::Item::SelectedInsideStyle == 0) // Clear
-        {
-            ItemGlowInsideFunction = 0;
-        }
+    void ItemGlowSettings() {
+        int itemGlowInsideFunctionIDs[] = {
+          0, // Clear
+          137, // Light
+          109, // Solid
+          117 // Light to dark fade
+        };
 
-        if (Features::Glow::Item::SelectedInsideStyle == 1) // Light
-        {
-            ItemGlowInsideFunction = 137;
-        }
+        int itemGlowOutlineFunctionIDs[] = {
+          0, // None
+          138, // Light 1
+          102, // Light 2
+          6, // Solid
+          7, // Gold
+          8, // Orange
+          103, // Pulsing
+          107, // Light Red
+          108, // Red
+          110, // Fading
+          120, // Soft
+          131 // Visible only
+        };
 
-        if (Features::Glow::Item::SelectedInsideStyle == 2) // Solid
-        {
-            ItemGlowInsideFunction = 109;
-        }
+        if (Features::Glow::Item::SelectedInsideStyle >= 0 && Features::Glow::Item::SelectedInsideStyle <= 3)
+            ItemGlowInsideFunction = itemGlowInsideFunctionIDs[Features::Glow::Item::SelectedInsideStyle];
 
-        if (Features::Glow::Item::SelectedInsideStyle == 3) // Light To Dark Fade
-        {
-            ItemGlowInsideFunction = 117;
-        }
-
-        // Outside Function (Outline Style)
-        if (Features::Glow::Item::SelectedOutlineStyle == 0) // None
-        {
-            ItemGlowOutlineFunction = 0;
-        }
-
-        if (Features::Glow::Item::SelectedOutlineStyle == 1) // Light 1
-        {
-            ItemGlowOutlineFunction = 138;
-        }
-
-        if (Features::Glow::Item::SelectedOutlineStyle == 2) // Light 2
-        {
-            ItemGlowOutlineFunction = 102;
-        }
-
-        if (Features::Glow::Item::SelectedOutlineStyle == 3) // Solid
-        {
-            ItemGlowOutlineFunction = 6;
-        }
-
-        if (Features::Glow::Item::SelectedOutlineStyle == 4) // Gold
-        {
-            ItemGlowOutlineFunction = 7;
-        }
-
-        if (Features::Glow::Item::SelectedOutlineStyle == 5) // Orange
-        {
-            ItemGlowOutlineFunction = 8;
-        }
-
-        if (Features::Glow::Item::SelectedOutlineStyle == 6) // Pulsing
-        {
-            ItemGlowOutlineFunction = 103;
-        }
-
-        if (Features::Glow::Item::SelectedOutlineStyle == 7) // Light Red
-        {
-            ItemGlowOutlineFunction = 107;
-        }
-
-        if (Features::Glow::Item::SelectedOutlineStyle == 8) // Red
-        {
-            ItemGlowOutlineFunction = 108;
-        }
-
-        if (Features::Glow::Item::SelectedOutlineStyle == 9) // Fading
-        {
-            ItemGlowOutlineFunction = 110;
-        }
-
-        if (Features::Glow::Item::SelectedOutlineStyle == 10) // Soft
-        {
-            ItemGlowOutlineFunction = 120;
-        }
-
-        if (Features::Glow::Item::SelectedOutlineStyle == 11) // Visible Only
-        {
-            ItemGlowOutlineFunction = 131;
-        }
+        if (Features::Glow::Item::SelectedOutlineStyle >= 0 && Features::Glow::Item::SelectedOutlineStyle <= 11)
+            ItemGlowOutlineFunction = itemGlowOutlineFunctionIDs[Features::Glow::Item::SelectedOutlineStyle];
     }
 };

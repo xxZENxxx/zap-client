@@ -7,6 +7,7 @@
 #include "../imgui/imgui_impl_opengl3.h"
 #include "../Utils/HitboxType.hpp"
 #include "../Utils/InputTypes.hpp"
+#include "XDisplay.hpp"
 
 namespace Features {
 
@@ -16,9 +17,11 @@ namespace Features {
 
     namespace Settings {
         bool ESPEnabled = true;
+        bool DeadCheck = false;
         bool OverlayEnabled = true;
+        bool AntiAliasedLines = true;
         bool FPSCap = false;
-        int CappedFPS = 60;
+        int CappedFPS = 144;
     };
     
     namespace AimbotHitboxes {
@@ -1369,10 +1372,11 @@ namespace Features {
     namespace Triggerbot {
         bool Enabled = false;
         int BindMethod = 0;
+        int AttackMethod = 1; // 0 = Mouse, 1 = Memory
         InputKeyType TriggerBind = InputKeyType::MOUSE_Right;
         bool OnADS = true;
         bool HipfireShotguns = false;
-        int Delay = 100;
+        int Delay = 40;
         float Range = 200;
 
         //Weapon Toggles
@@ -1462,6 +1466,7 @@ namespace Features {
     namespace Glow {
         // Glow
         bool NewGlow = false;
+        bool KnockedCheck = false;
         float GlowMaxDistance = 200;
         
         int GlowColorMode = 1;
@@ -1475,12 +1480,9 @@ namespace Features {
         bool ViewModelGlow = false;
         static int ViewModelGlowSetting = 65;
         static int ViewModelGlowCombo;
-        bool ViewModelGlowLoop = false;
-        int ViewModelGlowLoopDelay = 200;
 
         namespace Item {
             bool ItemGlow = false;
-            int SelectedItemSelection = 0; // 0 = Simple, 1 = Custom
             bool Common = true;
             bool Rare = true;
             bool Epic = true;
@@ -1488,6 +1490,7 @@ namespace Features {
             bool Legendary = true;
             bool Weapons = false;
             bool Ammo = false;
+            bool Deathbox = true;
 
             int ItemGlowThickness = 35;
 
@@ -1497,19 +1500,22 @@ namespace Features {
     };
 
     namespace Sense {
-        bool Enabled = false;
+        bool Enabled = true;
 
         namespace Enemy {
             bool DrawEnemy = true;
 
             bool DrawBoxes = true;
+            bool BoxOutline = true;
             int BoxType = 0;
             int BoxStyle = 1;
             float BoxThickness = 1.0;
 
             bool DrawSkeleton = true;
+            bool SkeletonOutline = false;
             float SkeletonThickness = 1.0;
             bool DrawHeadCircle = true;
+            bool HeadCircleOutline = false;
             float HeadCircleThickness = 1.0;
 
             bool DrawBars = true;
@@ -1537,16 +1543,21 @@ namespace Features {
             bool DrawLegend = true;
             bool ShowMaxStatusValues = true;
         };
+
         namespace Teammate {
             bool DrawTeam = false;
+
             bool DrawBoxes = true;
+            bool BoxOutline = true;
             int BoxType = 0;
             int BoxStyle = 0;
             float BoxThickness = 1.0;
 
             bool DrawSkeleton = true;
+            bool SkeletonOutline = false;
             float SkeletonThickness = 1.0;
             bool DrawHeadCircle = true;
+            bool HeadCircleOutline = false;
             float HeadCircleThickness = 1.0;
 
             bool DrawBars = true;
@@ -1591,12 +1602,47 @@ namespace Features {
         float FOVThickness = 1.0;
         float GameFOV = 120;
 
+        bool DrawTargetLine = false;
+        bool DrawTargetDot = false;
+        bool DrawTargetBox = false;
+        int TargetMode = 0; // 0 = Aimbot Target, 1 = Best Target
+        int TargetBoneMode = 0; // 0 = Aimbot Settings, 1 = Custom
+        int TargetSelectedBone = 0;
+        int TargetBone = 0;
+        HitboxType TargetHitbox = HitboxType::Head;
+        int TargetLineThickness = 1;
+        int TargetDotRadius = 1500;
+        int TargetBoxMode = 0;
+        int TargetBoxThickness = 1;
+        int TargetBoxSize = 4;
+
+        bool DrawTargetInfo = false;
+        int TargetInfoDisplayMode = 0;
+        bool DrawTargetInfoName = false;
+        int TargetInfoNamePos = 0;
+        bool DrawTargetInfoLegend = false;
+        int TargetInfoLegendPos = 1;
+        bool DrawTargetInfoTeamID = false;
+        bool DrawTargetInfoDistance = false;
+        bool DrawTargetInfoWeapon = false;
+        int TargetInfoWeaponPos = 2;
+        bool DrawTargetInfoHealth = false;
+        int TargetInfoHealthPos = 3;
+        bool DrawTargetInfoShield = false;
+        int TargetInfoShieldPos = 4;
+
+        int TargetInfoColorMode = 0; // 0 = Simple, 1 = Custom
+
+        int TargetInfoPosX = 0;
+        int TargetInfoPosY = 0;
+        int TargetInfoOffset = 15;
+
         //Other
         bool DrawCrosshair = true;
         float CrosshairSize = 7.0;
         float CrosshairThickness = 1.0;
 
-        bool ShowSpectators = true;
+        bool ShowSpectators = false;
 
         bool DrawSpectatorWarning = false;
         bool DrawVisibleWarning = false;
@@ -1608,6 +1654,7 @@ namespace Features {
         // Settings
         bool TextOutline = true;
         bool VisibilityCheck = false;
+        bool KnockedCheck = false;
         float ESPMaxDistance = 200;
         
     };
@@ -1628,15 +1675,16 @@ namespace Features {
     
     namespace Misc {
         bool SuperGlide = true;
+        int SuperGlideMode = 0; // 0 = Manual, 1 = Auto
         int SuperGlideFPS = 1; // 0 = 75, 1 = 144, 2 = 240
-
-        bool QuickTurn = false;
-        int QuickTurnAngle = 180;
-        InputKeyType QuickTurnBind = InputKeyType::MOUSE_Middle;
 
         bool BHop = false;
         int BHopDelay = 25;
         InputKeyType BHopBind = InputKeyType::KEYBOARD_X;
+
+        bool QuickTurn = false;
+        int QuickTurnAngle = 180;
+        InputKeyType QuickTurnBind = InputKeyType::MOUSE_Middle;
 
         bool RapidFire = false;
         int RapidFireDelay = 75;
@@ -1710,26 +1758,35 @@ namespace Features {
             //ESP
             float InvisibleBoxColor[4] = { 0.99, 0, 0, 0.99 };
             float VisibleBoxColor[4] = { 0, 0.99, 0, 0.99 };
+            float KnockedBoxColor[4] = { 0.990, 0.671, 0.119, 0.99 };
             float InvisibleFilledBoxColor[4] = { 0, 0, 0, 0.11 };
             float VisibleFilledBoxColor[4] = { 0, 0, 0, 0.11 };
+            float KnockedFilledBoxColor[4] = { 0, 0, 0, 0.11 };
             float InvisibleTracerColor[4] = { 0.99, 0, 0, 0.99 };
             float VisibleTracerColor[4] = { 0, 0.99, 0, 0.99 };
+            float KnockedTracerColor[4] = { 0.990, 0.671, 0.119, 0.99 };
             float InvisibleSkeletonColor[4] = { 0.99, 0, 0, 0.99 };
             float VisibleSkeletonColor[4] = { 0, 0.99, 0, 0.99 };
+            float KnockedSkeletonColor[4] = { 0.990, 0.671, 0.119, 0.99 };
             float InvisibleHeadCircleColor[4] = { 0.99, 0, 0, 0.99 };
             float VisibleHeadCircleColor[4] = { 0, 0.99, 0, 0.99 };
+            float KnockedHeadCircleColor[4] = { 0.990, 0.671, 0.119, 0.99 };
             float InvisibleNameColor[4] = { 0.99, 0, 0, 0.99 };
             float VisibleNameColor[4] = { 0, 0.99, 0, 0.99 };
+            float KnockedNameColor[4] = { 0.990, 0.671, 0.119, 0.99 };
             float InvisibleDistanceColor[4] = { 0.99, 0, 0, 0.99 };
             float VisibleDistanceColor[4] = { 0, 0.99, 0, 0.99 };
+            float KnockedDistanceColor[4] = { 0.990, 0.671, 0.119, 0.99 };
             float InvisibleLegendColor[4] = { 0.99, 0, 0, 0.99 };
             float VisibleLegendColor[4] = { 0, 0.99, 0, 0.99 };
+            float KnockedLegendColor[4] = { 0.990, 0.671, 0.119, 0.99 };
             float NearColor[4] = { 0.99, 0.99, 0.99, 0.99 };
             //Bar
             int BarColorMode = 2;
             //WeaponESP Colors
             float InvisibleWeaponColor[4] = { 0.99, 0, 0, 0.99 };
             float VisibleWeaponColor[4] = { 0, 0.99, 0, 0.99 };
+            float KnockedWeaponColor[4] = { 0.990, 0.671, 0.119, 0.99 };
             //Multiple
             float LightWeaponColor[4] = { 0.990, 0.768, 0.039, 0.99 };
             float HeavyWeaponColor[4] = { 0.00990, 0.990, 0.761 };
@@ -1744,6 +1801,7 @@ namespace Features {
             float InvisibleGlowColor[3] = {1, 0, 0};
             float VisibleGlowColor[3] = {0, 1, 0};
             float LowGlowColor[3] = {1, 1, 0};
+            float KnockedGlowColor[3] = { 0.99, 0.67, 0.12};
             
             float RedShieldColor[3] = {1, 0, 0};
             float PurpleShieldColor[3] = {0.5, 0, 0.5};
@@ -1754,21 +1812,28 @@ namespace Features {
         namespace Teammate {
             float InvisibleBoxColor[4] = { 0.0846, 0.0693, 0.990, 0.99 };
             float VisibleBoxColor[4] = { 0.00990, 0.827, 0.990, 0.99 };
+            float KnockedBoxColor[4] = { 0.484, 0, 0.990, 0.99 };
             float InvisibleFilledBoxColor[4] = { 0.0846, 0.0693, 0.990, 0.99 };
             float VisibleFilledBoxColor[4] = { 0.00990, 0.827, 0.990, 0.99 };
+            float KnockedFilledBoxColor[4] = { 0.484, 0, 0.990, 0.99 };
             float InvisibleTracerColor[4] = { 0.0846, 0.0693, 0.990, 0.99 };
             float VisibleTracerColor[4] = { 0.00990, 0.827, 0.990, 0.99 };
+            float KnockedTracerColor[4] = { 0.484, 0, 0.990, 0.99 };
             float InvisibleSkeletonColor[4] = { 0.0846, 0.0693, 0.990, 0.99 };
             float VisibleSkeletonColor[4] = { 0.00990, 0.827, 0.990, 0.99 };
+            float KnockedSkeletonColor[4] = { 0.484, 0, 0.990, 0.99 };
             float InvisibleHeadCircleColor[4] = { 0.0846, 0.0693, 0.990, 0.99 };
             float VisibleHeadCircleColor[4] = { 0.00990, 0.827, 0.990, 0.99 };
+            float KnockedHeadCircleColor[4] = { 0.484, 0, 0.990, 0.99 };
             float InvisibleNameColor[4] = { 0.0846, 0.0693, 0.990, 0.99 };
             float VisibleNameColor[4] = { 0.00990, 0.827, 0.990, 0.99 };
+            float KnockedNameColor[4] = { 0.484, 0, 0.990, 0.99 };
             float InvisibleDistanceColor[4] = { 0.0846, 0.0693, 0.990, 0.99 };
             float VisibleDistanceColor[4] = { 0.00990, 0.827, 0.990, 0.99 };
+            float KnockedDistanceColor[4] = { 0.484, 0, 0.990, 0.99 };
             float InvisibleLegendColor[4] = { 0.0846, 0.0693, 0.990, 0.99 };
             float VisibleLegendColor[4] = { 0.00990, 0.827, 0.990, 0.99 };
-            float TeamNameColor[4] = { 0.0846, 0.0693, 0.990, 0.99 };
+            float KnockedLegendColor[4] = { 0.484, 0, 0.990, 0.99 };
             
             //Bar
             int BarColorMode = 2;
@@ -1776,6 +1841,7 @@ namespace Features {
             //WeaponESP Colors
             float InvisibleWeaponColor[4] = { 0.0846, 0.0693, 0.990, 0.99 };
             float VisibleWeaponColor[4] = { 0.00990, 0.827, 0.990, 0.99 };
+            float KnockedWeaponColor[4] = { 0.484, 0, 0.990, 0.99 };
             //Multiple
             float LightWeaponColor[4] = { 0.990, 0.768, 0.039, 0.99 };
             float HeavyWeaponColor[4] = { 0.00990, 0.990, 0.761 };
@@ -1786,6 +1852,17 @@ namespace Features {
             float MeleeWeaponColor[4] = { 0.99, 0.99, 0.99, 0.99 };
             float ThrowableWeaponColor[4] = { 0.990, 0.974, 0.0495, 0.99 };
         };
+
+        // Aimbot
+        float TargetLineColor[4] = { 0.99, 0.99, 0.99, 0.99 };
+        float TargetDotColor[4] = { 0.99, 0.99, 0.99, 0.99 };
+        float TargetBoxColor[4] = { 0.99, 0.99, 0.99, 0.99 };
+        float TargetLineLockedColor[4] = { 0.99, 0, 0, 0.99 };
+        float TargetDotLockedColor[4] = { 0.99, 0, 0, 0.99 };
+        float TargetBoxLockedColor[4] = { 0.99, 0, 0, 0.99 };
+
+        float TargetInfoColor[4] = { 0.99, 0.99, 0.99, 0.99 };
+        float TargetInfoLockedColor[4] = { 0.99, 0, 0, 0.99 };
 
     	float FOVColor[4] = { 0.99, 0.99, 0.99, 0.99 };
     	float FilledFOVColor[4] = { 0, 0, 0, 0.11 };
@@ -1799,7 +1876,9 @@ namespace Features {
         bool Watermark = true;
 	    int WatermarkPosition = 0;
 	    bool Name = true;
+        float NameColor[4] = { 0.4, 1, 0.343, 1};
+        bool Spectators = false;
 	    bool ProcessingSpeed = true;
-	    bool Spectators = true;
+        bool GameFPS = true;
     };
 }; //End of namespace Features

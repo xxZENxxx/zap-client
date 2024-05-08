@@ -52,20 +52,19 @@
 struct ConfigManager
 {
 	std::vector<std::string> configFiles;
-	char configName[64] = {0};
+	char configName[64] = { 0 };
 	int selectedConfig = 0;
 
-	Legitbot *Legit;
-	Ragebot *Rage;
-	Flickbot *Flick;
-	Triggerbot *Trigger;
-	Glow *GlowESP;
-	Sense *ESP;
-	Radar *MapRadar;
-	Misc *MiscTab;
+	Legitbot* Legit;
+	Ragebot* Rage;
+	Flickbot* Flick;
+	Triggerbot* Trigger;
+	Glow* GlowESP;
+	Sense* ESP;
+	Radar* MapRadar;
+	Misc* MiscTab;
 
-	ConfigManager(Legitbot *Legit, Ragebot *Rage, Flickbot *Flick, Triggerbot *Trigger, Glow *GlowESP, Sense *ESP, Radar *MapRadar, Misc *MiscTab)
-	{
+	ConfigManager(Legitbot* Legit, Ragebot* Rage, Flickbot* Flick, Triggerbot* Trigger, Glow* GlowESP, Sense* ESP, Radar* MapRadar, Misc* MiscTab) {
 		this->Legit = Legit;
 		this->Rage = Rage;
 		this->Flick = Flick;
@@ -76,38 +75,32 @@ struct ConfigManager
 		this->MiscTab = MiscTab;
 	}
 
-	void RenderConfigs()
-	{
+	void RenderConfigs() {
 		ImGui::InputText("Config", configName, 64);
 
 		ImGui::SameLine();
-		if (ImGui::Button("Save"))
-		{
+		if (ImGui::Button("Save")) {
 			SaveConfig();
 			LoadConfigs();
 		}
 
 		ImGui::SameLine();
 
-		if (ImGui::Button("Load"))
-		{
+		if (ImGui::Button("Load")) {
 			LoadConfig();
 		}
 
 		ImGui::BeginListBox("##Configs", ImVec2(600, 300));
 		{
 			int n = 0;
-			for (auto config : configFiles)
-			{
+			for (auto config : configFiles) {
 				const bool is_selected = (selectedConfig == n);
-				if (ImGui::Selectable(config.c_str(), is_selected))
-				{
+				if (ImGui::Selectable(config.c_str(), is_selected)) {
 					selectedConfig = n;
 					strcpy(configName, config.c_str());
 				}
 
-				if (is_selected)
-				{
+				if (is_selected) {
 					ImGui::SetItemDefaultFocus();
 				}
 				n++;
@@ -115,27 +108,27 @@ struct ConfigManager
 
 			ImGui::EndListBox();
 		}
+
+		ImGui::Spacing();
+		ImGui::Text("Note: The Pre-made Configs Are Examples Of Legit Configs, They Have NOT Been Fully Tested!");
+		ImGui::Text("They Should Be Used As A Starting Point For Creating Your Own Legit Config! Fine-Tune Them To Your Liking!");
 	}
 
 	void LoadConfigs() // List Configs For The ListBox
 	{
 		std::string configDirectory = "Configs";
 		configFiles.clear();
-		for (const auto &entry : std::filesystem::directory_iterator(configDirectory))
-		{
-			if (entry.is_regular_file() && entry.path().extension() == ".ini")
-			{
+		for (const auto& entry : std::filesystem::directory_iterator(configDirectory)) {
+			if (entry.is_regular_file() && entry.path().extension() == ".ini") {
 				configFiles.push_back(entry.path().stem().string());
 			}
 		}
 	}
 
-	void UpdateConfig()
-	{
+	void UpdateConfig() {
 		std::string ConfigName = "Configs/" + std::string(configName) + ".ini";
 		std::ofstream conf(ConfigName);
-		if (conf.is_open())
-		{
+		if (conf.is_open()) {
 			WriteSection(Aimbot);
 			WritePair(Aimbot, AimbotEnabled);
 			WritePair(Aimbot, BindMethod);
@@ -1463,6 +1456,7 @@ struct ConfigManager
 			WriteSection(Triggerbot);
 			WritePair(Triggerbot, Enabled);
 			WritePair(Triggerbot, BindMethod);
+			WritePair(Triggerbot, AttackMethod);
 			WritePair(Triggerbot, TriggerBind);
 			WritePair(Triggerbot, OnADS);
 			WritePair(Triggerbot, HipfireShotguns);
@@ -1546,6 +1540,7 @@ struct ConfigManager
 
 			// Glow
 			WritePair(Glow, NewGlow);
+			WritePair(Glow, KnockedCheck);
 			WritePair(Glow, GlowMaxDistance);
 			WritePair(Glow, GlowColorMode);
 			WritePair(Glow, GlowColorShieldMode);
@@ -1563,7 +1558,6 @@ struct ConfigManager
 			WriteSection(ItemGlow);
 
 			WritePair(ItemGlow, ItemGlow);
-			WritePair(ItemGlow, SelectedItemSelection); // 0 = Simple, 1 = Custom
 			WritePair(ItemGlow, Common);
 			WritePair(ItemGlow, Rare);
 			WritePair(ItemGlow, Epic);
@@ -1571,6 +1565,7 @@ struct ConfigManager
 			WritePair(ItemGlow, Legendary);
 			WritePair(ItemGlow, Weapons);
 			WritePair(ItemGlow, Ammo);
+			WritePair(ItemGlow, Deathbox);
 			WritePair(ItemGlow, ItemGlowThickness);
 			WritePair(ItemGlow, SelectedInsideStyle);
 			WritePair(ItemGlow, SelectedOutlineStyle);
@@ -1586,6 +1581,40 @@ struct ConfigManager
 			WritePair(Sense, DrawFilledFOVCircle);
 			WritePair(Sense, FOVThickness);
 			WritePair(Sense, GameFOV);
+
+			WritePair(Sense, DrawTargetLine);
+			WritePair(Sense, DrawTargetDot);
+			WritePair(Sense, DrawTargetBox);
+			WritePair(Sense, TargetMode);
+			WritePair(Sense, TargetBoneMode);
+			WritePair(Sense, TargetSelectedBone);
+			WritePair(Sense, TargetBone);
+			WritePair(Sense, TargetHitbox);
+			WritePair(Sense, TargetLineThickness);
+			WritePair(Sense, TargetDotRadius);
+			WritePair(Sense, TargetBoxMode);
+			WritePair(Sense, TargetBoxThickness);
+			WritePair(Sense, TargetBoxSize);
+
+			WritePair(Sense, DrawTargetInfo);
+			WritePair(Sense, TargetInfoDisplayMode);
+			WritePair(Sense, DrawTargetInfoName);
+			WritePair(Sense, TargetInfoNamePos);
+			WritePair(Sense, DrawTargetInfoLegend);
+			WritePair(Sense, TargetInfoLegendPos);
+			WritePair(Sense, DrawTargetInfoTeamID);
+			WritePair(Sense, DrawTargetInfoDistance);
+			WritePair(Sense, DrawTargetInfoWeapon);
+			WritePair(Sense, TargetInfoWeaponPos);
+			WritePair(Sense, DrawTargetInfoHealth);
+			WritePair(Sense, TargetInfoHealthPos);
+			WritePair(Sense, DrawTargetInfoShield);
+			WritePair(Sense, TargetInfoShieldPos);
+			WritePair(Sense, TargetInfoColorMode); 
+			WritePair(Sense, TargetInfoPosX);
+			WritePair(Sense, TargetInfoPosY);
+			WritePair(Sense, TargetInfoOffset);
+
 			// Other
 			WritePair(Sense, DrawCrosshair);
 			WritePair(Sense, CrosshairSize);
@@ -1599,6 +1628,7 @@ struct ConfigManager
 			// Settings
 			WritePair(Sense, TextOutline);
 			WritePair(Sense, VisibilityCheck);
+			WritePair(Sense, KnockedCheck);
 			WritePair(Sense, ESPMaxDistance);
 
 			WriteSectionEnd();
@@ -1607,12 +1637,15 @@ struct ConfigManager
 
 			WritePair(SenseEnemy, DrawEnemy);
 			WritePair(SenseEnemy, DrawBoxes);
+			WritePair(SenseEnemy, BoxOutline);
 			WritePair(SenseEnemy, BoxType);
 			WritePair(SenseEnemy, BoxStyle);
 			WritePair(SenseEnemy, BoxThickness);
 			WritePair(SenseEnemy, DrawSkeleton);
+			WritePair(SenseEnemy, SkeletonOutline);
 			WritePair(SenseEnemy, SkeletonThickness);
 			WritePair(SenseEnemy, DrawHeadCircle);
+			WritePair(SenseEnemy, HeadCircleOutline);
 			WritePair(SenseEnemy, HeadCircleThickness);
 			WritePair(SenseEnemy, DrawBars);
 			WritePair(SenseEnemy, HealthBar);
@@ -1707,6 +1740,7 @@ struct ConfigManager
 			WriteSection(Misc);
 
 			WritePair(Misc, SuperGlide);
+			WritePair(Misc, SuperGlideMode);
 			WritePair(Misc, SuperGlideFPS);
 
 			WritePair(Misc, QuickTurn);
@@ -1786,6 +1820,41 @@ struct ConfigManager
 			WriteSection(Colors);
 
 			WritePair(Colors, WeaponColorMode);
+
+			WritePair(Colors, TargetLineColorR);
+			WritePair(Colors, TargetLineColorG);
+			WritePair(Colors, TargetLineColorB);
+			WritePair(Colors, TargetLineColorA);
+			WritePair(Colors, TargetLineLockedColorR);
+			WritePair(Colors, TargetLineLockedColorG);
+			WritePair(Colors, TargetLineLockedColorB);
+			WritePair(Colors, TargetLineLockedColorA);
+			WritePair(Colors, TargetDotColorR);
+			WritePair(Colors, TargetDotColorG);
+			WritePair(Colors, TargetDotColorB);
+			WritePair(Colors, TargetDotColorA);
+			WritePair(Colors, TargetDotLockedColorR);
+			WritePair(Colors, TargetDotLockedColorG);
+			WritePair(Colors, TargetDotLockedColorB);
+			WritePair(Colors, TargetDotLockedColorA);
+			WritePair(Colors, TargetBoxColorR);
+			WritePair(Colors, TargetBoxColorG);
+			WritePair(Colors, TargetBoxColorB);
+			WritePair(Colors, TargetBoxColorA);
+			WritePair(Colors, TargetBoxLockedColorR);
+			WritePair(Colors, TargetBoxLockedColorG);
+			WritePair(Colors, TargetBoxLockedColorB);
+			WritePair(Colors, TargetBoxLockedColorA);
+
+			WritePair(Colors, TargetInfoColorR);
+			WritePair(Colors, TargetInfoColorG);
+			WritePair(Colors, TargetInfoColorB);
+			WritePair(Colors, TargetInfoColorA);
+			WritePair(Colors, TargetInfoLockedColorR);
+			WritePair(Colors, TargetInfoLockedColorG);
+			WritePair(Colors, TargetInfoLockedColorB);
+			WritePair(Colors, TargetInfoLockedColorA);
+
 			WritePair(Colors, FOVColorR);
 			WritePair(Colors, FOVColorG);
 			WritePair(Colors, FOVColorB);
@@ -1807,6 +1876,11 @@ struct ConfigManager
 			WritePair(Colors, VisibleWarningColorB);
 			WritePair(Colors, VisibleWarningColorA);
 
+			WritePair(Colors, NameColorR);
+			WritePair(Colors, NameColorG);
+			WritePair(Colors, NameColorB);
+			WritePair(Colors, NameColorA);
+
 			WriteSectionEnd();
 
 			WriteSection(EnemyColors);
@@ -1819,6 +1893,10 @@ struct ConfigManager
 			WritePair(EnemyColors, VisibleBoxColorG);
 			WritePair(EnemyColors, VisibleBoxColorB);
 			WritePair(EnemyColors, VisibleBoxColorA);
+			WritePair(EnemyColors, KnockedBoxColorR);
+			WritePair(EnemyColors, KnockedBoxColorG);
+			WritePair(EnemyColors, KnockedBoxColorB);
+			WritePair(EnemyColors, KnockedBoxColorA);
 			WritePair(EnemyColors, InvisibleFilledBoxColorR);
 			WritePair(EnemyColors, InvisibleFilledBoxColorG);
 			WritePair(EnemyColors, InvisibleFilledBoxColorB);
@@ -1827,6 +1905,10 @@ struct ConfigManager
 			WritePair(EnemyColors, VisibleFilledBoxColorG);
 			WritePair(EnemyColors, VisibleFilledBoxColorB);
 			WritePair(EnemyColors, VisibleFilledBoxColorA);
+			WritePair(EnemyColors, KnockedFilledBoxColorR);
+			WritePair(EnemyColors, KnockedFilledBoxColorG);
+			WritePair(EnemyColors, KnockedFilledBoxColorB);
+			WritePair(EnemyColors, KnockedFilledBoxColorA);
 			WritePair(EnemyColors, InvisibleTracerColorR);
 			WritePair(EnemyColors, InvisibleTracerColorG);
 			WritePair(EnemyColors, InvisibleTracerColorB);
@@ -1835,6 +1917,10 @@ struct ConfigManager
 			WritePair(EnemyColors, VisibleTracerColorG);
 			WritePair(EnemyColors, VisibleTracerColorB);
 			WritePair(EnemyColors, VisibleTracerColorA);
+			WritePair(EnemyColors, KnockedTracerColorR);
+			WritePair(EnemyColors, KnockedTracerColorG);
+			WritePair(EnemyColors, KnockedTracerColorB);
+			WritePair(EnemyColors, KnockedTracerColorA);
 			WritePair(EnemyColors, InvisibleSkeletonColorR);
 			WritePair(EnemyColors, InvisibleSkeletonColorG);
 			WritePair(EnemyColors, InvisibleSkeletonColorB);
@@ -1843,6 +1929,10 @@ struct ConfigManager
 			WritePair(EnemyColors, VisibleSkeletonColorG);
 			WritePair(EnemyColors, VisibleSkeletonColorB);
 			WritePair(EnemyColors, VisibleSkeletonColorA);
+			WritePair(EnemyColors, KnockedSkeletonColorR);
+			WritePair(EnemyColors, KnockedSkeletonColorG);
+			WritePair(EnemyColors, KnockedSkeletonColorB);
+			WritePair(EnemyColors, KnockedSkeletonColorA);
 			WritePair(EnemyColors, InvisibleHeadCircleColorR);
 			WritePair(EnemyColors, InvisibleHeadCircleColorG);
 			WritePair(EnemyColors, InvisibleHeadCircleColorB);
@@ -1851,6 +1941,10 @@ struct ConfigManager
 			WritePair(EnemyColors, VisibleHeadCircleColorG);
 			WritePair(EnemyColors, VisibleHeadCircleColorB);
 			WritePair(EnemyColors, VisibleHeadCircleColorA);
+			WritePair(EnemyColors, KnockedHeadCircleColorR);
+			WritePair(EnemyColors, KnockedHeadCircleColorG);
+			WritePair(EnemyColors, KnockedHeadCircleColorB);
+			WritePair(EnemyColors, KnockedHeadCircleColorA);
 			WritePair(EnemyColors, InvisibleNameColorR);
 			WritePair(EnemyColors, InvisibleNameColorG);
 			WritePair(EnemyColors, InvisibleNameColorB);
@@ -1859,6 +1953,10 @@ struct ConfigManager
 			WritePair(EnemyColors, VisibleNameColorG);
 			WritePair(EnemyColors, VisibleNameColorB);
 			WritePair(EnemyColors, VisibleNameColorA);
+			WritePair(EnemyColors, KnockedNameColorR);
+			WritePair(EnemyColors, KnockedNameColorG);
+			WritePair(EnemyColors, KnockedNameColorB);
+			WritePair(EnemyColors, KnockedNameColorA);
 			WritePair(EnemyColors, InvisibleDistanceColorR);
 			WritePair(EnemyColors, InvisibleDistanceColorG);
 			WritePair(EnemyColors, InvisibleDistanceColorB);
@@ -1867,6 +1965,10 @@ struct ConfigManager
 			WritePair(EnemyColors, VisibleDistanceColorG);
 			WritePair(EnemyColors, VisibleDistanceColorB);
 			WritePair(EnemyColors, VisibleDistanceColorA);
+			WritePair(EnemyColors, KnockedDistanceColorR);
+			WritePair(EnemyColors, KnockedDistanceColorG);
+			WritePair(EnemyColors, KnockedDistanceColorB);
+			WritePair(EnemyColors, KnockedDistanceColorA);
 			WritePair(EnemyColors, InvisibleLegendColorR);
 			WritePair(EnemyColors, InvisibleLegendColorG);
 			WritePair(EnemyColors, InvisibleLegendColorB);
@@ -1875,6 +1977,10 @@ struct ConfigManager
 			WritePair(EnemyColors, VisibleLegendColorG);
 			WritePair(EnemyColors, VisibleLegendColorB);
 			WritePair(EnemyColors, VisibleLegendColorA);
+			WritePair(EnemyColors, KnockedLegendColorR);
+			WritePair(EnemyColors, KnockedLegendColorG);
+			WritePair(EnemyColors, KnockedLegendColorB);
+			WritePair(EnemyColors, KnockedLegendColorA);
 			// Bar
 			WritePair(EnemyColors, BarColorMode);
 			// WeaponESP Colors
@@ -1886,6 +1992,10 @@ struct ConfigManager
 			WritePair(EnemyColors, VisibleWeaponColorG);
 			WritePair(EnemyColors, VisibleWeaponColorB);
 			WritePair(EnemyColors, VisibleWeaponColorA);
+			WritePair(EnemyColors, KnockedWeaponColorR);
+			WritePair(EnemyColors, KnockedWeaponColorG);
+			WritePair(EnemyColors, KnockedWeaponColorB);
+			WritePair(EnemyColors, KnockedWeaponColorA);
 			// Multiple
 			WritePair(EnemyColors, LightWeaponColorR);
 			WritePair(EnemyColors, LightWeaponColorG);
@@ -1926,10 +2036,13 @@ struct ConfigManager
 			WritePair(EnemyColors, VisibleGlowColorR);
 			WritePair(EnemyColors, VisibleGlowColorG);
 			WritePair(EnemyColors, VisibleGlowColorB);
+			WritePair(EnemyColors, KnockedGlowColorR);
+			WritePair(EnemyColors, KnockedGlowColorG);
+			WritePair(EnemyColors, KnockedGlowColorB);
 
 			WritePair(EnemyColors, RedShieldColorR);
 			WritePair(EnemyColors, RedShieldColorG);
-			WritePair(EnemyColors, RedShieldColorG);
+			WritePair(EnemyColors, RedShieldColorB);
 			WritePair(EnemyColors, PurpleShieldColorR);
 			WritePair(EnemyColors, PurpleShieldColorG);
 			WritePair(EnemyColors, PurpleShieldColorB);
@@ -1939,6 +2052,9 @@ struct ConfigManager
 			WritePair(EnemyColors, GreyShieldColorR);
 			WritePair(EnemyColors, GreyShieldColorG);
 			WritePair(EnemyColors, GreyShieldColorB);
+			WritePair(EnemyColors, LowGlowColorR);
+			WritePair(EnemyColors, LowGlowColorG);
+			WritePair(EnemyColors, LowGlowColorB);
 
 			WriteSectionEnd();
 
@@ -1952,10 +2068,18 @@ struct ConfigManager
 			WritePair(TeammateColors, VisibleBoxColorG);
 			WritePair(TeammateColors, VisibleBoxColorB);
 			WritePair(TeammateColors, VisibleBoxColorA);
+			WritePair(TeammateColors, VisibleBoxColorR);
+			WritePair(TeammateColors, VisibleBoxColorG);
+			WritePair(TeammateColors, VisibleBoxColorB);
+			WritePair(TeammateColors, VisibleBoxColorA);
 			WritePair(TeammateColors, InvisibleFilledBoxColorR);
 			WritePair(TeammateColors, InvisibleFilledBoxColorG);
 			WritePair(TeammateColors, InvisibleFilledBoxColorB);
 			WritePair(TeammateColors, InvisibleFilledBoxColorA);
+			WritePair(TeammateColors, VisibleFilledBoxColorR);
+			WritePair(TeammateColors, VisibleFilledBoxColorG);
+			WritePair(TeammateColors, VisibleFilledBoxColorB);
+			WritePair(TeammateColors, VisibleFilledBoxColorA);
 			WritePair(TeammateColors, VisibleFilledBoxColorR);
 			WritePair(TeammateColors, VisibleFilledBoxColorG);
 			WritePair(TeammateColors, VisibleFilledBoxColorB);
@@ -1968,10 +2092,18 @@ struct ConfigManager
 			WritePair(TeammateColors, VisibleTracerColorG);
 			WritePair(TeammateColors, VisibleTracerColorB);
 			WritePair(TeammateColors, VisibleTracerColorA);
+			WritePair(TeammateColors, VisibleTracerColorR);
+			WritePair(TeammateColors, VisibleTracerColorG);
+			WritePair(TeammateColors, VisibleTracerColorB);
+			WritePair(TeammateColors, VisibleTracerColorA);
 			WritePair(TeammateColors, InvisibleSkeletonColorR);
 			WritePair(TeammateColors, InvisibleSkeletonColorG);
 			WritePair(TeammateColors, InvisibleSkeletonColorB);
 			WritePair(TeammateColors, InvisibleSkeletonColorA);
+			WritePair(TeammateColors, VisibleSkeletonColorR);
+			WritePair(TeammateColors, VisibleSkeletonColorG);
+			WritePair(TeammateColors, VisibleSkeletonColorB);
+			WritePair(TeammateColors, VisibleSkeletonColorA);
 			WritePair(TeammateColors, VisibleSkeletonColorR);
 			WritePair(TeammateColors, VisibleSkeletonColorG);
 			WritePair(TeammateColors, VisibleSkeletonColorB);
@@ -1984,6 +2116,10 @@ struct ConfigManager
 			WritePair(TeammateColors, VisibleHeadCircleColorG);
 			WritePair(TeammateColors, VisibleHeadCircleColorB);
 			WritePair(TeammateColors, VisibleHeadCircleColorA);
+			WritePair(TeammateColors, VisibleHeadCircleColorR);
+			WritePair(TeammateColors, VisibleHeadCircleColorG);
+			WritePair(TeammateColors, VisibleHeadCircleColorB);
+			WritePair(TeammateColors, VisibleHeadCircleColorA);
 			WritePair(TeammateColors, InvisibleNameColorR);
 			WritePair(TeammateColors, InvisibleNameColorG);
 			WritePair(TeammateColors, InvisibleNameColorB);
@@ -1992,7 +2128,10 @@ struct ConfigManager
 			WritePair(TeammateColors, VisibleNameColorG);
 			WritePair(TeammateColors, VisibleNameColorB);
 			WritePair(TeammateColors, VisibleNameColorA);
-
+			WritePair(TeammateColors, VisibleNameColorR);
+			WritePair(TeammateColors, VisibleNameColorG);
+			WritePair(TeammateColors, VisibleNameColorB);
+			WritePair(TeammateColors, VisibleNameColorA);
 			WritePair(TeammateColors, InvisibleDistanceColorR);
 			WritePair(TeammateColors, InvisibleDistanceColorG);
 			WritePair(TeammateColors, InvisibleDistanceColorB);
@@ -2001,11 +2140,18 @@ struct ConfigManager
 			WritePair(TeammateColors, VisibleDistanceColorG);
 			WritePair(TeammateColors, VisibleDistanceColorB);
 			WritePair(TeammateColors, VisibleDistanceColorA);
-
+			WritePair(TeammateColors, VisibleDistanceColorR);
+			WritePair(TeammateColors, VisibleDistanceColorG);
+			WritePair(TeammateColors, VisibleDistanceColorB);
+			WritePair(TeammateColors, VisibleDistanceColorA);
 			WritePair(TeammateColors, InvisibleLegendColorR);
 			WritePair(TeammateColors, InvisibleLegendColorG);
 			WritePair(TeammateColors, InvisibleLegendColorB);
 			WritePair(TeammateColors, InvisibleLegendColorA);
+			WritePair(TeammateColors, VisibleLegendColorR);
+			WritePair(TeammateColors, VisibleLegendColorG);
+			WritePair(TeammateColors, VisibleLegendColorB);
+			WritePair(TeammateColors, VisibleLegendColorA);
 			WritePair(TeammateColors, VisibleLegendColorR);
 			WritePair(TeammateColors, VisibleLegendColorG);
 			WritePair(TeammateColors, VisibleLegendColorB);
@@ -2017,6 +2163,10 @@ struct ConfigManager
 			WritePair(TeammateColors, InvisibleWeaponColorG);
 			WritePair(TeammateColors, InvisibleWeaponColorB);
 			WritePair(TeammateColors, InvisibleWeaponColorA);
+			WritePair(TeammateColors, VisibleWeaponColorR);
+			WritePair(TeammateColors, VisibleWeaponColorG);
+			WritePair(TeammateColors, VisibleWeaponColorB);
+			WritePair(TeammateColors, VisibleWeaponColorA);
 			WritePair(TeammateColors, VisibleWeaponColorR);
 			WritePair(TeammateColors, VisibleWeaponColorG);
 			WritePair(TeammateColors, VisibleWeaponColorB);
@@ -2063,6 +2213,7 @@ struct ConfigManager
 			WritePair(Watermark, WatermarkPosition);
 			WritePair(Watermark, Name);
 			WritePair(Watermark, ProcessingSpeed);
+			WritePair(Watermark, GameFPS);
 			WritePair(Watermark, Spectators);
 
 			WriteSectionEnd();
@@ -2070,7 +2221,9 @@ struct ConfigManager
 			WriteSection(Settings);
 
 			WritePair(Settings, ESPEnabled);
+			WritePair(Settings, DeadCheck);
 			WritePair(Settings, OverlayEnabled);
+			WritePair(Settings, AntiAliasedLines);
 			WritePair(Settings, FPSCap);
 			WritePair(Settings, CappedFPS);
 
@@ -2080,8 +2233,7 @@ struct ConfigManager
 		}
 	}
 
-	void SaveConfig()
-	{
+	void SaveConfig() {
 		if (!Legit->Save())
 			std::cout << "something went wrong trying to save Legitbot settings" << std::endl;
 		if (!Rage->Save())
@@ -2103,29 +2255,37 @@ struct ConfigManager
 		UpdateConfig();
 	}
 
-	bool SaveOtherSettings()
-	{
-		try
-		{
+	bool SaveOtherSettings() {
+		try {
 			Config::Settings::ESPEnabled = Features::Settings::ESPEnabled;
+			Config::Settings::DeadCheck = Features::Settings::DeadCheck;
 			Config::Settings::OverlayEnabled = Features::Settings::OverlayEnabled;
+			Config::Settings::AntiAliasedLines = Features::Settings::AntiAliasedLines;
 			Config::Settings::FPSCap = Features::Settings::FPSCap;
 			Config::Settings::CappedFPS = Features::Settings::CappedFPS;
 
+			Config::Watermark::Watermark = Features::Watermark::Watermark;
+			Config::Watermark::WatermarkPosition = Features::Watermark::WatermarkPosition;
+			Config::Watermark::Name = Features::Watermark::Name;
+			Config::Colors::NameColorR = Features::Watermark::NameColor[0];
+			Config::Colors::NameColorG = Features::Watermark::NameColor[1];
+			Config::Colors::NameColorB = Features::Watermark::NameColor[2];
+			Config::Colors::NameColorA = Features::Watermark::NameColor[3];
+			Config::Watermark::Spectators = Features::Watermark::Spectators;
+			Config::Watermark::ProcessingSpeed = Features::Watermark::ProcessingSpeed;
+			Config::Watermark::GameFPS = Features::Watermark::GameFPS;
+
 			return true;
-		}
-		catch (...)
-		{
+		} catch (...) {
 			return false;
 		}
 	}
 
-	void LoadConfig()
-	{
+	void LoadConfig() {
 		std::string ConfigName1 = "Configs/" + std::string(configName) + ".ini";
 		bool success = ReadConfig();
 		if (success)
-			std::cout << "successfully read config" << std::endl;
+			std::cout << "Successfully Read Config " << configName << ".ini!" << std::endl;
 		else
 			std::cout << "can't read config for some reason so new config file has been created" << std::endl;
 
@@ -3382,6 +3542,8 @@ struct ConfigManager
 
 		Features::Triggerbot::Enabled = Config::Triggerbot::Enabled;
 		Features::Triggerbot::BindMethod = Config::Triggerbot::BindMethod;
+		Features::Triggerbot::AttackMethod = Config::Triggerbot::AttackMethod;
+		Features::Triggerbot::Delay = Config::Triggerbot::Delay;
 		Features::Triggerbot::TriggerBind = static_cast<InputKeyType>(Config::Triggerbot::TriggerBind);
 		Features::Triggerbot::OnADS = Config::Triggerbot::OnADS;
 		Features::Triggerbot::HipfireShotguns = Config::Triggerbot::HipfireShotguns;
@@ -3460,6 +3622,7 @@ struct ConfigManager
 		Features::Triggerbot::ThrowingKnifeRange = Config::Triggerbot::ThrowingKnifeRange;
 
 		Features::Glow::NewGlow = Config::Glow::NewGlow;
+		Features::Glow::KnockedCheck = Config::Glow::KnockedCheck;
 		Features::Glow::GlowMaxDistance = Config::Glow::GlowMaxDistance;
 		Features::Glow::GlowColorMode = Config::Glow::GlowColorMode;
 		Features::Glow::GlowColorShieldMode = Config::Glow::GlowColorShieldMode;
@@ -3471,7 +3634,6 @@ struct ConfigManager
 		Features::Glow::ViewModelGlowCombo = Config::Glow::ViewModelGlowCombo;
 
 		Features::Glow::Item::ItemGlow = Config::ItemGlow::ItemGlow;
-		Features::Glow::Item::SelectedItemSelection = Config::ItemGlow::SelectedItemSelection;
 		Features::Glow::Item::Common = Config::ItemGlow::Common;
 		Features::Glow::Item::Rare = Config::ItemGlow::Rare;
 		Features::Glow::Item::Epic = Config::ItemGlow::Epic;
@@ -3479,6 +3641,7 @@ struct ConfigManager
 		Features::Glow::Item::Legendary = Config::ItemGlow::Legendary;
 		Features::Glow::Item::Weapons = Config::ItemGlow::Weapons;
 		Features::Glow::Item::Ammo = Config::ItemGlow::Ammo;
+		Features::Glow::Item::Deathbox = Config::ItemGlow::Deathbox;
 		Features::Glow::Item::ItemGlowThickness = Config::ItemGlow::ItemGlowThickness;
 		Features::Glow::Item::SelectedInsideStyle = Config::ItemGlow::SelectedInsideStyle;
 		Features::Glow::Item::SelectedOutlineStyle = Config::ItemGlow::SelectedOutlineStyle;
@@ -3488,6 +3651,37 @@ struct ConfigManager
 		Features::Sense::DrawFilledFOVCircle = Config::Sense::DrawFilledFOVCircle;
 		Features::Sense::FOVThickness = Config::Sense::FOVThickness;
 		Features::Sense::GameFOV = Config::Sense::GameFOV;
+		Features::Sense::DrawTargetLine = Config::Sense::DrawTargetLine;
+		Features::Sense::DrawTargetDot = Config::Sense::DrawTargetDot;
+		Features::Sense::DrawTargetBox = Config::Sense::DrawTargetBox;
+		Features::Sense::TargetMode = Config::Sense::TargetMode;
+		Features::Sense::TargetBoneMode = Config::Sense::TargetBoneMode;
+		Features::Sense::TargetSelectedBone = Config::Sense::TargetSelectedBone;
+		Features::Sense::TargetBone = Config::Sense::TargetBone;
+		Features::Sense::TargetHitbox = static_cast<HitboxType>(Config::Sense::TargetHitbox);
+		Features::Sense::TargetLineThickness = Config::Sense::TargetLineThickness;
+		Features::Sense::TargetDotRadius = Config::Sense::TargetDotRadius;
+		Features::Sense::TargetBoxMode = Config::Sense::TargetBoxMode;
+		Features::Sense::TargetBoxThickness = Config::Sense::TargetBoxThickness;
+		Features::Sense::TargetBoxSize = Config::Sense::TargetBoxSize;
+		Features::Sense::DrawTargetInfo = Config::Sense::DrawTargetInfo;
+		Features::Sense::TargetInfoDisplayMode = Config::Sense::TargetInfoDisplayMode;
+		Features::Sense::DrawTargetInfoName = Config::Sense::DrawTargetInfoName;
+		Features::Sense::TargetInfoNamePos = Config::Sense::TargetInfoNamePos;
+		Features::Sense::DrawTargetInfoLegend = Config::Sense::DrawTargetInfoLegend;
+		Features::Sense::TargetInfoLegendPos = Config::Sense::TargetInfoLegendPos;
+		Features::Sense::DrawTargetInfoTeamID = Config::Sense::DrawTargetInfoTeamID;
+		Features::Sense::DrawTargetInfoDistance = Config::Sense::DrawTargetInfoDistance;
+		Features::Sense::DrawTargetInfoWeapon = Config::Sense::DrawTargetInfoWeapon;
+		Features::Sense::TargetInfoWeaponPos = Config::Sense::TargetInfoWeaponPos;
+		Features::Sense::DrawTargetInfoHealth = Config::Sense::DrawTargetInfoHealth;
+		Features::Sense::TargetInfoHealthPos = Config::Sense::TargetInfoHealthPos;
+		Features::Sense::DrawTargetInfoShield = Config::Sense::DrawTargetInfoShield;
+		Features::Sense::TargetInfoShieldPos = Config::Sense::TargetInfoShieldPos;
+		Features::Sense::TargetInfoColorMode = Config::Sense::TargetInfoColorMode;
+		Features::Sense::TargetInfoPosX = Config::Sense::TargetInfoPosX;
+		Features::Sense::TargetInfoPosY = Config::Sense::TargetInfoPosY;
+		Features::Sense::TargetInfoOffset = Config::Sense::TargetInfoOffset;
 		Features::Sense::DrawCrosshair = Config::Sense::DrawCrosshair;
 		Features::Sense::CrosshairSize = Config::Sense::CrosshairSize;
 		Features::Sense::CrosshairThickness = Config::Sense::CrosshairThickness;
@@ -3499,16 +3693,20 @@ struct ConfigManager
 		Features::Sense::WarningTextY = Config::Sense::WarningTextY;
 		Features::Sense::TextOutline = Config::Sense::TextOutline;
 		Features::Sense::VisibilityCheck = Config::Sense::VisibilityCheck;
+		Features::Sense::KnockedCheck = Config::Sense::KnockedCheck;
 		Features::Sense::ESPMaxDistance = Config::Sense::ESPMaxDistance;
 
 		Features::Sense::Enemy::DrawEnemy = Config::SenseEnemy::DrawEnemy;
 		Features::Sense::Enemy::DrawBoxes = Config::SenseEnemy::DrawBoxes;
+		Features::Sense::Enemy::BoxOutline = Config::SenseEnemy::BoxOutline;
 		Features::Sense::Enemy::BoxType = Config::SenseEnemy::BoxType;
 		Features::Sense::Enemy::BoxStyle = Config::SenseEnemy::BoxStyle;
 		Features::Sense::Enemy::BoxThickness = Config::SenseEnemy::BoxThickness;
 		Features::Sense::Enemy::DrawSkeleton = Config::SenseEnemy::DrawSkeleton;
+		Features::Sense::Enemy::SkeletonOutline = Config::SenseEnemy::SkeletonOutline;
 		Features::Sense::Enemy::SkeletonThickness = Config::SenseEnemy::SkeletonThickness;
 		Features::Sense::Enemy::DrawHeadCircle = Config::SenseEnemy::DrawHeadCircle;
+		Features::Sense::Enemy::HeadCircleOutline = Config::SenseEnemy::HeadCircleOutline;
 		Features::Sense::Enemy::HeadCircleThickness = Config::SenseEnemy::HeadCircleThickness;
 		Features::Sense::Enemy::DrawBars = Config::SenseEnemy::DrawBars;
 		Features::Sense::Enemy::HealthBar = Config::SenseEnemy::HealthBar;
@@ -3535,12 +3733,15 @@ struct ConfigManager
 
 		Features::Sense::Teammate::DrawTeam = Config::SenseTeammate::DrawTeam;
 		Features::Sense::Teammate::DrawBoxes = Config::SenseTeammate::DrawBoxes;
+		Features::Sense::Teammate::BoxOutline = Config::SenseTeammate::BoxOutline;
 		Features::Sense::Teammate::BoxType = Config::SenseTeammate::BoxType;
 		Features::Sense::Teammate::BoxStyle = Config::SenseTeammate::BoxStyle;
 		Features::Sense::Teammate::BoxThickness = Config::SenseTeammate::BoxThickness;
 		Features::Sense::Teammate::DrawSkeleton = Config::SenseTeammate::DrawSkeleton;
+		Features::Sense::Teammate::SkeletonOutline = Config::SenseTeammate::SkeletonOutline;
 		Features::Sense::Teammate::SkeletonThickness = Config::SenseTeammate::SkeletonThickness;
 		Features::Sense::Teammate::DrawHeadCircle = Config::SenseTeammate::DrawHeadCircle;
+		Features::Sense::Teammate::HeadCircleOutline = Config::SenseTeammate::HeadCircleOutline;
 		Features::Sense::Teammate::HeadCircleThickness = Config::SenseTeammate::HeadCircleThickness;
 		Features::Sense::Teammate::DrawBars = Config::SenseTeammate::DrawBars;
 		Features::Sense::Teammate::HealthBar = Config::SenseTeammate::HealthBar;
@@ -3586,6 +3787,7 @@ struct ConfigManager
 		Features::Radar::CircleColor[3] = Config::Radar::CircleColorA;
 
 		Features::Misc::SuperGlide = Config::Misc::SuperGlide;
+		Features::Misc::SuperGlideMode = Config::Misc::SuperGlideMode;
 		Features::Misc::SuperGlideFPS = Config::Misc::SuperGlideFPS;
 		Features::Misc::QuickTurn = Config::Misc::QuickTurn;
 		Features::Misc::QuickTurnAngle = Config::Misc::QuickTurnAngle;
@@ -3640,6 +3842,41 @@ struct ConfigManager
 		Features::Misc::SkinKRABER = Config::Misc::SkinKRABER;
 
 		Features::Colors::WeaponColorMode = Config::Colors::WeaponColorMode;
+
+		Features::Colors::TargetLineColor[0] = Config::Colors::TargetLineColorR;
+		Features::Colors::TargetLineColor[1] = Config::Colors::TargetLineColorG;
+		Features::Colors::TargetLineColor[2] = Config::Colors::TargetLineColorB;
+		Features::Colors::TargetLineColor[3] = Config::Colors::TargetLineColorA;
+		Features::Colors::TargetLineLockedColor[0] = Config::Colors::TargetLineLockedColorR;
+		Features::Colors::TargetLineLockedColor[1] = Config::Colors::TargetLineLockedColorG;
+		Features::Colors::TargetLineLockedColor[2] = Config::Colors::TargetLineLockedColorB;
+		Features::Colors::TargetLineLockedColor[3] = Config::Colors::TargetLineLockedColorA;
+		Features::Colors::TargetDotColor[0] = Config::Colors::TargetDotColorR;
+		Features::Colors::TargetDotColor[1] = Config::Colors::TargetDotColorG;
+		Features::Colors::TargetDotColor[2] = Config::Colors::TargetDotColorB;
+		Features::Colors::TargetDotColor[3] = Config::Colors::TargetDotColorA;
+		Features::Colors::TargetDotLockedColor[0] = Config::Colors::TargetDotLockedColorR;
+		Features::Colors::TargetDotLockedColor[1] = Config::Colors::TargetDotLockedColorG;
+		Features::Colors::TargetDotLockedColor[2] = Config::Colors::TargetDotLockedColorB;
+		Features::Colors::TargetDotLockedColor[3] = Config::Colors::TargetDotLockedColorA;
+		Features::Colors::TargetBoxColor[0] = Config::Colors::TargetBoxColorR;
+		Features::Colors::TargetBoxColor[1] = Config::Colors::TargetBoxColorG;
+		Features::Colors::TargetBoxColor[2] = Config::Colors::TargetBoxColorB;
+		Features::Colors::TargetBoxColor[3] = Config::Colors::TargetBoxColorA;
+		Features::Colors::TargetBoxLockedColor[0] = Config::Colors::TargetBoxLockedColorR;
+		Features::Colors::TargetBoxLockedColor[1] = Config::Colors::TargetBoxLockedColorG;
+		Features::Colors::TargetBoxLockedColor[2] = Config::Colors::TargetBoxLockedColorB;
+		Features::Colors::TargetBoxLockedColor[3] = Config::Colors::TargetBoxLockedColorA;
+
+		Features::Colors::TargetInfoColor[0] = Config::Colors::TargetInfoColorR;
+		Features::Colors::TargetInfoColor[1] = Config::Colors::TargetInfoColorG;
+		Features::Colors::TargetInfoColor[2] = Config::Colors::TargetInfoColorB;
+		Features::Colors::TargetInfoColor[3] = Config::Colors::TargetInfoColorA;
+		Features::Colors::TargetInfoLockedColor[0] = Config::Colors::TargetInfoLockedColorR;
+		Features::Colors::TargetInfoLockedColor[1] = Config::Colors::TargetInfoLockedColorG;
+		Features::Colors::TargetInfoLockedColor[2] = Config::Colors::TargetInfoLockedColorB;
+		Features::Colors::TargetInfoLockedColor[3] = Config::Colors::TargetInfoLockedColorA;
+
 		Features::Colors::FOVColor[0] = Config::Colors::FOVColorR;
 		Features::Colors::FOVColor[1] = Config::Colors::FOVColorG;
 		Features::Colors::FOVColor[2] = Config::Colors::FOVColorB;
@@ -3669,6 +3906,10 @@ struct ConfigManager
 		Features::Colors::Enemy::VisibleBoxColor[1] = Config::EnemyColors::VisibleBoxColorG;
 		Features::Colors::Enemy::VisibleBoxColor[2] = Config::EnemyColors::VisibleBoxColorB;
 		Features::Colors::Enemy::VisibleBoxColor[3] = Config::EnemyColors::VisibleBoxColorA;
+		Features::Colors::Enemy::KnockedBoxColor[0] = Config::EnemyColors::KnockedBoxColorR;
+		Features::Colors::Enemy::KnockedBoxColor[1] = Config::EnemyColors::KnockedBoxColorG;
+		Features::Colors::Enemy::KnockedBoxColor[2] = Config::EnemyColors::KnockedBoxColorB;
+		Features::Colors::Enemy::KnockedBoxColor[3] = Config::EnemyColors::KnockedBoxColorA;
 		Features::Colors::Enemy::InvisibleFilledBoxColor[0] = Config::EnemyColors::InvisibleFilledBoxColorR;
 		Features::Colors::Enemy::InvisibleFilledBoxColor[1] = Config::EnemyColors::InvisibleFilledBoxColorG;
 		Features::Colors::Enemy::InvisibleFilledBoxColor[2] = Config::EnemyColors::InvisibleFilledBoxColorB;
@@ -3677,6 +3918,10 @@ struct ConfigManager
 		Features::Colors::Enemy::VisibleFilledBoxColor[1] = Config::EnemyColors::VisibleFilledBoxColorG;
 		Features::Colors::Enemy::VisibleFilledBoxColor[2] = Config::EnemyColors::VisibleFilledBoxColorB;
 		Features::Colors::Enemy::VisibleFilledBoxColor[3] = Config::EnemyColors::VisibleFilledBoxColorA;
+		Features::Colors::Enemy::KnockedFilledBoxColor[0] = Config::EnemyColors::KnockedFilledBoxColorR;
+		Features::Colors::Enemy::KnockedFilledBoxColor[1] = Config::EnemyColors::KnockedFilledBoxColorG;
+		Features::Colors::Enemy::KnockedFilledBoxColor[2] = Config::EnemyColors::KnockedFilledBoxColorB;
+		Features::Colors::Enemy::KnockedFilledBoxColor[3] = Config::EnemyColors::KnockedFilledBoxColorA;
 		Features::Colors::Enemy::InvisibleTracerColor[0] = Config::EnemyColors::InvisibleTracerColorR;
 		Features::Colors::Enemy::InvisibleTracerColor[1] = Config::EnemyColors::InvisibleTracerColorG;
 		Features::Colors::Enemy::InvisibleTracerColor[2] = Config::EnemyColors::InvisibleTracerColorB;
@@ -3685,6 +3930,10 @@ struct ConfigManager
 		Features::Colors::Enemy::VisibleTracerColor[1] = Config::EnemyColors::VisibleTracerColorG;
 		Features::Colors::Enemy::VisibleTracerColor[2] = Config::EnemyColors::VisibleTracerColorB;
 		Features::Colors::Enemy::VisibleTracerColor[3] = Config::EnemyColors::VisibleTracerColorA;
+		Features::Colors::Enemy::KnockedTracerColor[0] = Config::EnemyColors::KnockedTracerColorR;
+		Features::Colors::Enemy::KnockedTracerColor[1] = Config::EnemyColors::KnockedTracerColorG;
+		Features::Colors::Enemy::KnockedTracerColor[2] = Config::EnemyColors::KnockedTracerColorB;
+		Features::Colors::Enemy::KnockedTracerColor[3] = Config::EnemyColors::KnockedTracerColorA;
 		Features::Colors::Enemy::InvisibleSkeletonColor[0] = Config::EnemyColors::InvisibleSkeletonColorR;
 		Features::Colors::Enemy::InvisibleSkeletonColor[1] = Config::EnemyColors::InvisibleSkeletonColorG;
 		Features::Colors::Enemy::InvisibleSkeletonColor[2] = Config::EnemyColors::InvisibleSkeletonColorB;
@@ -3693,6 +3942,10 @@ struct ConfigManager
 		Features::Colors::Enemy::VisibleSkeletonColor[1] = Config::EnemyColors::VisibleSkeletonColorG;
 		Features::Colors::Enemy::VisibleSkeletonColor[2] = Config::EnemyColors::VisibleSkeletonColorB;
 		Features::Colors::Enemy::VisibleSkeletonColor[3] = Config::EnemyColors::VisibleSkeletonColorA;
+		Features::Colors::Enemy::KnockedSkeletonColor[0] = Config::EnemyColors::KnockedSkeletonColorR;
+		Features::Colors::Enemy::KnockedSkeletonColor[1] = Config::EnemyColors::KnockedSkeletonColorG;
+		Features::Colors::Enemy::KnockedSkeletonColor[2] = Config::EnemyColors::KnockedSkeletonColorB;
+		Features::Colors::Enemy::KnockedSkeletonColor[3] = Config::EnemyColors::KnockedSkeletonColorA;
 		Features::Colors::Enemy::InvisibleHeadCircleColor[0] = Config::EnemyColors::InvisibleHeadCircleColorR;
 		Features::Colors::Enemy::InvisibleHeadCircleColor[1] = Config::EnemyColors::InvisibleHeadCircleColorG;
 		Features::Colors::Enemy::InvisibleHeadCircleColor[2] = Config::EnemyColors::InvisibleHeadCircleColorB;
@@ -3701,6 +3954,10 @@ struct ConfigManager
 		Features::Colors::Enemy::VisibleHeadCircleColor[1] = Config::EnemyColors::VisibleHeadCircleColorG;
 		Features::Colors::Enemy::VisibleHeadCircleColor[2] = Config::EnemyColors::VisibleHeadCircleColorB;
 		Features::Colors::Enemy::VisibleHeadCircleColor[3] = Config::EnemyColors::VisibleHeadCircleColorA;
+		Features::Colors::Enemy::KnockedHeadCircleColor[0] = Config::EnemyColors::KnockedHeadCircleColorR;
+		Features::Colors::Enemy::KnockedHeadCircleColor[1] = Config::EnemyColors::KnockedHeadCircleColorG;
+		Features::Colors::Enemy::KnockedHeadCircleColor[2] = Config::EnemyColors::KnockedHeadCircleColorB;
+		Features::Colors::Enemy::KnockedHeadCircleColor[3] = Config::EnemyColors::KnockedHeadCircleColorA;
 		Features::Colors::Enemy::InvisibleNameColor[0] = Config::EnemyColors::InvisibleNameColorR;
 		Features::Colors::Enemy::InvisibleNameColor[1] = Config::EnemyColors::InvisibleNameColorG;
 		Features::Colors::Enemy::InvisibleNameColor[2] = Config::EnemyColors::InvisibleNameColorB;
@@ -3709,6 +3966,10 @@ struct ConfigManager
 		Features::Colors::Enemy::VisibleNameColor[1] = Config::EnemyColors::VisibleNameColorG;
 		Features::Colors::Enemy::VisibleNameColor[2] = Config::EnemyColors::VisibleNameColorB;
 		Features::Colors::Enemy::VisibleNameColor[3] = Config::EnemyColors::VisibleNameColorA;
+		Features::Colors::Enemy::KnockedNameColor[0] = Config::EnemyColors::KnockedNameColorR;
+		Features::Colors::Enemy::KnockedNameColor[1] = Config::EnemyColors::KnockedNameColorG;
+		Features::Colors::Enemy::KnockedNameColor[2] = Config::EnemyColors::KnockedNameColorB;
+		Features::Colors::Enemy::KnockedNameColor[3] = Config::EnemyColors::KnockedNameColorA;
 		Features::Colors::Enemy::InvisibleDistanceColor[0] = Config::EnemyColors::InvisibleDistanceColorR;
 		Features::Colors::Enemy::InvisibleDistanceColor[1] = Config::EnemyColors::InvisibleDistanceColorG;
 		Features::Colors::Enemy::InvisibleDistanceColor[2] = Config::EnemyColors::InvisibleDistanceColorB;
@@ -3717,6 +3978,10 @@ struct ConfigManager
 		Features::Colors::Enemy::VisibleDistanceColor[1] = Config::EnemyColors::VisibleDistanceColorG;
 		Features::Colors::Enemy::VisibleDistanceColor[2] = Config::EnemyColors::VisibleDistanceColorB;
 		Features::Colors::Enemy::VisibleDistanceColor[3] = Config::EnemyColors::VisibleDistanceColorA;
+		Features::Colors::Enemy::KnockedDistanceColor[0] = Config::EnemyColors::KnockedDistanceColorR;
+		Features::Colors::Enemy::KnockedDistanceColor[1] = Config::EnemyColors::KnockedDistanceColorG;
+		Features::Colors::Enemy::KnockedDistanceColor[2] = Config::EnemyColors::KnockedDistanceColorB;
+		Features::Colors::Enemy::KnockedDistanceColor[3] = Config::EnemyColors::KnockedDistanceColorA;
 		Features::Colors::Enemy::InvisibleLegendColor[0] = Config::EnemyColors::InvisibleLegendColorR;
 		Features::Colors::Enemy::InvisibleLegendColor[1] = Config::EnemyColors::InvisibleLegendColorG;
 		Features::Colors::Enemy::InvisibleLegendColor[2] = Config::EnemyColors::InvisibleLegendColorB;
@@ -3725,6 +3990,10 @@ struct ConfigManager
 		Features::Colors::Enemy::VisibleLegendColor[1] = Config::EnemyColors::VisibleLegendColorG;
 		Features::Colors::Enemy::VisibleLegendColor[2] = Config::EnemyColors::VisibleLegendColorB;
 		Features::Colors::Enemy::VisibleLegendColor[3] = Config::EnemyColors::VisibleLegendColorA;
+		Features::Colors::Enemy::KnockedLegendColor[0] = Config::EnemyColors::KnockedLegendColorR;
+		Features::Colors::Enemy::KnockedLegendColor[1] = Config::EnemyColors::KnockedLegendColorG;
+		Features::Colors::Enemy::KnockedLegendColor[2] = Config::EnemyColors::KnockedLegendColorB;
+		Features::Colors::Enemy::KnockedLegendColor[3] = Config::EnemyColors::KnockedLegendColorA;
 		Features::Colors::Enemy::InvisibleWeaponColor[0] = Config::EnemyColors::InvisibleWeaponColorR;
 		Features::Colors::Enemy::InvisibleWeaponColor[1] = Config::EnemyColors::InvisibleWeaponColorG;
 		Features::Colors::Enemy::InvisibleWeaponColor[2] = Config::EnemyColors::InvisibleWeaponColorB;
@@ -3733,6 +4002,10 @@ struct ConfigManager
 		Features::Colors::Enemy::VisibleWeaponColor[1] = Config::EnemyColors::VisibleWeaponColorG;
 		Features::Colors::Enemy::VisibleWeaponColor[2] = Config::EnemyColors::VisibleWeaponColorB;
 		Features::Colors::Enemy::VisibleWeaponColor[3] = Config::EnemyColors::VisibleWeaponColorA;
+		Features::Colors::Enemy::KnockedWeaponColor[0] = Config::EnemyColors::KnockedWeaponColorR;
+		Features::Colors::Enemy::KnockedWeaponColor[1] = Config::EnemyColors::KnockedWeaponColorG;
+		Features::Colors::Enemy::KnockedWeaponColor[2] = Config::EnemyColors::KnockedWeaponColorB;
+		Features::Colors::Enemy::KnockedWeaponColor[3] = Config::EnemyColors::KnockedWeaponColorA;
 		Features::Colors::Enemy::BarColorMode = Config::EnemyColors::BarColorMode;
 		Features::Colors::Enemy::LightWeaponColor[0] = Config::EnemyColors::LightWeaponColorR;
 		Features::Colors::Enemy::LightWeaponColor[1] = Config::EnemyColors::LightWeaponColorG;
@@ -3772,9 +4045,12 @@ struct ConfigManager
 		Features::Colors::Enemy::VisibleGlowColor[0] = Config::EnemyColors::VisibleGlowColorR;
 		Features::Colors::Enemy::VisibleGlowColor[1] = Config::EnemyColors::VisibleGlowColorG;
 		Features::Colors::Enemy::VisibleGlowColor[2] = Config::EnemyColors::VisibleGlowColorB;
+		Features::Colors::Enemy::KnockedGlowColor[0] = Config::EnemyColors::KnockedGlowColorR;
+		Features::Colors::Enemy::KnockedGlowColor[1] = Config::EnemyColors::KnockedGlowColorG;
+		Features::Colors::Enemy::KnockedGlowColor[2] = Config::EnemyColors::KnockedGlowColorB;
 		Features::Colors::Enemy::RedShieldColor[0] = Config::EnemyColors::RedShieldColorR;
 		Features::Colors::Enemy::RedShieldColor[1] = Config::EnemyColors::RedShieldColorG;
-		Features::Colors::Enemy::RedShieldColor[2] = Config::EnemyColors::RedShieldColorR;
+		Features::Colors::Enemy::RedShieldColor[2] = Config::EnemyColors::RedShieldColorB;
 		Features::Colors::Enemy::PurpleShieldColor[0] = Config::EnemyColors::PurpleShieldColorR;
 		Features::Colors::Enemy::PurpleShieldColor[1] = Config::EnemyColors::PurpleShieldColorG;
 		Features::Colors::Enemy::PurpleShieldColor[2] = Config::EnemyColors::PurpleShieldColorB;
@@ -3784,6 +4060,9 @@ struct ConfigManager
 		Features::Colors::Enemy::GreyShieldColor[0] = Config::EnemyColors::GreyShieldColorR;
 		Features::Colors::Enemy::GreyShieldColor[1] = Config::EnemyColors::GreyShieldColorG;
 		Features::Colors::Enemy::GreyShieldColor[2] = Config::EnemyColors::GreyShieldColorB;
+		Features::Colors::Enemy::LowGlowColor[0] = Config::EnemyColors::LowGlowColorR;
+		Features::Colors::Enemy::LowGlowColor[1] = Config::EnemyColors::LowGlowColorG;
+		Features::Colors::Enemy::LowGlowColor[2] = Config::EnemyColors::LowGlowColorB;
 
 		Features::Colors::Teammate::InvisibleBoxColor[0] = Config::TeammateColors::InvisibleBoxColorR;
 		Features::Colors::Teammate::InvisibleBoxColor[1] = Config::TeammateColors::InvisibleBoxColorG;
@@ -3793,6 +4072,10 @@ struct ConfigManager
 		Features::Colors::Teammate::VisibleBoxColor[1] = Config::TeammateColors::VisibleBoxColorG;
 		Features::Colors::Teammate::VisibleBoxColor[2] = Config::TeammateColors::VisibleBoxColorB;
 		Features::Colors::Teammate::VisibleBoxColor[3] = Config::TeammateColors::VisibleBoxColorA;
+		Features::Colors::Teammate::KnockedBoxColor[0] = Config::TeammateColors::KnockedBoxColorR;
+		Features::Colors::Teammate::KnockedBoxColor[1] = Config::TeammateColors::KnockedBoxColorG;
+		Features::Colors::Teammate::KnockedBoxColor[2] = Config::TeammateColors::KnockedBoxColorB;
+		Features::Colors::Teammate::KnockedBoxColor[3] = Config::TeammateColors::KnockedBoxColorA;
 		Features::Colors::Teammate::InvisibleFilledBoxColor[0] = Config::TeammateColors::InvisibleFilledBoxColorR;
 		Features::Colors::Teammate::InvisibleFilledBoxColor[1] = Config::TeammateColors::InvisibleFilledBoxColorG;
 		Features::Colors::Teammate::InvisibleFilledBoxColor[2] = Config::TeammateColors::InvisibleFilledBoxColorB;
@@ -3801,6 +4084,10 @@ struct ConfigManager
 		Features::Colors::Teammate::VisibleFilledBoxColor[1] = Config::TeammateColors::VisibleFilledBoxColorG;
 		Features::Colors::Teammate::VisibleFilledBoxColor[2] = Config::TeammateColors::VisibleFilledBoxColorB;
 		Features::Colors::Teammate::VisibleFilledBoxColor[3] = Config::TeammateColors::VisibleFilledBoxColorA;
+		Features::Colors::Teammate::KnockedFilledBoxColor[0] = Config::TeammateColors::KnockedFilledBoxColorR;
+		Features::Colors::Teammate::KnockedFilledBoxColor[1] = Config::TeammateColors::KnockedFilledBoxColorG;
+		Features::Colors::Teammate::KnockedFilledBoxColor[2] = Config::TeammateColors::KnockedFilledBoxColorB;
+		Features::Colors::Teammate::KnockedFilledBoxColor[3] = Config::TeammateColors::KnockedFilledBoxColorA;
 		Features::Colors::Teammate::InvisibleTracerColor[0] = Config::TeammateColors::InvisibleTracerColorR;
 		Features::Colors::Teammate::InvisibleTracerColor[1] = Config::TeammateColors::InvisibleTracerColorG;
 		Features::Colors::Teammate::InvisibleTracerColor[2] = Config::TeammateColors::InvisibleTracerColorB;
@@ -3809,6 +4096,10 @@ struct ConfigManager
 		Features::Colors::Teammate::VisibleTracerColor[1] = Config::TeammateColors::VisibleTracerColorG;
 		Features::Colors::Teammate::VisibleTracerColor[2] = Config::TeammateColors::VisibleTracerColorB;
 		Features::Colors::Teammate::VisibleTracerColor[3] = Config::TeammateColors::VisibleTracerColorA;
+		Features::Colors::Teammate::KnockedTracerColor[0] = Config::TeammateColors::KnockedTracerColorR;
+		Features::Colors::Teammate::KnockedTracerColor[1] = Config::TeammateColors::KnockedTracerColorG;
+		Features::Colors::Teammate::KnockedTracerColor[2] = Config::TeammateColors::KnockedTracerColorB;
+		Features::Colors::Teammate::KnockedTracerColor[3] = Config::TeammateColors::KnockedTracerColorA;
 		Features::Colors::Teammate::InvisibleSkeletonColor[0] = Config::TeammateColors::InvisibleSkeletonColorR;
 		Features::Colors::Teammate::InvisibleSkeletonColor[1] = Config::TeammateColors::InvisibleSkeletonColorG;
 		Features::Colors::Teammate::InvisibleSkeletonColor[2] = Config::TeammateColors::InvisibleSkeletonColorB;
@@ -3817,6 +4108,10 @@ struct ConfigManager
 		Features::Colors::Teammate::VisibleSkeletonColor[1] = Config::TeammateColors::VisibleSkeletonColorG;
 		Features::Colors::Teammate::VisibleSkeletonColor[2] = Config::TeammateColors::VisibleSkeletonColorB;
 		Features::Colors::Teammate::VisibleSkeletonColor[3] = Config::TeammateColors::VisibleSkeletonColorA;
+		Features::Colors::Teammate::KnockedSkeletonColor[0] = Config::TeammateColors::KnockedSkeletonColorR;
+		Features::Colors::Teammate::KnockedSkeletonColor[1] = Config::TeammateColors::KnockedSkeletonColorG;
+		Features::Colors::Teammate::KnockedSkeletonColor[2] = Config::TeammateColors::KnockedSkeletonColorB;
+		Features::Colors::Teammate::KnockedSkeletonColor[3] = Config::TeammateColors::KnockedSkeletonColorA;
 		Features::Colors::Teammate::InvisibleHeadCircleColor[0] = Config::TeammateColors::InvisibleHeadCircleColorR;
 		Features::Colors::Teammate::InvisibleHeadCircleColor[1] = Config::TeammateColors::InvisibleHeadCircleColorG;
 		Features::Colors::Teammate::InvisibleHeadCircleColor[2] = Config::TeammateColors::InvisibleHeadCircleColorB;
@@ -3825,6 +4120,10 @@ struct ConfigManager
 		Features::Colors::Teammate::VisibleHeadCircleColor[1] = Config::TeammateColors::VisibleHeadCircleColorG;
 		Features::Colors::Teammate::VisibleHeadCircleColor[2] = Config::TeammateColors::VisibleHeadCircleColorB;
 		Features::Colors::Teammate::VisibleHeadCircleColor[3] = Config::TeammateColors::VisibleHeadCircleColorA;
+		Features::Colors::Teammate::KnockedHeadCircleColor[0] = Config::TeammateColors::KnockedHeadCircleColorR;
+		Features::Colors::Teammate::KnockedHeadCircleColor[1] = Config::TeammateColors::KnockedHeadCircleColorG;
+		Features::Colors::Teammate::KnockedHeadCircleColor[2] = Config::TeammateColors::KnockedHeadCircleColorB;
+		Features::Colors::Teammate::KnockedHeadCircleColor[3] = Config::TeammateColors::KnockedHeadCircleColorA;
 		Features::Colors::Teammate::InvisibleNameColor[0] = Config::TeammateColors::InvisibleNameColorR;
 		Features::Colors::Teammate::InvisibleNameColor[1] = Config::TeammateColors::InvisibleNameColorG;
 		Features::Colors::Teammate::InvisibleNameColor[2] = Config::TeammateColors::InvisibleNameColorB;
@@ -3833,6 +4132,10 @@ struct ConfigManager
 		Features::Colors::Teammate::VisibleNameColor[1] = Config::TeammateColors::VisibleNameColorG;
 		Features::Colors::Teammate::VisibleNameColor[2] = Config::TeammateColors::VisibleNameColorB;
 		Features::Colors::Teammate::VisibleNameColor[3] = Config::TeammateColors::VisibleNameColorA;
+		Features::Colors::Teammate::KnockedNameColor[0] = Config::TeammateColors::KnockedNameColorR;
+		Features::Colors::Teammate::KnockedNameColor[1] = Config::TeammateColors::KnockedNameColorG;
+		Features::Colors::Teammate::KnockedNameColor[2] = Config::TeammateColors::KnockedNameColorB;
+		Features::Colors::Teammate::KnockedNameColor[3] = Config::TeammateColors::KnockedNameColorA;
 		Features::Colors::Teammate::InvisibleDistanceColor[0] = Config::TeammateColors::InvisibleDistanceColorR;
 		Features::Colors::Teammate::InvisibleDistanceColor[1] = Config::TeammateColors::InvisibleDistanceColorG;
 		Features::Colors::Teammate::InvisibleDistanceColor[2] = Config::TeammateColors::InvisibleDistanceColorB;
@@ -3841,6 +4144,10 @@ struct ConfigManager
 		Features::Colors::Teammate::VisibleDistanceColor[1] = Config::TeammateColors::VisibleDistanceColorG;
 		Features::Colors::Teammate::VisibleDistanceColor[2] = Config::TeammateColors::VisibleDistanceColorB;
 		Features::Colors::Teammate::VisibleDistanceColor[3] = Config::TeammateColors::VisibleDistanceColorA;
+		Features::Colors::Teammate::KnockedDistanceColor[0] = Config::TeammateColors::KnockedDistanceColorR;
+		Features::Colors::Teammate::KnockedDistanceColor[1] = Config::TeammateColors::KnockedDistanceColorG;
+		Features::Colors::Teammate::KnockedDistanceColor[2] = Config::TeammateColors::KnockedDistanceColorB;
+		Features::Colors::Teammate::KnockedDistanceColor[3] = Config::TeammateColors::KnockedDistanceColorA;
 		Features::Colors::Teammate::InvisibleLegendColor[0] = Config::TeammateColors::InvisibleLegendColorR;
 		Features::Colors::Teammate::InvisibleLegendColor[1] = Config::TeammateColors::InvisibleLegendColorG;
 		Features::Colors::Teammate::InvisibleLegendColor[2] = Config::TeammateColors::InvisibleLegendColorB;
@@ -3849,6 +4156,10 @@ struct ConfigManager
 		Features::Colors::Teammate::VisibleLegendColor[1] = Config::TeammateColors::VisibleLegendColorG;
 		Features::Colors::Teammate::VisibleLegendColor[2] = Config::TeammateColors::VisibleLegendColorB;
 		Features::Colors::Teammate::VisibleLegendColor[3] = Config::TeammateColors::VisibleLegendColorA;
+		Features::Colors::Teammate::KnockedLegendColor[0] = Config::TeammateColors::KnockedLegendColorR;
+		Features::Colors::Teammate::KnockedLegendColor[1] = Config::TeammateColors::KnockedLegendColorG;
+		Features::Colors::Teammate::KnockedLegendColor[2] = Config::TeammateColors::KnockedLegendColorB;
+		Features::Colors::Teammate::KnockedLegendColor[3] = Config::TeammateColors::KnockedLegendColorA;
 		Features::Colors::Teammate::InvisibleWeaponColor[0] = Config::TeammateColors::InvisibleWeaponColorR;
 		Features::Colors::Teammate::InvisibleWeaponColor[1] = Config::TeammateColors::InvisibleWeaponColorG;
 		Features::Colors::Teammate::InvisibleWeaponColor[2] = Config::TeammateColors::InvisibleWeaponColorB;
@@ -3857,6 +4168,10 @@ struct ConfigManager
 		Features::Colors::Teammate::VisibleWeaponColor[1] = Config::TeammateColors::VisibleWeaponColorG;
 		Features::Colors::Teammate::VisibleWeaponColor[2] = Config::TeammateColors::VisibleWeaponColorB;
 		Features::Colors::Teammate::VisibleWeaponColor[3] = Config::TeammateColors::VisibleWeaponColorA;
+		Features::Colors::Teammate::KnockedWeaponColor[0] = Config::TeammateColors::KnockedWeaponColorR;
+		Features::Colors::Teammate::KnockedWeaponColor[1] = Config::TeammateColors::KnockedWeaponColorG;
+		Features::Colors::Teammate::KnockedWeaponColor[2] = Config::TeammateColors::KnockedWeaponColorB;
+		Features::Colors::Teammate::KnockedWeaponColor[3] = Config::TeammateColors::KnockedWeaponColorA;
 		Features::Colors::Teammate::BarColorMode = Config::TeammateColors::BarColorMode;
 		Features::Colors::Teammate::LightWeaponColor[0] = Config::TeammateColors::LightWeaponColorR;
 		Features::Colors::Teammate::LightWeaponColor[1] = Config::TeammateColors::LightWeaponColorG;
@@ -3894,83 +4209,88 @@ struct ConfigManager
 		Features::Watermark::Watermark = Config::Watermark::Watermark;
 		Features::Watermark::WatermarkPosition = Config::Watermark::WatermarkPosition;
 		Features::Watermark::Name = Config::Watermark::Name;
+		Features::Watermark::NameColor[0] = Config::Colors::NameColorR;
+		Features::Watermark::NameColor[1] = Config::Colors::NameColorG;
+		Features::Watermark::NameColor[2] = Config::Colors::NameColorB;
+		Features::Watermark::NameColor[3] = Config::Colors::NameColorA;
 		Features::Watermark::ProcessingSpeed = Config::Watermark::ProcessingSpeed;
+		Features::Watermark::GameFPS = Config::Watermark::GameFPS;
 		Features::Watermark::Spectators = Config::Watermark::Spectators;
 
 		Features::Settings::ESPEnabled = Config::Settings::ESPEnabled;
+		Features::Settings::DeadCheck = Config::Settings::DeadCheck;
 		Features::Settings::OverlayEnabled = Config::Settings::OverlayEnabled;
+		Features::Settings::AntiAliasedLines = Config::Settings::AntiAliasedLines;
 		Features::Settings::FPSCap = Config::Settings::FPSCap;
 		Features::Settings::CappedFPS = Config::Settings::CappedFPS;
 	}
 
-	bool ReadConfig()
-	{
+	bool ReadConfig() {
 		std::string ConfigName = "Configs/" + std::string(configName) + ".ini";
 		INIReader reader(ConfigName);
-		if (reader.ParseError() < 0)
-		{
+		if (reader.ParseError() < 0) {
 			UpdateConfig();
 			return false;
 		}
 
 		ReadBool(Aimbot, AimbotEnabled);
-        ReadInt(Aimbot, BindMethod);
-        ReadInt(Aimbot, AimbotMode); // Cubic Beizer (xap-client) or Grinder (Possibly linear?) or [New] Cubic Beizer (Testing)
-        ReadInt(Aimbot, InputMethod); // MoveMouse or Controller (Write To ViewAngles)
+		ReadInt(Aimbot, BindMethod);
+		ReadInt(Aimbot, AimbotMode); // Cubic Beizer (xap-client) or Grinder (Possibly linear?) or [New] Cubic Beizer (Testing)
+		ReadInt(Aimbot, InputMethod); // MoveMouse or Controller (Write To ViewAngles)
 
-        ReadBool(Aimbot, ClosestHitbox);
+		ReadBool(Aimbot, ClosestHitbox);
 
-        ReadBool(Aimbot, OnFire);
-        ReadBool(Aimbot, OnADS);
-        ReadBool(Aimbot, VisCheck);
-        ReadBool(Aimbot, TeamCheck);
-        ReadBool(Aimbot, TargetSwitching);
-        ReadInt(Aimbot, Priority);
+		ReadBool(Aimbot, OnFire);
+		ReadBool(Aimbot, OnADS);
+		ReadBool(Aimbot, VisCheck);
+		ReadBool(Aimbot, TeamCheck);
+		ReadBool(Aimbot, TargetSwitching);
+		ReadInt(Aimbot, Priority);
 
-        ReadBool(Aimbot, PredictMovement);
-        ReadBool(Aimbot, PredictBulletDrop);
+		ReadBool(Aimbot, PredictMovement);
+		ReadBool(Aimbot, PredictBulletDrop);
 
-        ReadFloat(Aimbot, FinalDistance);
-        ReadFloat(Aimbot, Smooth);
+		ReadFloat(Aimbot, FinalDistance);
+		ReadFloat(Aimbot, Smooth);
 
-        ReadFloat(Aimbot, Speed);
-        ReadInt(Aimbot, SmoothingMethod); // 0 = Static, 1 = Random
+		ReadFloat(Aimbot, Speed);
+		ReadInt(Aimbot, SmoothingMethod); // 0 = Static, 1 = Random
 
-        ReadFloat(Aimbot, HipfireSmooth);
-        ReadFloat(Aimbot, ADSSmooth);
-        ReadFloat(Aimbot, MinHipfireSmooth);
-        ReadFloat(Aimbot, MaxHipfireSmooth);
-        ReadFloat(Aimbot, MinADSSmooth);
-        ReadFloat(Aimbot, MaxADSSmooth);
+		ReadFloat(Aimbot, HipfireSmooth);
+		ReadFloat(Aimbot, ADSSmooth);
+		ReadFloat(Aimbot, MinHipfireSmooth);
+		ReadFloat(Aimbot, MaxHipfireSmooth);
+		ReadFloat(Aimbot, MinADSSmooth);
+		ReadFloat(Aimbot, MaxADSSmooth);
 
-        //AimMode 3 (Testing)
-        ReadFloat(Aimbot, MouseHipfireSmoothing);
-        ReadFloat(Aimbot, MouseADSSmoothing);
-        ReadFloat(Aimbot, MouseExtraSmoothing);
-        ReadFloat(Aimbot, MinMouseHipfireSmoothing);
-        ReadFloat(Aimbot, MaxMouseHipfireSmoothing);
-        ReadFloat(Aimbot, MinMouseADSSmoothing);
-        ReadFloat(Aimbot, MaxMouseADSSmoothing);
+		//AimMode 3 (Testing)
+		ReadFloat(Aimbot, MouseHipfireSmoothing);
+		ReadFloat(Aimbot, MouseADSSmoothing);
+		ReadFloat(Aimbot, MouseExtraSmoothing);
+		ReadFloat(Aimbot, MinMouseHipfireSmoothing);
+		ReadFloat(Aimbot, MaxMouseHipfireSmoothing);
+		ReadFloat(Aimbot, MinMouseADSSmoothing);
+		ReadFloat(Aimbot, MaxMouseADSSmoothing);
 
-        ReadInt(Aimbot, Delay);
-        ReadFloat(Aimbot, FOV);
-        ReadFloat(Aimbot, ZoomScale);
-        ReadFloat(Aimbot, MinDistance);
-        ReadFloat(Aimbot, HipfireDistance);
-        ReadFloat(Aimbot, ZoomDistance);
-        
-        //AimMode 2
-        ReadFloat(Aimbot, HipfireSmooth1);
-        ReadFloat(Aimbot, ADSSmooth1);
-        ReadFloat(Aimbot, MinHipfireSmooth1);
-        ReadFloat(Aimbot, MaxHipfireSmooth1);
-        ReadFloat(Aimbot, MinADSSmooth1);
-        ReadFloat(Aimbot, MaxADSSmooth1);
-        ReadFloat(Aimbot, ExtraSmoothing);
-        ReadFloat(Aimbot, Deadzone);
-        ReadFloat(Aimbot, FOV1);
-        ReadFloat(Aimbot, MinDistance2);
-        ReadFloat(Aimbot, MaxDistance2);
+		ReadInt(Aimbot, Delay);
+		ReadFloat(Aimbot, FOV);
+		ReadFloat(Aimbot, ZoomScale);
+		ReadFloat(Aimbot, MinDistance);
+		ReadFloat(Aimbot, HipfireDistance);
+		ReadFloat(Aimbot, ZoomDistance);
+
+		//AimMode 2
+		ReadFloat(Aimbot, HipfireSmooth1);
+		ReadFloat(Aimbot, ADSSmooth1);
+		ReadFloat(Aimbot, MinHipfireSmooth1);
+		ReadFloat(Aimbot, MaxHipfireSmooth1);
+		ReadFloat(Aimbot, MinADSSmooth1);
+		ReadFloat(Aimbot, MaxADSSmooth1);
+		ReadFloat(Aimbot, ExtraSmoothing);
+		ReadFloat(Aimbot, Deadzone);
+		ReadFloat(Aimbot, FOV1);
+		ReadFloat(Aimbot, MinDistance2);
+		ReadFloat(Aimbot, MaxDistance2);
 
 		// Weapon Toggles
 		// Light
@@ -4016,33 +4336,33 @@ struct ConfigManager
 		ReadBool(Aimbot, Knife);
 
 		//---------------Advanced---------------//
-        ReadBool(Aimbot, AdvancedAim);
-        ReadBool(Aimbot, AdvancedFire);
-        ReadBool(Aimbot, AdvancedADS);
-        ReadInt(Aimbot, AdvancedSmoothingMethod); // 0 = Static, 1 = Random
-        //Aimbot Mode 0 - xap-client
-        ReadBool(Aimbot, AdvancedClosestHitbox);
-        ReadFloat(Aimbot, AdvancedHitbox);
-        ReadFloat(Aimbot, AdvancedSpeed);
-        ReadFloat(Aimbot, AdvancedSmooth);
-        ReadFloat(Aimbot, AdvancedHipfireSmooth);
-        ReadFloat(Aimbot, AdvancedADSSmooth);
-        ReadFloat(Aimbot, AdvancedMinHipfireSmooth);
-        ReadFloat(Aimbot, AdvancedMaxHipfireSmooth);
-        ReadFloat(Aimbot, AdvancedMinADSSmooth);
-        ReadFloat(Aimbot, AdvancedMaxADSSmooth);
-        //Aimbot Mode 1 - Grinder
-        ReadFloat(Aimbot, AdvancedHipfireSmooth1);
-        ReadFloat(Aimbot, AdvancedADSSmooth1);
-        ReadFloat(Aimbot, AdvancedMinHipfireSmooth1);
-        ReadFloat(Aimbot, AdvancedMaxHipfireSmooth1);
-        ReadFloat(Aimbot, AdvancedMinADSSmooth1);
-        ReadFloat(Aimbot, AdvancedMaxADSSmooth1);
-        ReadFloat(Aimbot, AdvancedExtraSmooth1);
-        ReadFloat(Aimbot, AdvancedFOV1);
-        ReadFloat(Aimbot, AdvancedDeadzone);
-        ReadFloat(Aimbot, AdvancedMinDistance1);
-        ReadFloat(Aimbot, AdvancedMaxDistance1);
+		ReadBool(Aimbot, AdvancedAim);
+		ReadBool(Aimbot, AdvancedFire);
+		ReadBool(Aimbot, AdvancedADS);
+		ReadInt(Aimbot, AdvancedSmoothingMethod); // 0 = Static, 1 = Random
+		//Aimbot Mode 0 - xap-client
+		ReadBool(Aimbot, AdvancedClosestHitbox);
+		ReadFloat(Aimbot, AdvancedHitbox);
+		ReadFloat(Aimbot, AdvancedSpeed);
+		ReadFloat(Aimbot, AdvancedSmooth);
+		ReadFloat(Aimbot, AdvancedHipfireSmooth);
+		ReadFloat(Aimbot, AdvancedADSSmooth);
+		ReadFloat(Aimbot, AdvancedMinHipfireSmooth);
+		ReadFloat(Aimbot, AdvancedMaxHipfireSmooth);
+		ReadFloat(Aimbot, AdvancedMinADSSmooth);
+		ReadFloat(Aimbot, AdvancedMaxADSSmooth);
+		//Aimbot Mode 1 - Grinder
+		ReadFloat(Aimbot, AdvancedHipfireSmooth1);
+		ReadFloat(Aimbot, AdvancedADSSmooth1);
+		ReadFloat(Aimbot, AdvancedMinHipfireSmooth1);
+		ReadFloat(Aimbot, AdvancedMaxHipfireSmooth1);
+		ReadFloat(Aimbot, AdvancedMinADSSmooth1);
+		ReadFloat(Aimbot, AdvancedMaxADSSmooth1);
+		ReadFloat(Aimbot, AdvancedExtraSmooth1);
+		ReadFloat(Aimbot, AdvancedFOV1);
+		ReadFloat(Aimbot, AdvancedDeadzone);
+		ReadFloat(Aimbot, AdvancedMinDistance1);
+		ReadFloat(Aimbot, AdvancedMaxDistance1);
 
 		// Advanced OnFire & OnADS - Aimbot Mode 0 & 1 - xap-client & grinder
 		ReadBool(Aimbot, P2020Fire);
@@ -4107,708 +4427,708 @@ struct ConfigManager
 		ReadBool(Aimbot, ThrowingKnifeADS);
 
 		//Advanced Speed, Smooth + Hitbox - Aimbot Mode 0 - xap-client
-        ReadBool(Aimbot, P2020ClosestHitbox);
-        ReadFloat(Aimbot, P2020Hitbox);
-        ReadFloat(Aimbot, P2020Speed);
-        ReadFloat(Aimbot, P2020HipfireSmooth);
-        ReadFloat(Aimbot, P2020ADSSmooth);
-        ReadInt(Aimbot, P2020SmoothingMethod);
-        ReadFloat(Aimbot, P2020MinHipfireSmooth);
-        ReadFloat(Aimbot, P2020MaxHipfireSmooth);
-        ReadFloat(Aimbot, P2020MinADSSmooth);
-        ReadFloat(Aimbot, P2020MaxADSSmooth);
-        ReadFloat(Aimbot, P2020FOV);
-        ReadFloat(Aimbot, P2020ZoomScale);
-        ReadBool(Aimbot, RE45ClosestHitbox);
-        ReadFloat(Aimbot, RE45Hitbox);
-        ReadFloat(Aimbot, RE45Speed);
-        ReadFloat(Aimbot, RE45HipfireSmooth);
-        ReadFloat(Aimbot, RE45ADSSmooth);
-        ReadInt(Aimbot, RE45SmoothingMethod);
-        ReadFloat(Aimbot, RE45MinHipfireSmooth);
-        ReadFloat(Aimbot, RE45MaxHipfireSmooth);
-        ReadFloat(Aimbot, RE45MinADSSmooth);
-        ReadFloat(Aimbot, RE45MaxADSSmooth);
-        ReadFloat(Aimbot, RE45FOV);
-        ReadFloat(Aimbot, RE45ZoomScale);
-        ReadBool(Aimbot, AlternatorClosestHitbox);
-        ReadFloat(Aimbot, AlternatorHitbox);
-        ReadFloat(Aimbot, AlternatorSpeed);
-        ReadFloat(Aimbot, AlternatorHipfireSmooth);
-        ReadFloat(Aimbot, AlternatorADSSmooth);
-        ReadInt(Aimbot, AlternatorSmoothingMethod);
-        ReadFloat(Aimbot, AlternatorMinHipfireSmooth);
-        ReadFloat(Aimbot, AlternatorMaxHipfireSmooth);
-        ReadFloat(Aimbot, AlternatorMinADSSmooth);
-        ReadFloat(Aimbot, AlternatorMaxADSSmooth);
-        ReadFloat(Aimbot, AlternatorFOV);
-        ReadFloat(Aimbot, AlternatorZoomScale);
-        ReadBool(Aimbot, R99ClosestHitbox);
-        ReadFloat(Aimbot, R99Hitbox);
-        ReadFloat(Aimbot, R99Speed);
-        ReadFloat(Aimbot, R99HipfireSmooth);
-        ReadFloat(Aimbot, R99ADSSmooth);
-        ReadInt(Aimbot, R99SmoothingMethod);
-        ReadFloat(Aimbot, R99MinHipfireSmooth);
-        ReadFloat(Aimbot, R99MaxHipfireSmooth);
-        ReadFloat(Aimbot, R99MinADSSmooth);
-        ReadFloat(Aimbot, R99MaxADSSmooth);
-        ReadFloat(Aimbot, R99FOV);
-        ReadFloat(Aimbot, R99ZoomScale);
-        ReadBool(Aimbot, R301ClosestHitbox);
-        ReadFloat(Aimbot, R301Hitbox);
-        ReadFloat(Aimbot, R301Speed);
-        ReadFloat(Aimbot, R301HipfireSmooth);
-        ReadFloat(Aimbot, R301ADSSmooth);
-        ReadInt(Aimbot, R301SmoothingMethod);
-        ReadFloat(Aimbot, R301MinHipfireSmooth);
-        ReadFloat(Aimbot, R301MaxHipfireSmooth);
-        ReadFloat(Aimbot, R301MinADSSmooth);
-        ReadFloat(Aimbot, R301MaxADSSmooth);
-        ReadFloat(Aimbot, R301FOV);
-        ReadFloat(Aimbot, R301ZoomScale);
-        ReadBool(Aimbot, SpitfireClosestHitbox);
-        ReadFloat(Aimbot, SpitfireHitbox);
-        ReadFloat(Aimbot, SpitfireSpeed);
-        ReadFloat(Aimbot, SpitfireHipfireSmooth);
-        ReadFloat(Aimbot, SpitfireADSSmooth);
-        ReadInt(Aimbot, SpitfireSmoothingMethod);
-        ReadFloat(Aimbot, SpitfireMinHipfireSmooth);
-        ReadFloat(Aimbot, SpitfireMaxHipfireSmooth);
-        ReadFloat(Aimbot, SpitfireMinADSSmooth);
-        ReadFloat(Aimbot, SpitfireMaxADSSmooth);
-        ReadFloat(Aimbot, SpitfireFOV);
-        ReadFloat(Aimbot, SpitfireZoomScale);
-        ReadBool(Aimbot, G7ClosestHitbox);
-        ReadFloat(Aimbot, G7Hitbox);
-        ReadFloat(Aimbot, G7Speed);
-        ReadFloat(Aimbot, G7HipfireSmooth);
-        ReadFloat(Aimbot, G7ADSSmooth);
-        ReadInt(Aimbot, G7SmoothingMethod);
-        ReadFloat(Aimbot, G7MinHipfireSmooth);
-        ReadFloat(Aimbot, G7MaxHipfireSmooth);
-        ReadFloat(Aimbot, G7MinADSSmooth);
-        ReadFloat(Aimbot, G7MaxADSSmooth);
-        ReadFloat(Aimbot, G7FOV);
-        ReadFloat(Aimbot, G7ZoomScale);
-        //Heavy
-        ReadBool(Aimbot, FlatlineClosestHitbox);
-        ReadFloat(Aimbot, FlatlineHitbox);
-        ReadFloat(Aimbot, FlatlineSpeed);
-        ReadFloat(Aimbot, FlatlineHipfireSmooth);
-        ReadFloat(Aimbot, FlatlineADSSmooth);
-        ReadInt(Aimbot, FlatlineSmoothingMethod);
-        ReadFloat(Aimbot, FlatlineMinHipfireSmooth);
-        ReadFloat(Aimbot, FlatlineMaxHipfireSmooth);
-        ReadFloat(Aimbot, FlatlineMinADSSmooth);
-        ReadFloat(Aimbot, FlatlineMaxADSSmooth);
-        ReadFloat(Aimbot, FlatlineFOV);
-        ReadFloat(Aimbot, FlatlineZoomScale);
-        ReadBool(Aimbot, HemlockClosestHitbox);
-        ReadFloat(Aimbot, HemlockHitbox);
-        ReadFloat(Aimbot, HemlockSpeed);
-        ReadFloat(Aimbot, HemlockHipfireSmooth);
-        ReadFloat(Aimbot, HemlockADSSmooth);
-        ReadInt(Aimbot, HemlockSmoothingMethod);
-        ReadFloat(Aimbot, HemlockMinHipfireSmooth);
-        ReadFloat(Aimbot, HemlockMaxHipfireSmooth);
-        ReadFloat(Aimbot, HemlockMinADSSmooth);
-        ReadFloat(Aimbot, HemlockMaxADSSmooth);
-        ReadFloat(Aimbot, HemlockFOV);
-        ReadFloat(Aimbot, HemlockZoomScale);
-        ReadBool(Aimbot, RepeaterClosestHitbox);
-        ReadFloat(Aimbot, RepeaterHitbox);
-        ReadFloat(Aimbot, RepeaterSpeed);
-        ReadFloat(Aimbot, RepeaterHipfireSmooth);
-        ReadFloat(Aimbot, RepeaterADSSmooth);
-        ReadInt(Aimbot, RepeaterSmoothingMethod);
-        ReadFloat(Aimbot, RepeaterMinHipfireSmooth);
-        ReadFloat(Aimbot, RepeaterMaxHipfireSmooth);
-        ReadFloat(Aimbot, RepeaterMinADSSmooth);
-        ReadFloat(Aimbot, RepeaterMaxADSSmooth);
-        ReadFloat(Aimbot, RepeaterFOV);
-        ReadFloat(Aimbot, RepeaterZoomScale);
-        ReadBool(Aimbot, RampageClosestHitbox);
-        ReadFloat(Aimbot, RampageHitbox);
-        ReadFloat(Aimbot, RampageSpeed);
-        ReadFloat(Aimbot, RampageHipfireSmooth);
-        ReadFloat(Aimbot, RampageADSSmooth);
-        ReadInt(Aimbot, RampageSmoothingMethod);
-        ReadFloat(Aimbot, RampageMinHipfireSmooth);
-        ReadFloat(Aimbot, RampageMaxHipfireSmooth);
-        ReadFloat(Aimbot, RampageMinADSSmooth);
-        ReadFloat(Aimbot, RampageMaxADSSmooth);
-        ReadFloat(Aimbot, RampageFOV);
-        ReadFloat(Aimbot, RampageZoomScale);
-        ReadBool(Aimbot, CARSMGClosestHitbox);
-        ReadFloat(Aimbot, CARSMGHitbox);
-        ReadFloat(Aimbot, CARSMGSpeed);
-        ReadFloat(Aimbot, CARSMGHipfireSmooth);
-        ReadFloat(Aimbot, CARSMGADSSmooth);
-        ReadInt(Aimbot, CARSMGSmoothingMethod);
-        ReadFloat(Aimbot, CARSMGMinHipfireSmooth);
-        ReadFloat(Aimbot, CARSMGMaxHipfireSmooth);
-        ReadFloat(Aimbot, CARSMGMinADSSmooth);
-        ReadFloat(Aimbot, CARSMGMaxADSSmooth);
-        ReadFloat(Aimbot, CARSMGFOV);
-        ReadFloat(Aimbot, CARSMGZoomScale);
-        //Energy
-        ReadBool(Aimbot, HavocClosestHitbox);
-        ReadFloat(Aimbot, HavocHitbox);
-        ReadFloat(Aimbot, HavocSpeed);
-        ReadFloat(Aimbot, HavocHipfireSmooth);
-        ReadFloat(Aimbot, HavocADSSmooth);
-        ReadInt(Aimbot, HavocSmoothingMethod);
-        ReadFloat(Aimbot, HavocMinHipfireSmooth);
-        ReadFloat(Aimbot, HavocMaxHipfireSmooth);
-        ReadFloat(Aimbot, HavocMinADSSmooth);
-        ReadFloat(Aimbot, HavocMaxADSSmooth);
-        ReadFloat(Aimbot, HavocFOV);
-        ReadFloat(Aimbot, HavocZoomScale);
-        ReadBool(Aimbot, DevotionClosestHitbox);
-        ReadFloat(Aimbot, DevotionHitbox);
-        ReadFloat(Aimbot, DevotionSpeed);
-        ReadFloat(Aimbot, DevotionHipfireSmooth);
-        ReadFloat(Aimbot, DevotionADSSmooth);
-        ReadInt(Aimbot, DevotionSmoothingMethod);
-        ReadFloat(Aimbot, DevotionMinHipfireSmooth);
-        ReadFloat(Aimbot, DevotionMaxHipfireSmooth);
-        ReadFloat(Aimbot, DevotionMinADSSmooth);
-        ReadFloat(Aimbot, DevotionMaxADSSmooth);
-        ReadFloat(Aimbot, DevotionFOV);
-        ReadFloat(Aimbot, DevotionZoomScale);
-        ReadBool(Aimbot, LSTARClosestHitbox);
-        ReadFloat(Aimbot, LSTARHitbox);
-        ReadFloat(Aimbot, LSTARSpeed);
-        ReadFloat(Aimbot, LSTARHipfireSmooth);
-        ReadFloat(Aimbot, LSTARADSSmooth);
-        ReadInt(Aimbot, LSTARSmoothingMethod);
-        ReadFloat(Aimbot, LSTARMinHipfireSmooth);
-        ReadFloat(Aimbot, LSTARMaxHipfireSmooth);
-        ReadFloat(Aimbot, LSTARMinADSSmooth);
-        ReadFloat(Aimbot, LSTARMaxADSSmooth);
-        ReadFloat(Aimbot, LSTARFOV);
-        ReadFloat(Aimbot, LSTARZoomScale);
-        ReadBool(Aimbot, TripleTakeClosestHitbox);
-        ReadFloat(Aimbot, TripleTakeHitbox);
-        ReadFloat(Aimbot, TripleTakeSpeed);
-        ReadFloat(Aimbot, TripleTakeHipfireSmooth);
-        ReadFloat(Aimbot, TripleTakeADSSmooth);
-        ReadInt(Aimbot, TripleTakeSmoothingMethod);
-        ReadFloat(Aimbot, TripleTakeMinHipfireSmooth);
-        ReadFloat(Aimbot, TripleTakeMaxHipfireSmooth);
-        ReadFloat(Aimbot, TripleTakeMinADSSmooth);
-        ReadFloat(Aimbot, TripleTakeMaxADSSmooth);
-        ReadFloat(Aimbot, TripleTakeFOV);
-        ReadFloat(Aimbot, TripleTakeZoomScale);
-        ReadBool(Aimbot, VoltClosestHitbox);
-        ReadFloat(Aimbot, VoltHitbox);
-        ReadFloat(Aimbot, VoltSpeed);
-        ReadFloat(Aimbot, VoltHipfireSmooth);
-        ReadFloat(Aimbot, VoltADSSmooth);
-        ReadInt(Aimbot, VoltSmoothingMethod);
-        ReadFloat(Aimbot, VoltMinHipfireSmooth);
-        ReadFloat(Aimbot, VoltMaxHipfireSmooth);
-        ReadFloat(Aimbot, VoltMinADSSmooth);
-        ReadFloat(Aimbot, VoltMaxADSSmooth);
-        ReadFloat(Aimbot, VoltFOV);
-        ReadFloat(Aimbot, VoltZoomScale);
-        ReadBool(Aimbot, NemesisClosestHitbox);
-        ReadFloat(Aimbot, NemesisHitbox);
-        ReadFloat(Aimbot, NemesisSpeed);
-        ReadFloat(Aimbot, NemesisHipfireSmooth);
-        ReadFloat(Aimbot, NemesisADSSmooth);
-        ReadInt(Aimbot, NemesisSmoothingMethod);
-        ReadFloat(Aimbot, NemesisMinHipfireSmooth);
-        ReadFloat(Aimbot, NemesisMaxHipfireSmooth);
-        ReadFloat(Aimbot, NemesisMinADSSmooth);
-        ReadFloat(Aimbot, NemesisMaxADSSmooth);
-        ReadFloat(Aimbot, NemesisFOV);
-        ReadFloat(Aimbot, NemesisZoomScale);
-        //Shotguns
-        ReadBool(Aimbot, MozambiqueClosestHitbox);
-        ReadFloat(Aimbot, MozambiqueHitbox);
-        ReadFloat(Aimbot, MozambiqueSpeed);
-        ReadFloat(Aimbot, MozambiqueHipfireSmooth);
-        ReadFloat(Aimbot, MozambiqueADSSmooth);
-        ReadInt(Aimbot, MozambiqueSmoothingMethod);
-        ReadFloat(Aimbot, MozambiqueMinHipfireSmooth);
-        ReadFloat(Aimbot, MozambiqueMaxHipfireSmooth);
-        ReadFloat(Aimbot, MozambiqueMinADSSmooth);
-        ReadFloat(Aimbot, MozambiqueMaxADSSmooth);
-        ReadFloat(Aimbot, MozambiqueFOV);
-        ReadFloat(Aimbot, MozambiqueZoomScale);
-        ReadBool(Aimbot, EVA8ClosestHitbox);
-        ReadFloat(Aimbot, EVA8Hitbox);
-        ReadFloat(Aimbot, EVA8Speed);
-        ReadFloat(Aimbot, EVA8HipfireSmooth);
-        ReadFloat(Aimbot, EVA8ADSSmooth);
-        ReadInt(Aimbot, EVA8SmoothingMethod);
-        ReadFloat(Aimbot, EVA8MinHipfireSmooth);
-        ReadFloat(Aimbot, EVA8MaxHipfireSmooth);
-        ReadFloat(Aimbot, EVA8MinADSSmooth);
-        ReadFloat(Aimbot, EVA8MaxADSSmooth);
-        ReadFloat(Aimbot, EVA8FOV);
-        ReadFloat(Aimbot, EVA8ZoomScale);
-        ReadBool(Aimbot, PeacekeeperClosestHitbox);
-        ReadFloat(Aimbot, PeacekeeperHitbox);
-        ReadFloat(Aimbot, PeacekeeperSpeed);
-        ReadFloat(Aimbot, PeacekeeperHipfireSmooth);
-        ReadFloat(Aimbot, PeacekeeperADSSmooth);
-        ReadInt(Aimbot, PeacekeeperSmoothingMethod);
-        ReadFloat(Aimbot, PeacekeeperMinHipfireSmooth);
-        ReadFloat(Aimbot, PeacekeeperMaxHipfireSmooth);
-        ReadFloat(Aimbot, PeacekeeperMinADSSmooth);
-        ReadFloat(Aimbot, PeacekeeperMaxADSSmooth);
-        ReadFloat(Aimbot, PeacekeeperFOV);
-        ReadFloat(Aimbot, PeacekeeperZoomScale);
-        ReadBool(Aimbot, MastiffClosestHitbox);
-        ReadFloat(Aimbot, MastiffHitbox);
-        ReadFloat(Aimbot, MastiffSpeed);
-        ReadFloat(Aimbot, MastiffHipfireSmooth);
-        ReadFloat(Aimbot, MastiffADSSmooth);
-        ReadInt(Aimbot, MastiffSmoothingMethod);
-        ReadFloat(Aimbot, MastiffMinHipfireSmooth);
-        ReadFloat(Aimbot, MastiffMaxHipfireSmooth);
-        ReadFloat(Aimbot, MastiffMinADSSmooth);
-        ReadFloat(Aimbot, MastiffMaxADSSmooth);
-        ReadFloat(Aimbot, MastiffFOV);
-        ReadFloat(Aimbot, MastiffZoomScale);
-        //Snipers
-        ReadBool(Aimbot, LongbowClosestHitbox);
-        ReadFloat(Aimbot, LongbowHitbox);
-        ReadFloat(Aimbot, LongbowSpeed);
-        ReadFloat(Aimbot, LongbowHipfireSmooth);
-        ReadFloat(Aimbot, LongbowADSSmooth);
-        ReadInt(Aimbot, LongbowSmoothingMethod);
-        ReadFloat(Aimbot, LongbowMinHipfireSmooth);
-        ReadFloat(Aimbot, LongbowMaxHipfireSmooth);
-        ReadFloat(Aimbot, LongbowMinADSSmooth);
-        ReadFloat(Aimbot, LongbowMaxADSSmooth);
-        ReadFloat(Aimbot, LongbowFOV);
-        ReadFloat(Aimbot, LongbowZoomScale);
-        ReadBool(Aimbot, ChargeRifleClosestHitbox);
-        ReadFloat(Aimbot, ChargeRifleHitbox);
-        ReadFloat(Aimbot, ChargeRifleSpeed);
-        ReadFloat(Aimbot, ChargeRifleHipfireSmooth);
-        ReadFloat(Aimbot, ChargeRifleADSSmooth);
-        ReadInt(Aimbot, ChargeRifleSmoothingMethod);
-        ReadFloat(Aimbot, ChargeRifleMinHipfireSmooth);
-        ReadFloat(Aimbot, ChargeRifleMaxHipfireSmooth);
-        ReadFloat(Aimbot, ChargeRifleMinADSSmooth);
-        ReadFloat(Aimbot, ChargeRifleMaxADSSmooth);
-        ReadFloat(Aimbot, ChargeRifleFOV);
-        ReadFloat(Aimbot, ChargeRifleZoomScale);
-        ReadBool(Aimbot, SentinelClosestHitbox);
-        ReadFloat(Aimbot, SentinelHitbox);
-        ReadFloat(Aimbot, SentinelSpeed);
-        ReadFloat(Aimbot, SentinelHipfireSmooth);
-        ReadFloat(Aimbot, SentinelADSSmooth);
-        ReadInt(Aimbot, SentinelSmoothingMethod);
-        ReadFloat(Aimbot, SentinelMinHipfireSmooth);
-        ReadFloat(Aimbot, SentinelMaxHipfireSmooth);
-        ReadFloat(Aimbot, SentinelMinADSSmooth);
-        ReadFloat(Aimbot, SentinelMaxADSSmooth);
-        ReadFloat(Aimbot, SentinelFOV);
-        ReadFloat(Aimbot, SentinelZoomScale);
-        //Legendary
-        ReadBool(Aimbot, WingmanClosestHitbox);
-        ReadFloat(Aimbot, WingmanHitbox);
-        ReadFloat(Aimbot, WingmanSpeed);
-        ReadFloat(Aimbot, WingmanHipfireSmooth);
-        ReadFloat(Aimbot, WingmanADSSmooth);
-        ReadInt(Aimbot, WingmanSmoothingMethod);
-        ReadFloat(Aimbot, WingmanMinHipfireSmooth);
-        ReadFloat(Aimbot, WingmanMaxHipfireSmooth);
-        ReadFloat(Aimbot, WingmanMinADSSmooth);
-        ReadFloat(Aimbot, WingmanMaxADSSmooth);
-        ReadFloat(Aimbot, WingmanFOV);
-        ReadFloat(Aimbot, WingmanZoomScale);
-        ReadBool(Aimbot, ProwlerClosestHitbox);
-        ReadFloat(Aimbot, ProwlerHitbox);
-        ReadFloat(Aimbot, ProwlerSpeed);
-        ReadFloat(Aimbot, ProwlerHipfireSmooth);
-        ReadFloat(Aimbot, ProwlerADSSmooth);
-        ReadInt(Aimbot, ProwlerSmoothingMethod);
-        ReadFloat(Aimbot, ProwlerMinHipfireSmooth);
-        ReadFloat(Aimbot, ProwlerMaxHipfireSmooth);
-        ReadFloat(Aimbot, ProwlerMinADSSmooth);
-        ReadFloat(Aimbot, ProwlerMaxADSSmooth);
-        ReadFloat(Aimbot, ProwlerFOV);
-        ReadFloat(Aimbot, ProwlerZoomScale);
-        ReadBool(Aimbot, KraberClosestHitbox);
-        ReadFloat(Aimbot, KraberHitbox);
-        ReadFloat(Aimbot, KraberSpeed);
-        ReadFloat(Aimbot, KraberHipfireSmooth);
-        ReadFloat(Aimbot, KraberADSSmooth);
-        ReadInt(Aimbot, KraberSmoothingMethod);
-        ReadFloat(Aimbot, KraberMinHipfireSmooth);
-        ReadFloat(Aimbot, KraberMaxHipfireSmooth);
-        ReadFloat(Aimbot, KraberMinADSSmooth);
-        ReadFloat(Aimbot, KraberMaxADSSmooth);
-        ReadFloat(Aimbot, KraberFOV);
-        ReadFloat(Aimbot, KraberZoomScale);
-        ReadBool(Aimbot, BocekClosestHitbox);
-        ReadFloat(Aimbot, BocekHitbox);
-        ReadFloat(Aimbot, BocekSpeed);
-        ReadFloat(Aimbot, BocekHipfireSmooth);
-        ReadFloat(Aimbot, BocekADSSmooth);
-        ReadInt(Aimbot, BocekSmoothingMethod);
-        ReadFloat(Aimbot, BocekMinHipfireSmooth);
-        ReadFloat(Aimbot, BocekMaxHipfireSmooth);
-        ReadFloat(Aimbot, BocekMinADSSmooth);
-        ReadFloat(Aimbot, BocekMaxADSSmooth);
-        ReadFloat(Aimbot, BocekFOV);
-        ReadFloat(Aimbot, BocekZoomScale);
-        ReadBool(Aimbot, ThrowingKnifeClosestHitbox);
-        ReadFloat(Aimbot, ThrowingKnifeHitbox);
-        ReadFloat(Aimbot, ThrowingKnifeSpeed);
-        ReadFloat(Aimbot, ThrowingKnifeHipfireSmooth);
-        ReadFloat(Aimbot, ThrowingKnifeADSSmooth);
-        ReadInt(Aimbot, ThrowingKnifeSmoothingMethod);
-        ReadFloat(Aimbot, ThrowingKnifeMinHipfireSmooth);
-        ReadFloat(Aimbot, ThrowingKnifeMaxHipfireSmooth);
-        ReadFloat(Aimbot, ThrowingKnifeMinADSSmooth);
-        ReadFloat(Aimbot, ThrowingKnifeMaxADSSmooth);
-        ReadFloat(Aimbot, ThrowingKnifeFOV);
-        ReadFloat(Aimbot, ThrowingKnifeZoomScale);
-        
-        //Advanced Smooth - Aimbot Mode 1 - Grinder
-        ReadFloat(Aimbot, P2020HipfireSmooth1);
-        ReadFloat(Aimbot, P2020ADSSmooth1);
-        ReadFloat(Aimbot, P2020MinHipfireSmooth1);
-        ReadFloat(Aimbot, P2020MaxHipfireSmooth1);
-        ReadFloat(Aimbot, P2020MinADSSmooth1);
-        ReadFloat(Aimbot, P2020MaxADSSmooth1);
-        ReadFloat(Aimbot, P2020ExtraSmooth1);
-        ReadFloat(Aimbot, P2020Deadzone);
-        ReadFloat(Aimbot, P2020FOV1);
-        ReadFloat(Aimbot, P2020MinDistance1);
-        ReadFloat(Aimbot, P2020MaxDistance1);
-        ReadFloat(Aimbot, RE45HipfireSmooth1);
-        ReadFloat(Aimbot, RE45ADSSmooth1);
-        ReadFloat(Aimbot, RE45MinHipfireSmooth1);
-        ReadFloat(Aimbot, RE45MaxHipfireSmooth1);
-        ReadFloat(Aimbot, RE45MinADSSmooth1);
-        ReadFloat(Aimbot, RE45MaxADSSmooth1);
-        ReadFloat(Aimbot, RE45ExtraSmooth1);
-        ReadFloat(Aimbot, RE45Deadzone);
-        ReadFloat(Aimbot, RE45FOV1);
-        ReadFloat(Aimbot, RE45MinDistance1);
-        ReadFloat(Aimbot, RE45MaxDistance1);
-        ReadFloat(Aimbot, AlternatorHipfireSmooth1);
-        ReadFloat(Aimbot, AlternatorADSSmooth1);
-        ReadFloat(Aimbot, AlternatorMinHipfireSmooth1);
-        ReadFloat(Aimbot, AlternatorMaxHipfireSmooth1);
-        ReadFloat(Aimbot, AlternatorMinADSSmooth1);
-        ReadFloat(Aimbot, AlternatorMaxADSSmooth1);
-        ReadFloat(Aimbot, AlternatorExtraSmooth1);
-        ReadFloat(Aimbot, AlternatorDeadzone);
-        ReadFloat(Aimbot, AlternatorFOV1);
-        ReadFloat(Aimbot, AlternatorMinDistance1);
-        ReadFloat(Aimbot, AlternatorMaxDistance1);
-        ReadFloat(Aimbot, R99HipfireSmooth1);
-        ReadFloat(Aimbot, R99ADSSmooth1);
-        ReadFloat(Aimbot, R99MinHipfireSmooth1);
-        ReadFloat(Aimbot, R99MaxHipfireSmooth1);
-        ReadFloat(Aimbot, R99MinADSSmooth1);
-        ReadFloat(Aimbot, R99MaxADSSmooth1);
-        ReadFloat(Aimbot, R99ExtraSmooth1);
-        ReadFloat(Aimbot, R99Deadzone);
-        ReadFloat(Aimbot, R99FOV1);
-        ReadFloat(Aimbot, R99MinDistance1);
-        ReadFloat(Aimbot, R99MaxDistance1);
-        ReadFloat(Aimbot, R301HipfireSmooth1);
-        ReadFloat(Aimbot, R301ADSSmooth1);
-        ReadFloat(Aimbot, R301MinHipfireSmooth1);
-        ReadFloat(Aimbot, R301MaxHipfireSmooth1);
-        ReadFloat(Aimbot, R301MinADSSmooth1);
-        ReadFloat(Aimbot, R301MaxADSSmooth1);
-        ReadFloat(Aimbot, R301ExtraSmooth1);
-        ReadFloat(Aimbot, R301Deadzone);
-        ReadFloat(Aimbot, R301FOV1);
-        ReadFloat(Aimbot, R301MinDistance1);
-        ReadFloat(Aimbot, R301MaxDistance1);
-        ReadFloat(Aimbot, SpitfireHipfireSmooth1);
-        ReadFloat(Aimbot, SpitfireADSSmooth1);
-        ReadFloat(Aimbot, SpitfireMinHipfireSmooth1);
-        ReadFloat(Aimbot, SpitfireMaxHipfireSmooth1);
-        ReadFloat(Aimbot, SpitfireMinADSSmooth1);
-        ReadFloat(Aimbot, SpitfireMaxADSSmooth1);
-        ReadFloat(Aimbot, SpitfireExtraSmooth1);
-        ReadFloat(Aimbot, SpitfireDeadzone);
-        ReadFloat(Aimbot, SpitfireFOV1);
-        ReadFloat(Aimbot, SpitfireMinDistance1);
-        ReadFloat(Aimbot, SpitfireMaxDistance1);
-        ReadFloat(Aimbot, G7HipfireSmooth1);
-        ReadFloat(Aimbot, G7ADSSmooth1);
-        ReadFloat(Aimbot, G7MinHipfireSmooth1);
-        ReadFloat(Aimbot, G7MaxHipfireSmooth1);
-        ReadFloat(Aimbot, G7MinADSSmooth1);
-        ReadFloat(Aimbot, G7MaxADSSmooth1);
-        ReadFloat(Aimbot, G7ExtraSmooth1);
-        ReadFloat(Aimbot, G7Deadzone);
-        ReadFloat(Aimbot, G7FOV1);
-        ReadFloat(Aimbot, G7MinDistance1);
-        ReadFloat(Aimbot, G7MaxDistance1);
-        
-        ReadFloat(Aimbot, FlatlineHipfireSmooth1);
-        ReadFloat(Aimbot, FlatlineADSSmooth1);
-        ReadFloat(Aimbot, FlatlineMinHipfireSmooth1);
-        ReadFloat(Aimbot, FlatlineMaxHipfireSmooth1);
-        ReadFloat(Aimbot, FlatlineMinADSSmooth1);
-        ReadFloat(Aimbot, FlatlineMaxADSSmooth1);
-        ReadFloat(Aimbot, FlatlineExtraSmooth1);
-        ReadFloat(Aimbot, FlatlineDeadzone);
-        ReadFloat(Aimbot, FlatlineFOV1);
-        ReadFloat(Aimbot, FlatlineMinDistance1);
-        ReadFloat(Aimbot, FlatlineMaxDistance1);
-        ReadFloat(Aimbot, HemlockHipfireSmooth1);
-        ReadFloat(Aimbot, HemlockADSSmooth1);
-        ReadFloat(Aimbot, HemlockMinHipfireSmooth1);
-        ReadFloat(Aimbot, HemlockMaxHipfireSmooth1);
-        ReadFloat(Aimbot, HemlockMinADSSmooth1);
-        ReadFloat(Aimbot, HemlockMaxADSSmooth1);
-        ReadFloat(Aimbot, HemlockExtraSmooth1);
-        ReadFloat(Aimbot, HemlockDeadzone);
-        ReadFloat(Aimbot, HemlockFOV1);
-        ReadFloat(Aimbot, HemlockMinDistance1);
-        ReadFloat(Aimbot, HemlockMaxDistance1);
-        ReadFloat(Aimbot, RepeaterHipfireSmooth1);
-        ReadFloat(Aimbot, RepeaterADSSmooth1);
-        ReadFloat(Aimbot, RepeaterMinHipfireSmooth1);
-        ReadFloat(Aimbot, RepeaterMaxHipfireSmooth1);
-        ReadFloat(Aimbot, RepeaterMinADSSmooth1);
-        ReadFloat(Aimbot, RepeaterMaxADSSmooth1);
-        ReadFloat(Aimbot, RepeaterExtraSmooth1);
-        ReadFloat(Aimbot, RepeaterDeadzone);
-        ReadFloat(Aimbot, RepeaterFOV1);
-        ReadFloat(Aimbot, RepeaterMinDistance1);
-        ReadFloat(Aimbot, RepeaterMaxDistance1);
-        ReadFloat(Aimbot, RampageHipfireSmooth1);
-        ReadFloat(Aimbot, RampageMinHipfireSmooth1);
-        ReadFloat(Aimbot, RampageMaxHipfireSmooth1);
-        ReadFloat(Aimbot, RampageMinADSSmooth1);
-        ReadFloat(Aimbot, RampageMaxADSSmooth1);
-        ReadFloat(Aimbot, RampageADSSmooth1);
-        ReadFloat(Aimbot, RampageExtraSmooth1);
-        ReadFloat(Aimbot, RampageDeadzone);
-        ReadFloat(Aimbot, RampageFOV1);
-        ReadFloat(Aimbot, RampageMinDistance1);
-        ReadFloat(Aimbot, RampageMaxDistance1);
-        ReadFloat(Aimbot, CARSMGHipfireSmooth1);
-        ReadFloat(Aimbot, CARSMGADSSmooth1);
-        ReadFloat(Aimbot, CARSMGMinHipfireSmooth1);
-        ReadFloat(Aimbot, CARSMGMaxHipfireSmooth1);
-        ReadFloat(Aimbot, CARSMGMinADSSmooth1);
-        ReadFloat(Aimbot, CARSMGMaxADSSmooth1);
-        ReadFloat(Aimbot, CARSMGExtraSmooth1);
-        ReadFloat(Aimbot, CARSMGDeadzone);
-        ReadFloat(Aimbot, CARSMGFOV1);
-        ReadFloat(Aimbot, CARSMGMinDistance1);
-        ReadFloat(Aimbot, CARSMGMaxDistance1);
-        
-        ReadFloat(Aimbot, HavocHipfireSmooth1);
-        ReadFloat(Aimbot, HavocADSSmooth1);
-        ReadFloat(Aimbot, HavocMinHipfireSmooth1);
-        ReadFloat(Aimbot, HavocMaxHipfireSmooth1);
-        ReadFloat(Aimbot, HavocMinADSSmooth1);
-        ReadFloat(Aimbot, HavocMaxADSSmooth1);
-        ReadFloat(Aimbot, HavocExtraSmooth1);
-        ReadFloat(Aimbot, HavocDeadzone);
-        ReadFloat(Aimbot, HavocFOV1);
-        ReadFloat(Aimbot, HavocMinDistance1);
-        ReadFloat(Aimbot, HavocMaxDistance1);
-        ReadFloat(Aimbot, DevotionHipfireSmooth1);
-        ReadFloat(Aimbot, DevotionADSSmooth1);
-        ReadFloat(Aimbot, DevotionMinHipfireSmooth1);
-        ReadFloat(Aimbot, DevotionMaxHipfireSmooth1);
-        ReadFloat(Aimbot, DevotionMinADSSmooth1);
-        ReadFloat(Aimbot, DevotionMaxADSSmooth1);
-        ReadFloat(Aimbot, DevotionExtraSmooth1);
-        ReadFloat(Aimbot, DevotionDeadzone);
-        ReadFloat(Aimbot, DevotionFOV1);
-        ReadFloat(Aimbot, DevotionMinDistance1);
-        ReadFloat(Aimbot, DevotionMaxDistance1);
-        ReadFloat(Aimbot, LSTARHipfireSmooth1);
-        ReadFloat(Aimbot, LSTARADSSmooth1);
-        ReadFloat(Aimbot, LSTARMinHipfireSmooth1);
-        ReadFloat(Aimbot, LSTARMaxHipfireSmooth1);
-        ReadFloat(Aimbot, LSTARMinADSSmooth1);
-        ReadFloat(Aimbot, LSTARMaxADSSmooth1);
-        ReadFloat(Aimbot, LSTARExtraSmooth1);
-        ReadFloat(Aimbot, LSTARDeadzone);
-        ReadFloat(Aimbot, LSTARFOV1);
-        ReadFloat(Aimbot, LSTARMinDistance1);
-        ReadFloat(Aimbot, LSTARMaxDistance1);
-        ReadFloat(Aimbot, TripleTakeHipfireSmooth1);
-        ReadFloat(Aimbot, TripleTakeADSSmooth1);
-        ReadFloat(Aimbot, TripleTakeMinHipfireSmooth1);
-        ReadFloat(Aimbot, TripleTakeMaxHipfireSmooth1);
-        ReadFloat(Aimbot, TripleTakeMinADSSmooth1);
-        ReadFloat(Aimbot, TripleTakeMaxADSSmooth1);
-        ReadFloat(Aimbot, TripleTakeExtraSmooth1);
-        ReadFloat(Aimbot, TripleTakeDeadzone);
-        ReadFloat(Aimbot, TripleTakeFOV1);
-        ReadFloat(Aimbot, TripleTakeMinDistance1);
-        ReadFloat(Aimbot, TripleTakeMaxDistance1);
-        ReadFloat(Aimbot, VoltHipfireSmooth1);
-        ReadFloat(Aimbot, VoltADSSmooth1);
-        ReadFloat(Aimbot, VoltMinHipfireSmooth1);
-        ReadFloat(Aimbot, VoltMaxHipfireSmooth1);
-        ReadFloat(Aimbot, VoltMinADSSmooth1);
-        ReadFloat(Aimbot, VoltMaxADSSmooth1);
-        ReadFloat(Aimbot, VoltExtraSmooth1);
-        ReadFloat(Aimbot, VoltDeadzone);
-        ReadFloat(Aimbot, VoltFOV1);
-        ReadFloat(Aimbot, VoltMinDistance1);
-        ReadFloat(Aimbot, VoltMaxDistance1);
-        ReadFloat(Aimbot, NemesisHipfireSmooth1);
-        ReadFloat(Aimbot, NemesisADSSmooth1);
-        ReadFloat(Aimbot, NemesisMinHipfireSmooth1);
-        ReadFloat(Aimbot, NemesisMaxHipfireSmooth1);
-        ReadFloat(Aimbot, NemesisMinADSSmooth1);
-        ReadFloat(Aimbot, NemesisMaxADSSmooth1);
-        ReadFloat(Aimbot, NemesisExtraSmooth1);
-        ReadFloat(Aimbot, NemesisDeadzone);
-        ReadFloat(Aimbot, NemesisFOV1);
-        ReadFloat(Aimbot, NemesisMinDistance1);
-        ReadFloat(Aimbot, NemesisMaxDistance1);
-        
-        ReadFloat(Aimbot, MozambiqueHipfireSmooth1);
-        ReadFloat(Aimbot, MozambiqueADSSmooth1);
-        ReadFloat(Aimbot, MozambiqueMinHipfireSmooth1);
-        ReadFloat(Aimbot, MozambiqueMaxHipfireSmooth1);
-        ReadFloat(Aimbot, MozambiqueMinADSSmooth1);
-        ReadFloat(Aimbot, MozambiqueMaxADSSmooth1);
-        ReadFloat(Aimbot, MozambiqueExtraSmooth1);
-        ReadFloat(Aimbot, MozambiqueDeadzone);
-        ReadFloat(Aimbot, MozambiqueFOV1);
-        ReadFloat(Aimbot, MozambiqueMinDistance1);
-        ReadFloat(Aimbot, MozambiqueMaxDistance1);
-        ReadFloat(Aimbot, EVA8HipfireSmooth1);
-        ReadFloat(Aimbot, EVA8ADSSmooth1);
-        ReadFloat(Aimbot, EVA8MinHipfireSmooth1);
-        ReadFloat(Aimbot, EVA8MaxHipfireSmooth1);
-        ReadFloat(Aimbot, EVA8MinADSSmooth1);
-        ReadFloat(Aimbot, EVA8MaxADSSmooth1);
-        ReadFloat(Aimbot, EVA8ExtraSmooth1);
-        ReadFloat(Aimbot, EVA8Deadzone);
-        ReadFloat(Aimbot, EVA8FOV1);
-        ReadFloat(Aimbot, EVA8MinDistance1);
-        ReadFloat(Aimbot, EVA8MaxDistance1);
-        ReadFloat(Aimbot, PeacekeeperHipfireSmooth1);
-        ReadFloat(Aimbot, PeacekeeperADSSmooth1);
-        ReadFloat(Aimbot, PeacekeeperMinHipfireSmooth1);
-        ReadFloat(Aimbot, PeacekeeperMaxHipfireSmooth1);
-        ReadFloat(Aimbot, PeacekeeperMinADSSmooth1);
-        ReadFloat(Aimbot, PeacekeeperMaxADSSmooth1);
-        ReadFloat(Aimbot, PeacekeeperExtraSmooth1);
-        ReadFloat(Aimbot, PeacekeeperDeadzone);
-        ReadFloat(Aimbot, PeacekeeperFOV1);
-        ReadFloat(Aimbot, PeacekeeperMinDistance1);
-        ReadFloat(Aimbot, PeacekeeperMaxDistance1);
-        ReadFloat(Aimbot, MastiffHipfireSmooth1);
-        ReadFloat(Aimbot, MastiffADSSmooth1);
-        ReadFloat(Aimbot, MastiffMinHipfireSmooth1);
-        ReadFloat(Aimbot, MastiffMaxHipfireSmooth1);
-        ReadFloat(Aimbot, MastiffMinADSSmooth1);
-        ReadFloat(Aimbot, MastiffMaxADSSmooth1);
-        ReadFloat(Aimbot, MastiffExtraSmooth1);
-        ReadFloat(Aimbot, MastiffDeadzone);
-        ReadFloat(Aimbot, MastiffFOV1);
-        ReadFloat(Aimbot, MastiffMinDistance1);
-        ReadFloat(Aimbot, MastiffMaxDistance1);
-        
-        ReadFloat(Aimbot, LongbowHipfireSmooth1);
-        ReadFloat(Aimbot, LongbowADSSmooth1);
-        ReadFloat(Aimbot, LongbowMinHipfireSmooth1);
-        ReadFloat(Aimbot, LongbowMaxHipfireSmooth1);
-        ReadFloat(Aimbot, LongbowMinADSSmooth1);
-        ReadFloat(Aimbot, LongbowMaxADSSmooth1);
-        ReadFloat(Aimbot, LongbowExtraSmooth1);
-        ReadFloat(Aimbot, LongbowDeadzone);
-        ReadFloat(Aimbot, LongbowFOV1);
-        ReadFloat(Aimbot, LongbowMinDistance1);
-        ReadFloat(Aimbot, LongbowMaxDistance1);
-        ReadFloat(Aimbot, ChargeRifleHipfireSmooth1);
-        ReadFloat(Aimbot, ChargeRifleADSSmooth1);
-        ReadFloat(Aimbot, ChargeRifleMinHipfireSmooth1);
-        ReadFloat(Aimbot, ChargeRifleMaxHipfireSmooth1);
-        ReadFloat(Aimbot, ChargeRifleMinADSSmooth1);
-        ReadFloat(Aimbot, ChargeRifleMaxADSSmooth1);
-        ReadFloat(Aimbot, ChargeRifleExtraSmooth1);
-        ReadFloat(Aimbot, ChargeRifleDeadzone);
-        ReadFloat(Aimbot, ChargeRifleFOV1);
-        ReadFloat(Aimbot, ChargeRifleMinDistance1);
-        ReadFloat(Aimbot, ChargeRifleMaxDistance1);
-        ReadFloat(Aimbot, SentinelHipfireSmooth1);
-        ReadFloat(Aimbot, SentinelADSSmooth1);
-        ReadFloat(Aimbot, SentinelMinHipfireSmooth1);
-        ReadFloat(Aimbot, SentinelMaxHipfireSmooth1);
-        ReadFloat(Aimbot, SentinelMinADSSmooth1);
-        ReadFloat(Aimbot, SentinelMaxADSSmooth1);
-        ReadFloat(Aimbot, SentinelExtraSmooth1);
-        ReadFloat(Aimbot, SentinelDeadzone);
-        ReadFloat(Aimbot, SentinelFOV1);
-        ReadFloat(Aimbot, SentinelMinDistance1);
-        ReadFloat(Aimbot, SentinelMaxDistance1);
-        
-        ReadFloat(Aimbot, WingmanHipfireSmooth1);
-        ReadFloat(Aimbot, WingmanADSSmooth1);
-        ReadFloat(Aimbot, WingmanMinHipfireSmooth1);
-        ReadFloat(Aimbot, WingmanMaxHipfireSmooth1);
-        ReadFloat(Aimbot, WingmanMinADSSmooth1);
-        ReadFloat(Aimbot, WingmanMaxADSSmooth1);
-        ReadFloat(Aimbot, WingmanExtraSmooth1);
-        ReadFloat(Aimbot, WingmanDeadzone);
-        ReadFloat(Aimbot, WingmanFOV1);
-        ReadFloat(Aimbot, WingmanMinDistance1);
-        ReadFloat(Aimbot, WingmanMaxDistance1);
-        ReadFloat(Aimbot, ProwlerHipfireSmooth1);
-        ReadFloat(Aimbot, ProwlerADSSmooth1);
-        ReadFloat(Aimbot, ProwlerMinHipfireSmooth1);
-        ReadFloat(Aimbot, ProwlerMaxHipfireSmooth1);
-        ReadFloat(Aimbot, ProwlerMinADSSmooth1);
-        ReadFloat(Aimbot, ProwlerMaxADSSmooth1);
-        ReadFloat(Aimbot, ProwlerExtraSmooth1);
-        ReadFloat(Aimbot, ProwlerDeadzone);
-        ReadFloat(Aimbot, ProwlerFOV1);
-        ReadFloat(Aimbot, ProwlerMinDistance1);
-        ReadFloat(Aimbot, ProwlerMaxDistance1);
-        ReadFloat(Aimbot, BocekHipfireSmooth1);
-        ReadFloat(Aimbot, BocekADSSmooth1);
-        ReadFloat(Aimbot, BocekMinHipfireSmooth1);
-        ReadFloat(Aimbot, BocekMaxHipfireSmooth1);
-        ReadFloat(Aimbot, BocekMinADSSmooth1);
-        ReadFloat(Aimbot, BocekMaxADSSmooth1);
-        ReadFloat(Aimbot, BocekExtraSmooth1);
-        ReadFloat(Aimbot, BocekDeadzone);
-        ReadFloat(Aimbot, BocekFOV1);
-        ReadFloat(Aimbot, BocekMinDistance1);
-        ReadFloat(Aimbot, BocekMaxDistance1);
-        ReadFloat(Aimbot, KraberHipfireSmooth1);
-        ReadFloat(Aimbot, KraberADSSmooth1);
-        ReadFloat(Aimbot, KraberMinHipfireSmooth1);
-        ReadFloat(Aimbot, KraberMaxHipfireSmooth1);
-        ReadFloat(Aimbot, KraberMinADSSmooth1);
-        ReadFloat(Aimbot, KraberMaxADSSmooth1);
-        ReadFloat(Aimbot, KraberExtraSmooth1);
-        ReadFloat(Aimbot, KraberDeadzone);
-        ReadFloat(Aimbot, KraberFOV1);
-        ReadFloat(Aimbot, KraberMinDistance1);
-        ReadFloat(Aimbot, KraberMaxDistance1);
-        ReadFloat(Aimbot, ThrowingKnifeHipfireSmooth1);
-        ReadFloat(Aimbot, ThrowingKnifeADSSmooth1);
-        ReadFloat(Aimbot, ThrowingKnifeMinHipfireSmooth1);
-        ReadFloat(Aimbot, ThrowingKnifeMaxHipfireSmooth1);
-        ReadFloat(Aimbot, ThrowingKnifeMinADSSmooth1);
-        ReadFloat(Aimbot, ThrowingKnifeMaxADSSmooth1);
-        ReadFloat(Aimbot, ThrowingKnifeExtraSmooth1);
-        ReadFloat(Aimbot, ThrowingKnifeDeadzone);
-        ReadFloat(Aimbot, ThrowingKnifeFOV1);
-        ReadFloat(Aimbot, ThrowingKnifeMinDistance1);    
-        ReadFloat(Aimbot, ThrowingKnifeMaxDistance1);
+		ReadBool(Aimbot, P2020ClosestHitbox);
+		ReadFloat(Aimbot, P2020Hitbox);
+		ReadFloat(Aimbot, P2020Speed);
+		ReadFloat(Aimbot, P2020HipfireSmooth);
+		ReadFloat(Aimbot, P2020ADSSmooth);
+		ReadInt(Aimbot, P2020SmoothingMethod);
+		ReadFloat(Aimbot, P2020MinHipfireSmooth);
+		ReadFloat(Aimbot, P2020MaxHipfireSmooth);
+		ReadFloat(Aimbot, P2020MinADSSmooth);
+		ReadFloat(Aimbot, P2020MaxADSSmooth);
+		ReadFloat(Aimbot, P2020FOV);
+		ReadFloat(Aimbot, P2020ZoomScale);
+		ReadBool(Aimbot, RE45ClosestHitbox);
+		ReadFloat(Aimbot, RE45Hitbox);
+		ReadFloat(Aimbot, RE45Speed);
+		ReadFloat(Aimbot, RE45HipfireSmooth);
+		ReadFloat(Aimbot, RE45ADSSmooth);
+		ReadInt(Aimbot, RE45SmoothingMethod);
+		ReadFloat(Aimbot, RE45MinHipfireSmooth);
+		ReadFloat(Aimbot, RE45MaxHipfireSmooth);
+		ReadFloat(Aimbot, RE45MinADSSmooth);
+		ReadFloat(Aimbot, RE45MaxADSSmooth);
+		ReadFloat(Aimbot, RE45FOV);
+		ReadFloat(Aimbot, RE45ZoomScale);
+		ReadBool(Aimbot, AlternatorClosestHitbox);
+		ReadFloat(Aimbot, AlternatorHitbox);
+		ReadFloat(Aimbot, AlternatorSpeed);
+		ReadFloat(Aimbot, AlternatorHipfireSmooth);
+		ReadFloat(Aimbot, AlternatorADSSmooth);
+		ReadInt(Aimbot, AlternatorSmoothingMethod);
+		ReadFloat(Aimbot, AlternatorMinHipfireSmooth);
+		ReadFloat(Aimbot, AlternatorMaxHipfireSmooth);
+		ReadFloat(Aimbot, AlternatorMinADSSmooth);
+		ReadFloat(Aimbot, AlternatorMaxADSSmooth);
+		ReadFloat(Aimbot, AlternatorFOV);
+		ReadFloat(Aimbot, AlternatorZoomScale);
+		ReadBool(Aimbot, R99ClosestHitbox);
+		ReadFloat(Aimbot, R99Hitbox);
+		ReadFloat(Aimbot, R99Speed);
+		ReadFloat(Aimbot, R99HipfireSmooth);
+		ReadFloat(Aimbot, R99ADSSmooth);
+		ReadInt(Aimbot, R99SmoothingMethod);
+		ReadFloat(Aimbot, R99MinHipfireSmooth);
+		ReadFloat(Aimbot, R99MaxHipfireSmooth);
+		ReadFloat(Aimbot, R99MinADSSmooth);
+		ReadFloat(Aimbot, R99MaxADSSmooth);
+		ReadFloat(Aimbot, R99FOV);
+		ReadFloat(Aimbot, R99ZoomScale);
+		ReadBool(Aimbot, R301ClosestHitbox);
+		ReadFloat(Aimbot, R301Hitbox);
+		ReadFloat(Aimbot, R301Speed);
+		ReadFloat(Aimbot, R301HipfireSmooth);
+		ReadFloat(Aimbot, R301ADSSmooth);
+		ReadInt(Aimbot, R301SmoothingMethod);
+		ReadFloat(Aimbot, R301MinHipfireSmooth);
+		ReadFloat(Aimbot, R301MaxHipfireSmooth);
+		ReadFloat(Aimbot, R301MinADSSmooth);
+		ReadFloat(Aimbot, R301MaxADSSmooth);
+		ReadFloat(Aimbot, R301FOV);
+		ReadFloat(Aimbot, R301ZoomScale);
+		ReadBool(Aimbot, SpitfireClosestHitbox);
+		ReadFloat(Aimbot, SpitfireHitbox);
+		ReadFloat(Aimbot, SpitfireSpeed);
+		ReadFloat(Aimbot, SpitfireHipfireSmooth);
+		ReadFloat(Aimbot, SpitfireADSSmooth);
+		ReadInt(Aimbot, SpitfireSmoothingMethod);
+		ReadFloat(Aimbot, SpitfireMinHipfireSmooth);
+		ReadFloat(Aimbot, SpitfireMaxHipfireSmooth);
+		ReadFloat(Aimbot, SpitfireMinADSSmooth);
+		ReadFloat(Aimbot, SpitfireMaxADSSmooth);
+		ReadFloat(Aimbot, SpitfireFOV);
+		ReadFloat(Aimbot, SpitfireZoomScale);
+		ReadBool(Aimbot, G7ClosestHitbox);
+		ReadFloat(Aimbot, G7Hitbox);
+		ReadFloat(Aimbot, G7Speed);
+		ReadFloat(Aimbot, G7HipfireSmooth);
+		ReadFloat(Aimbot, G7ADSSmooth);
+		ReadInt(Aimbot, G7SmoothingMethod);
+		ReadFloat(Aimbot, G7MinHipfireSmooth);
+		ReadFloat(Aimbot, G7MaxHipfireSmooth);
+		ReadFloat(Aimbot, G7MinADSSmooth);
+		ReadFloat(Aimbot, G7MaxADSSmooth);
+		ReadFloat(Aimbot, G7FOV);
+		ReadFloat(Aimbot, G7ZoomScale);
+		//Heavy
+		ReadBool(Aimbot, FlatlineClosestHitbox);
+		ReadFloat(Aimbot, FlatlineHitbox);
+		ReadFloat(Aimbot, FlatlineSpeed);
+		ReadFloat(Aimbot, FlatlineHipfireSmooth);
+		ReadFloat(Aimbot, FlatlineADSSmooth);
+		ReadInt(Aimbot, FlatlineSmoothingMethod);
+		ReadFloat(Aimbot, FlatlineMinHipfireSmooth);
+		ReadFloat(Aimbot, FlatlineMaxHipfireSmooth);
+		ReadFloat(Aimbot, FlatlineMinADSSmooth);
+		ReadFloat(Aimbot, FlatlineMaxADSSmooth);
+		ReadFloat(Aimbot, FlatlineFOV);
+		ReadFloat(Aimbot, FlatlineZoomScale);
+		ReadBool(Aimbot, HemlockClosestHitbox);
+		ReadFloat(Aimbot, HemlockHitbox);
+		ReadFloat(Aimbot, HemlockSpeed);
+		ReadFloat(Aimbot, HemlockHipfireSmooth);
+		ReadFloat(Aimbot, HemlockADSSmooth);
+		ReadInt(Aimbot, HemlockSmoothingMethod);
+		ReadFloat(Aimbot, HemlockMinHipfireSmooth);
+		ReadFloat(Aimbot, HemlockMaxHipfireSmooth);
+		ReadFloat(Aimbot, HemlockMinADSSmooth);
+		ReadFloat(Aimbot, HemlockMaxADSSmooth);
+		ReadFloat(Aimbot, HemlockFOV);
+		ReadFloat(Aimbot, HemlockZoomScale);
+		ReadBool(Aimbot, RepeaterClosestHitbox);
+		ReadFloat(Aimbot, RepeaterHitbox);
+		ReadFloat(Aimbot, RepeaterSpeed);
+		ReadFloat(Aimbot, RepeaterHipfireSmooth);
+		ReadFloat(Aimbot, RepeaterADSSmooth);
+		ReadInt(Aimbot, RepeaterSmoothingMethod);
+		ReadFloat(Aimbot, RepeaterMinHipfireSmooth);
+		ReadFloat(Aimbot, RepeaterMaxHipfireSmooth);
+		ReadFloat(Aimbot, RepeaterMinADSSmooth);
+		ReadFloat(Aimbot, RepeaterMaxADSSmooth);
+		ReadFloat(Aimbot, RepeaterFOV);
+		ReadFloat(Aimbot, RepeaterZoomScale);
+		ReadBool(Aimbot, RampageClosestHitbox);
+		ReadFloat(Aimbot, RampageHitbox);
+		ReadFloat(Aimbot, RampageSpeed);
+		ReadFloat(Aimbot, RampageHipfireSmooth);
+		ReadFloat(Aimbot, RampageADSSmooth);
+		ReadInt(Aimbot, RampageSmoothingMethod);
+		ReadFloat(Aimbot, RampageMinHipfireSmooth);
+		ReadFloat(Aimbot, RampageMaxHipfireSmooth);
+		ReadFloat(Aimbot, RampageMinADSSmooth);
+		ReadFloat(Aimbot, RampageMaxADSSmooth);
+		ReadFloat(Aimbot, RampageFOV);
+		ReadFloat(Aimbot, RampageZoomScale);
+		ReadBool(Aimbot, CARSMGClosestHitbox);
+		ReadFloat(Aimbot, CARSMGHitbox);
+		ReadFloat(Aimbot, CARSMGSpeed);
+		ReadFloat(Aimbot, CARSMGHipfireSmooth);
+		ReadFloat(Aimbot, CARSMGADSSmooth);
+		ReadInt(Aimbot, CARSMGSmoothingMethod);
+		ReadFloat(Aimbot, CARSMGMinHipfireSmooth);
+		ReadFloat(Aimbot, CARSMGMaxHipfireSmooth);
+		ReadFloat(Aimbot, CARSMGMinADSSmooth);
+		ReadFloat(Aimbot, CARSMGMaxADSSmooth);
+		ReadFloat(Aimbot, CARSMGFOV);
+		ReadFloat(Aimbot, CARSMGZoomScale);
+		//Energy
+		ReadBool(Aimbot, HavocClosestHitbox);
+		ReadFloat(Aimbot, HavocHitbox);
+		ReadFloat(Aimbot, HavocSpeed);
+		ReadFloat(Aimbot, HavocHipfireSmooth);
+		ReadFloat(Aimbot, HavocADSSmooth);
+		ReadInt(Aimbot, HavocSmoothingMethod);
+		ReadFloat(Aimbot, HavocMinHipfireSmooth);
+		ReadFloat(Aimbot, HavocMaxHipfireSmooth);
+		ReadFloat(Aimbot, HavocMinADSSmooth);
+		ReadFloat(Aimbot, HavocMaxADSSmooth);
+		ReadFloat(Aimbot, HavocFOV);
+		ReadFloat(Aimbot, HavocZoomScale);
+		ReadBool(Aimbot, DevotionClosestHitbox);
+		ReadFloat(Aimbot, DevotionHitbox);
+		ReadFloat(Aimbot, DevotionSpeed);
+		ReadFloat(Aimbot, DevotionHipfireSmooth);
+		ReadFloat(Aimbot, DevotionADSSmooth);
+		ReadInt(Aimbot, DevotionSmoothingMethod);
+		ReadFloat(Aimbot, DevotionMinHipfireSmooth);
+		ReadFloat(Aimbot, DevotionMaxHipfireSmooth);
+		ReadFloat(Aimbot, DevotionMinADSSmooth);
+		ReadFloat(Aimbot, DevotionMaxADSSmooth);
+		ReadFloat(Aimbot, DevotionFOV);
+		ReadFloat(Aimbot, DevotionZoomScale);
+		ReadBool(Aimbot, LSTARClosestHitbox);
+		ReadFloat(Aimbot, LSTARHitbox);
+		ReadFloat(Aimbot, LSTARSpeed);
+		ReadFloat(Aimbot, LSTARHipfireSmooth);
+		ReadFloat(Aimbot, LSTARADSSmooth);
+		ReadInt(Aimbot, LSTARSmoothingMethod);
+		ReadFloat(Aimbot, LSTARMinHipfireSmooth);
+		ReadFloat(Aimbot, LSTARMaxHipfireSmooth);
+		ReadFloat(Aimbot, LSTARMinADSSmooth);
+		ReadFloat(Aimbot, LSTARMaxADSSmooth);
+		ReadFloat(Aimbot, LSTARFOV);
+		ReadFloat(Aimbot, LSTARZoomScale);
+		ReadBool(Aimbot, TripleTakeClosestHitbox);
+		ReadFloat(Aimbot, TripleTakeHitbox);
+		ReadFloat(Aimbot, TripleTakeSpeed);
+		ReadFloat(Aimbot, TripleTakeHipfireSmooth);
+		ReadFloat(Aimbot, TripleTakeADSSmooth);
+		ReadInt(Aimbot, TripleTakeSmoothingMethod);
+		ReadFloat(Aimbot, TripleTakeMinHipfireSmooth);
+		ReadFloat(Aimbot, TripleTakeMaxHipfireSmooth);
+		ReadFloat(Aimbot, TripleTakeMinADSSmooth);
+		ReadFloat(Aimbot, TripleTakeMaxADSSmooth);
+		ReadFloat(Aimbot, TripleTakeFOV);
+		ReadFloat(Aimbot, TripleTakeZoomScale);
+		ReadBool(Aimbot, VoltClosestHitbox);
+		ReadFloat(Aimbot, VoltHitbox);
+		ReadFloat(Aimbot, VoltSpeed);
+		ReadFloat(Aimbot, VoltHipfireSmooth);
+		ReadFloat(Aimbot, VoltADSSmooth);
+		ReadInt(Aimbot, VoltSmoothingMethod);
+		ReadFloat(Aimbot, VoltMinHipfireSmooth);
+		ReadFloat(Aimbot, VoltMaxHipfireSmooth);
+		ReadFloat(Aimbot, VoltMinADSSmooth);
+		ReadFloat(Aimbot, VoltMaxADSSmooth);
+		ReadFloat(Aimbot, VoltFOV);
+		ReadFloat(Aimbot, VoltZoomScale);
+		ReadBool(Aimbot, NemesisClosestHitbox);
+		ReadFloat(Aimbot, NemesisHitbox);
+		ReadFloat(Aimbot, NemesisSpeed);
+		ReadFloat(Aimbot, NemesisHipfireSmooth);
+		ReadFloat(Aimbot, NemesisADSSmooth);
+		ReadInt(Aimbot, NemesisSmoothingMethod);
+		ReadFloat(Aimbot, NemesisMinHipfireSmooth);
+		ReadFloat(Aimbot, NemesisMaxHipfireSmooth);
+		ReadFloat(Aimbot, NemesisMinADSSmooth);
+		ReadFloat(Aimbot, NemesisMaxADSSmooth);
+		ReadFloat(Aimbot, NemesisFOV);
+		ReadFloat(Aimbot, NemesisZoomScale);
+		//Shotguns
+		ReadBool(Aimbot, MozambiqueClosestHitbox);
+		ReadFloat(Aimbot, MozambiqueHitbox);
+		ReadFloat(Aimbot, MozambiqueSpeed);
+		ReadFloat(Aimbot, MozambiqueHipfireSmooth);
+		ReadFloat(Aimbot, MozambiqueADSSmooth);
+		ReadInt(Aimbot, MozambiqueSmoothingMethod);
+		ReadFloat(Aimbot, MozambiqueMinHipfireSmooth);
+		ReadFloat(Aimbot, MozambiqueMaxHipfireSmooth);
+		ReadFloat(Aimbot, MozambiqueMinADSSmooth);
+		ReadFloat(Aimbot, MozambiqueMaxADSSmooth);
+		ReadFloat(Aimbot, MozambiqueFOV);
+		ReadFloat(Aimbot, MozambiqueZoomScale);
+		ReadBool(Aimbot, EVA8ClosestHitbox);
+		ReadFloat(Aimbot, EVA8Hitbox);
+		ReadFloat(Aimbot, EVA8Speed);
+		ReadFloat(Aimbot, EVA8HipfireSmooth);
+		ReadFloat(Aimbot, EVA8ADSSmooth);
+		ReadInt(Aimbot, EVA8SmoothingMethod);
+		ReadFloat(Aimbot, EVA8MinHipfireSmooth);
+		ReadFloat(Aimbot, EVA8MaxHipfireSmooth);
+		ReadFloat(Aimbot, EVA8MinADSSmooth);
+		ReadFloat(Aimbot, EVA8MaxADSSmooth);
+		ReadFloat(Aimbot, EVA8FOV);
+		ReadFloat(Aimbot, EVA8ZoomScale);
+		ReadBool(Aimbot, PeacekeeperClosestHitbox);
+		ReadFloat(Aimbot, PeacekeeperHitbox);
+		ReadFloat(Aimbot, PeacekeeperSpeed);
+		ReadFloat(Aimbot, PeacekeeperHipfireSmooth);
+		ReadFloat(Aimbot, PeacekeeperADSSmooth);
+		ReadInt(Aimbot, PeacekeeperSmoothingMethod);
+		ReadFloat(Aimbot, PeacekeeperMinHipfireSmooth);
+		ReadFloat(Aimbot, PeacekeeperMaxHipfireSmooth);
+		ReadFloat(Aimbot, PeacekeeperMinADSSmooth);
+		ReadFloat(Aimbot, PeacekeeperMaxADSSmooth);
+		ReadFloat(Aimbot, PeacekeeperFOV);
+		ReadFloat(Aimbot, PeacekeeperZoomScale);
+		ReadBool(Aimbot, MastiffClosestHitbox);
+		ReadFloat(Aimbot, MastiffHitbox);
+		ReadFloat(Aimbot, MastiffSpeed);
+		ReadFloat(Aimbot, MastiffHipfireSmooth);
+		ReadFloat(Aimbot, MastiffADSSmooth);
+		ReadInt(Aimbot, MastiffSmoothingMethod);
+		ReadFloat(Aimbot, MastiffMinHipfireSmooth);
+		ReadFloat(Aimbot, MastiffMaxHipfireSmooth);
+		ReadFloat(Aimbot, MastiffMinADSSmooth);
+		ReadFloat(Aimbot, MastiffMaxADSSmooth);
+		ReadFloat(Aimbot, MastiffFOV);
+		ReadFloat(Aimbot, MastiffZoomScale);
+		//Snipers
+		ReadBool(Aimbot, LongbowClosestHitbox);
+		ReadFloat(Aimbot, LongbowHitbox);
+		ReadFloat(Aimbot, LongbowSpeed);
+		ReadFloat(Aimbot, LongbowHipfireSmooth);
+		ReadFloat(Aimbot, LongbowADSSmooth);
+		ReadInt(Aimbot, LongbowSmoothingMethod);
+		ReadFloat(Aimbot, LongbowMinHipfireSmooth);
+		ReadFloat(Aimbot, LongbowMaxHipfireSmooth);
+		ReadFloat(Aimbot, LongbowMinADSSmooth);
+		ReadFloat(Aimbot, LongbowMaxADSSmooth);
+		ReadFloat(Aimbot, LongbowFOV);
+		ReadFloat(Aimbot, LongbowZoomScale);
+		ReadBool(Aimbot, ChargeRifleClosestHitbox);
+		ReadFloat(Aimbot, ChargeRifleHitbox);
+		ReadFloat(Aimbot, ChargeRifleSpeed);
+		ReadFloat(Aimbot, ChargeRifleHipfireSmooth);
+		ReadFloat(Aimbot, ChargeRifleADSSmooth);
+		ReadInt(Aimbot, ChargeRifleSmoothingMethod);
+		ReadFloat(Aimbot, ChargeRifleMinHipfireSmooth);
+		ReadFloat(Aimbot, ChargeRifleMaxHipfireSmooth);
+		ReadFloat(Aimbot, ChargeRifleMinADSSmooth);
+		ReadFloat(Aimbot, ChargeRifleMaxADSSmooth);
+		ReadFloat(Aimbot, ChargeRifleFOV);
+		ReadFloat(Aimbot, ChargeRifleZoomScale);
+		ReadBool(Aimbot, SentinelClosestHitbox);
+		ReadFloat(Aimbot, SentinelHitbox);
+		ReadFloat(Aimbot, SentinelSpeed);
+		ReadFloat(Aimbot, SentinelHipfireSmooth);
+		ReadFloat(Aimbot, SentinelADSSmooth);
+		ReadInt(Aimbot, SentinelSmoothingMethod);
+		ReadFloat(Aimbot, SentinelMinHipfireSmooth);
+		ReadFloat(Aimbot, SentinelMaxHipfireSmooth);
+		ReadFloat(Aimbot, SentinelMinADSSmooth);
+		ReadFloat(Aimbot, SentinelMaxADSSmooth);
+		ReadFloat(Aimbot, SentinelFOV);
+		ReadFloat(Aimbot, SentinelZoomScale);
+		//Legendary
+		ReadBool(Aimbot, WingmanClosestHitbox);
+		ReadFloat(Aimbot, WingmanHitbox);
+		ReadFloat(Aimbot, WingmanSpeed);
+		ReadFloat(Aimbot, WingmanHipfireSmooth);
+		ReadFloat(Aimbot, WingmanADSSmooth);
+		ReadInt(Aimbot, WingmanSmoothingMethod);
+		ReadFloat(Aimbot, WingmanMinHipfireSmooth);
+		ReadFloat(Aimbot, WingmanMaxHipfireSmooth);
+		ReadFloat(Aimbot, WingmanMinADSSmooth);
+		ReadFloat(Aimbot, WingmanMaxADSSmooth);
+		ReadFloat(Aimbot, WingmanFOV);
+		ReadFloat(Aimbot, WingmanZoomScale);
+		ReadBool(Aimbot, ProwlerClosestHitbox);
+		ReadFloat(Aimbot, ProwlerHitbox);
+		ReadFloat(Aimbot, ProwlerSpeed);
+		ReadFloat(Aimbot, ProwlerHipfireSmooth);
+		ReadFloat(Aimbot, ProwlerADSSmooth);
+		ReadInt(Aimbot, ProwlerSmoothingMethod);
+		ReadFloat(Aimbot, ProwlerMinHipfireSmooth);
+		ReadFloat(Aimbot, ProwlerMaxHipfireSmooth);
+		ReadFloat(Aimbot, ProwlerMinADSSmooth);
+		ReadFloat(Aimbot, ProwlerMaxADSSmooth);
+		ReadFloat(Aimbot, ProwlerFOV);
+		ReadFloat(Aimbot, ProwlerZoomScale);
+		ReadBool(Aimbot, KraberClosestHitbox);
+		ReadFloat(Aimbot, KraberHitbox);
+		ReadFloat(Aimbot, KraberSpeed);
+		ReadFloat(Aimbot, KraberHipfireSmooth);
+		ReadFloat(Aimbot, KraberADSSmooth);
+		ReadInt(Aimbot, KraberSmoothingMethod);
+		ReadFloat(Aimbot, KraberMinHipfireSmooth);
+		ReadFloat(Aimbot, KraberMaxHipfireSmooth);
+		ReadFloat(Aimbot, KraberMinADSSmooth);
+		ReadFloat(Aimbot, KraberMaxADSSmooth);
+		ReadFloat(Aimbot, KraberFOV);
+		ReadFloat(Aimbot, KraberZoomScale);
+		ReadBool(Aimbot, BocekClosestHitbox);
+		ReadFloat(Aimbot, BocekHitbox);
+		ReadFloat(Aimbot, BocekSpeed);
+		ReadFloat(Aimbot, BocekHipfireSmooth);
+		ReadFloat(Aimbot, BocekADSSmooth);
+		ReadInt(Aimbot, BocekSmoothingMethod);
+		ReadFloat(Aimbot, BocekMinHipfireSmooth);
+		ReadFloat(Aimbot, BocekMaxHipfireSmooth);
+		ReadFloat(Aimbot, BocekMinADSSmooth);
+		ReadFloat(Aimbot, BocekMaxADSSmooth);
+		ReadFloat(Aimbot, BocekFOV);
+		ReadFloat(Aimbot, BocekZoomScale);
+		ReadBool(Aimbot, ThrowingKnifeClosestHitbox);
+		ReadFloat(Aimbot, ThrowingKnifeHitbox);
+		ReadFloat(Aimbot, ThrowingKnifeSpeed);
+		ReadFloat(Aimbot, ThrowingKnifeHipfireSmooth);
+		ReadFloat(Aimbot, ThrowingKnifeADSSmooth);
+		ReadInt(Aimbot, ThrowingKnifeSmoothingMethod);
+		ReadFloat(Aimbot, ThrowingKnifeMinHipfireSmooth);
+		ReadFloat(Aimbot, ThrowingKnifeMaxHipfireSmooth);
+		ReadFloat(Aimbot, ThrowingKnifeMinADSSmooth);
+		ReadFloat(Aimbot, ThrowingKnifeMaxADSSmooth);
+		ReadFloat(Aimbot, ThrowingKnifeFOV);
+		ReadFloat(Aimbot, ThrowingKnifeZoomScale);
+
+		//Advanced Smooth - Aimbot Mode 1 - Grinder
+		ReadFloat(Aimbot, P2020HipfireSmooth1);
+		ReadFloat(Aimbot, P2020ADSSmooth1);
+		ReadFloat(Aimbot, P2020MinHipfireSmooth1);
+		ReadFloat(Aimbot, P2020MaxHipfireSmooth1);
+		ReadFloat(Aimbot, P2020MinADSSmooth1);
+		ReadFloat(Aimbot, P2020MaxADSSmooth1);
+		ReadFloat(Aimbot, P2020ExtraSmooth1);
+		ReadFloat(Aimbot, P2020Deadzone);
+		ReadFloat(Aimbot, P2020FOV1);
+		ReadFloat(Aimbot, P2020MinDistance1);
+		ReadFloat(Aimbot, P2020MaxDistance1);
+		ReadFloat(Aimbot, RE45HipfireSmooth1);
+		ReadFloat(Aimbot, RE45ADSSmooth1);
+		ReadFloat(Aimbot, RE45MinHipfireSmooth1);
+		ReadFloat(Aimbot, RE45MaxHipfireSmooth1);
+		ReadFloat(Aimbot, RE45MinADSSmooth1);
+		ReadFloat(Aimbot, RE45MaxADSSmooth1);
+		ReadFloat(Aimbot, RE45ExtraSmooth1);
+		ReadFloat(Aimbot, RE45Deadzone);
+		ReadFloat(Aimbot, RE45FOV1);
+		ReadFloat(Aimbot, RE45MinDistance1);
+		ReadFloat(Aimbot, RE45MaxDistance1);
+		ReadFloat(Aimbot, AlternatorHipfireSmooth1);
+		ReadFloat(Aimbot, AlternatorADSSmooth1);
+		ReadFloat(Aimbot, AlternatorMinHipfireSmooth1);
+		ReadFloat(Aimbot, AlternatorMaxHipfireSmooth1);
+		ReadFloat(Aimbot, AlternatorMinADSSmooth1);
+		ReadFloat(Aimbot, AlternatorMaxADSSmooth1);
+		ReadFloat(Aimbot, AlternatorExtraSmooth1);
+		ReadFloat(Aimbot, AlternatorDeadzone);
+		ReadFloat(Aimbot, AlternatorFOV1);
+		ReadFloat(Aimbot, AlternatorMinDistance1);
+		ReadFloat(Aimbot, AlternatorMaxDistance1);
+		ReadFloat(Aimbot, R99HipfireSmooth1);
+		ReadFloat(Aimbot, R99ADSSmooth1);
+		ReadFloat(Aimbot, R99MinHipfireSmooth1);
+		ReadFloat(Aimbot, R99MaxHipfireSmooth1);
+		ReadFloat(Aimbot, R99MinADSSmooth1);
+		ReadFloat(Aimbot, R99MaxADSSmooth1);
+		ReadFloat(Aimbot, R99ExtraSmooth1);
+		ReadFloat(Aimbot, R99Deadzone);
+		ReadFloat(Aimbot, R99FOV1);
+		ReadFloat(Aimbot, R99MinDistance1);
+		ReadFloat(Aimbot, R99MaxDistance1);
+		ReadFloat(Aimbot, R301HipfireSmooth1);
+		ReadFloat(Aimbot, R301ADSSmooth1);
+		ReadFloat(Aimbot, R301MinHipfireSmooth1);
+		ReadFloat(Aimbot, R301MaxHipfireSmooth1);
+		ReadFloat(Aimbot, R301MinADSSmooth1);
+		ReadFloat(Aimbot, R301MaxADSSmooth1);
+		ReadFloat(Aimbot, R301ExtraSmooth1);
+		ReadFloat(Aimbot, R301Deadzone);
+		ReadFloat(Aimbot, R301FOV1);
+		ReadFloat(Aimbot, R301MinDistance1);
+		ReadFloat(Aimbot, R301MaxDistance1);
+		ReadFloat(Aimbot, SpitfireHipfireSmooth1);
+		ReadFloat(Aimbot, SpitfireADSSmooth1);
+		ReadFloat(Aimbot, SpitfireMinHipfireSmooth1);
+		ReadFloat(Aimbot, SpitfireMaxHipfireSmooth1);
+		ReadFloat(Aimbot, SpitfireMinADSSmooth1);
+		ReadFloat(Aimbot, SpitfireMaxADSSmooth1);
+		ReadFloat(Aimbot, SpitfireExtraSmooth1);
+		ReadFloat(Aimbot, SpitfireDeadzone);
+		ReadFloat(Aimbot, SpitfireFOV1);
+		ReadFloat(Aimbot, SpitfireMinDistance1);
+		ReadFloat(Aimbot, SpitfireMaxDistance1);
+		ReadFloat(Aimbot, G7HipfireSmooth1);
+		ReadFloat(Aimbot, G7ADSSmooth1);
+		ReadFloat(Aimbot, G7MinHipfireSmooth1);
+		ReadFloat(Aimbot, G7MaxHipfireSmooth1);
+		ReadFloat(Aimbot, G7MinADSSmooth1);
+		ReadFloat(Aimbot, G7MaxADSSmooth1);
+		ReadFloat(Aimbot, G7ExtraSmooth1);
+		ReadFloat(Aimbot, G7Deadzone);
+		ReadFloat(Aimbot, G7FOV1);
+		ReadFloat(Aimbot, G7MinDistance1);
+		ReadFloat(Aimbot, G7MaxDistance1);
+
+		ReadFloat(Aimbot, FlatlineHipfireSmooth1);
+		ReadFloat(Aimbot, FlatlineADSSmooth1);
+		ReadFloat(Aimbot, FlatlineMinHipfireSmooth1);
+		ReadFloat(Aimbot, FlatlineMaxHipfireSmooth1);
+		ReadFloat(Aimbot, FlatlineMinADSSmooth1);
+		ReadFloat(Aimbot, FlatlineMaxADSSmooth1);
+		ReadFloat(Aimbot, FlatlineExtraSmooth1);
+		ReadFloat(Aimbot, FlatlineDeadzone);
+		ReadFloat(Aimbot, FlatlineFOV1);
+		ReadFloat(Aimbot, FlatlineMinDistance1);
+		ReadFloat(Aimbot, FlatlineMaxDistance1);
+		ReadFloat(Aimbot, HemlockHipfireSmooth1);
+		ReadFloat(Aimbot, HemlockADSSmooth1);
+		ReadFloat(Aimbot, HemlockMinHipfireSmooth1);
+		ReadFloat(Aimbot, HemlockMaxHipfireSmooth1);
+		ReadFloat(Aimbot, HemlockMinADSSmooth1);
+		ReadFloat(Aimbot, HemlockMaxADSSmooth1);
+		ReadFloat(Aimbot, HemlockExtraSmooth1);
+		ReadFloat(Aimbot, HemlockDeadzone);
+		ReadFloat(Aimbot, HemlockFOV1);
+		ReadFloat(Aimbot, HemlockMinDistance1);
+		ReadFloat(Aimbot, HemlockMaxDistance1);
+		ReadFloat(Aimbot, RepeaterHipfireSmooth1);
+		ReadFloat(Aimbot, RepeaterADSSmooth1);
+		ReadFloat(Aimbot, RepeaterMinHipfireSmooth1);
+		ReadFloat(Aimbot, RepeaterMaxHipfireSmooth1);
+		ReadFloat(Aimbot, RepeaterMinADSSmooth1);
+		ReadFloat(Aimbot, RepeaterMaxADSSmooth1);
+		ReadFloat(Aimbot, RepeaterExtraSmooth1);
+		ReadFloat(Aimbot, RepeaterDeadzone);
+		ReadFloat(Aimbot, RepeaterFOV1);
+		ReadFloat(Aimbot, RepeaterMinDistance1);
+		ReadFloat(Aimbot, RepeaterMaxDistance1);
+		ReadFloat(Aimbot, RampageHipfireSmooth1);
+		ReadFloat(Aimbot, RampageMinHipfireSmooth1);
+		ReadFloat(Aimbot, RampageMaxHipfireSmooth1);
+		ReadFloat(Aimbot, RampageMinADSSmooth1);
+		ReadFloat(Aimbot, RampageMaxADSSmooth1);
+		ReadFloat(Aimbot, RampageADSSmooth1);
+		ReadFloat(Aimbot, RampageExtraSmooth1);
+		ReadFloat(Aimbot, RampageDeadzone);
+		ReadFloat(Aimbot, RampageFOV1);
+		ReadFloat(Aimbot, RampageMinDistance1);
+		ReadFloat(Aimbot, RampageMaxDistance1);
+		ReadFloat(Aimbot, CARSMGHipfireSmooth1);
+		ReadFloat(Aimbot, CARSMGADSSmooth1);
+		ReadFloat(Aimbot, CARSMGMinHipfireSmooth1);
+		ReadFloat(Aimbot, CARSMGMaxHipfireSmooth1);
+		ReadFloat(Aimbot, CARSMGMinADSSmooth1);
+		ReadFloat(Aimbot, CARSMGMaxADSSmooth1);
+		ReadFloat(Aimbot, CARSMGExtraSmooth1);
+		ReadFloat(Aimbot, CARSMGDeadzone);
+		ReadFloat(Aimbot, CARSMGFOV1);
+		ReadFloat(Aimbot, CARSMGMinDistance1);
+		ReadFloat(Aimbot, CARSMGMaxDistance1);
+
+		ReadFloat(Aimbot, HavocHipfireSmooth1);
+		ReadFloat(Aimbot, HavocADSSmooth1);
+		ReadFloat(Aimbot, HavocMinHipfireSmooth1);
+		ReadFloat(Aimbot, HavocMaxHipfireSmooth1);
+		ReadFloat(Aimbot, HavocMinADSSmooth1);
+		ReadFloat(Aimbot, HavocMaxADSSmooth1);
+		ReadFloat(Aimbot, HavocExtraSmooth1);
+		ReadFloat(Aimbot, HavocDeadzone);
+		ReadFloat(Aimbot, HavocFOV1);
+		ReadFloat(Aimbot, HavocMinDistance1);
+		ReadFloat(Aimbot, HavocMaxDistance1);
+		ReadFloat(Aimbot, DevotionHipfireSmooth1);
+		ReadFloat(Aimbot, DevotionADSSmooth1);
+		ReadFloat(Aimbot, DevotionMinHipfireSmooth1);
+		ReadFloat(Aimbot, DevotionMaxHipfireSmooth1);
+		ReadFloat(Aimbot, DevotionMinADSSmooth1);
+		ReadFloat(Aimbot, DevotionMaxADSSmooth1);
+		ReadFloat(Aimbot, DevotionExtraSmooth1);
+		ReadFloat(Aimbot, DevotionDeadzone);
+		ReadFloat(Aimbot, DevotionFOV1);
+		ReadFloat(Aimbot, DevotionMinDistance1);
+		ReadFloat(Aimbot, DevotionMaxDistance1);
+		ReadFloat(Aimbot, LSTARHipfireSmooth1);
+		ReadFloat(Aimbot, LSTARADSSmooth1);
+		ReadFloat(Aimbot, LSTARMinHipfireSmooth1);
+		ReadFloat(Aimbot, LSTARMaxHipfireSmooth1);
+		ReadFloat(Aimbot, LSTARMinADSSmooth1);
+		ReadFloat(Aimbot, LSTARMaxADSSmooth1);
+		ReadFloat(Aimbot, LSTARExtraSmooth1);
+		ReadFloat(Aimbot, LSTARDeadzone);
+		ReadFloat(Aimbot, LSTARFOV1);
+		ReadFloat(Aimbot, LSTARMinDistance1);
+		ReadFloat(Aimbot, LSTARMaxDistance1);
+		ReadFloat(Aimbot, TripleTakeHipfireSmooth1);
+		ReadFloat(Aimbot, TripleTakeADSSmooth1);
+		ReadFloat(Aimbot, TripleTakeMinHipfireSmooth1);
+		ReadFloat(Aimbot, TripleTakeMaxHipfireSmooth1);
+		ReadFloat(Aimbot, TripleTakeMinADSSmooth1);
+		ReadFloat(Aimbot, TripleTakeMaxADSSmooth1);
+		ReadFloat(Aimbot, TripleTakeExtraSmooth1);
+		ReadFloat(Aimbot, TripleTakeDeadzone);
+		ReadFloat(Aimbot, TripleTakeFOV1);
+		ReadFloat(Aimbot, TripleTakeMinDistance1);
+		ReadFloat(Aimbot, TripleTakeMaxDistance1);
+		ReadFloat(Aimbot, VoltHipfireSmooth1);
+		ReadFloat(Aimbot, VoltADSSmooth1);
+		ReadFloat(Aimbot, VoltMinHipfireSmooth1);
+		ReadFloat(Aimbot, VoltMaxHipfireSmooth1);
+		ReadFloat(Aimbot, VoltMinADSSmooth1);
+		ReadFloat(Aimbot, VoltMaxADSSmooth1);
+		ReadFloat(Aimbot, VoltExtraSmooth1);
+		ReadFloat(Aimbot, VoltDeadzone);
+		ReadFloat(Aimbot, VoltFOV1);
+		ReadFloat(Aimbot, VoltMinDistance1);
+		ReadFloat(Aimbot, VoltMaxDistance1);
+		ReadFloat(Aimbot, NemesisHipfireSmooth1);
+		ReadFloat(Aimbot, NemesisADSSmooth1);
+		ReadFloat(Aimbot, NemesisMinHipfireSmooth1);
+		ReadFloat(Aimbot, NemesisMaxHipfireSmooth1);
+		ReadFloat(Aimbot, NemesisMinADSSmooth1);
+		ReadFloat(Aimbot, NemesisMaxADSSmooth1);
+		ReadFloat(Aimbot, NemesisExtraSmooth1);
+		ReadFloat(Aimbot, NemesisDeadzone);
+		ReadFloat(Aimbot, NemesisFOV1);
+		ReadFloat(Aimbot, NemesisMinDistance1);
+		ReadFloat(Aimbot, NemesisMaxDistance1);
+
+		ReadFloat(Aimbot, MozambiqueHipfireSmooth1);
+		ReadFloat(Aimbot, MozambiqueADSSmooth1);
+		ReadFloat(Aimbot, MozambiqueMinHipfireSmooth1);
+		ReadFloat(Aimbot, MozambiqueMaxHipfireSmooth1);
+		ReadFloat(Aimbot, MozambiqueMinADSSmooth1);
+		ReadFloat(Aimbot, MozambiqueMaxADSSmooth1);
+		ReadFloat(Aimbot, MozambiqueExtraSmooth1);
+		ReadFloat(Aimbot, MozambiqueDeadzone);
+		ReadFloat(Aimbot, MozambiqueFOV1);
+		ReadFloat(Aimbot, MozambiqueMinDistance1);
+		ReadFloat(Aimbot, MozambiqueMaxDistance1);
+		ReadFloat(Aimbot, EVA8HipfireSmooth1);
+		ReadFloat(Aimbot, EVA8ADSSmooth1);
+		ReadFloat(Aimbot, EVA8MinHipfireSmooth1);
+		ReadFloat(Aimbot, EVA8MaxHipfireSmooth1);
+		ReadFloat(Aimbot, EVA8MinADSSmooth1);
+		ReadFloat(Aimbot, EVA8MaxADSSmooth1);
+		ReadFloat(Aimbot, EVA8ExtraSmooth1);
+		ReadFloat(Aimbot, EVA8Deadzone);
+		ReadFloat(Aimbot, EVA8FOV1);
+		ReadFloat(Aimbot, EVA8MinDistance1);
+		ReadFloat(Aimbot, EVA8MaxDistance1);
+		ReadFloat(Aimbot, PeacekeeperHipfireSmooth1);
+		ReadFloat(Aimbot, PeacekeeperADSSmooth1);
+		ReadFloat(Aimbot, PeacekeeperMinHipfireSmooth1);
+		ReadFloat(Aimbot, PeacekeeperMaxHipfireSmooth1);
+		ReadFloat(Aimbot, PeacekeeperMinADSSmooth1);
+		ReadFloat(Aimbot, PeacekeeperMaxADSSmooth1);
+		ReadFloat(Aimbot, PeacekeeperExtraSmooth1);
+		ReadFloat(Aimbot, PeacekeeperDeadzone);
+		ReadFloat(Aimbot, PeacekeeperFOV1);
+		ReadFloat(Aimbot, PeacekeeperMinDistance1);
+		ReadFloat(Aimbot, PeacekeeperMaxDistance1);
+		ReadFloat(Aimbot, MastiffHipfireSmooth1);
+		ReadFloat(Aimbot, MastiffADSSmooth1);
+		ReadFloat(Aimbot, MastiffMinHipfireSmooth1);
+		ReadFloat(Aimbot, MastiffMaxHipfireSmooth1);
+		ReadFloat(Aimbot, MastiffMinADSSmooth1);
+		ReadFloat(Aimbot, MastiffMaxADSSmooth1);
+		ReadFloat(Aimbot, MastiffExtraSmooth1);
+		ReadFloat(Aimbot, MastiffDeadzone);
+		ReadFloat(Aimbot, MastiffFOV1);
+		ReadFloat(Aimbot, MastiffMinDistance1);
+		ReadFloat(Aimbot, MastiffMaxDistance1);
+
+		ReadFloat(Aimbot, LongbowHipfireSmooth1);
+		ReadFloat(Aimbot, LongbowADSSmooth1);
+		ReadFloat(Aimbot, LongbowMinHipfireSmooth1);
+		ReadFloat(Aimbot, LongbowMaxHipfireSmooth1);
+		ReadFloat(Aimbot, LongbowMinADSSmooth1);
+		ReadFloat(Aimbot, LongbowMaxADSSmooth1);
+		ReadFloat(Aimbot, LongbowExtraSmooth1);
+		ReadFloat(Aimbot, LongbowDeadzone);
+		ReadFloat(Aimbot, LongbowFOV1);
+		ReadFloat(Aimbot, LongbowMinDistance1);
+		ReadFloat(Aimbot, LongbowMaxDistance1);
+		ReadFloat(Aimbot, ChargeRifleHipfireSmooth1);
+		ReadFloat(Aimbot, ChargeRifleADSSmooth1);
+		ReadFloat(Aimbot, ChargeRifleMinHipfireSmooth1);
+		ReadFloat(Aimbot, ChargeRifleMaxHipfireSmooth1);
+		ReadFloat(Aimbot, ChargeRifleMinADSSmooth1);
+		ReadFloat(Aimbot, ChargeRifleMaxADSSmooth1);
+		ReadFloat(Aimbot, ChargeRifleExtraSmooth1);
+		ReadFloat(Aimbot, ChargeRifleDeadzone);
+		ReadFloat(Aimbot, ChargeRifleFOV1);
+		ReadFloat(Aimbot, ChargeRifleMinDistance1);
+		ReadFloat(Aimbot, ChargeRifleMaxDistance1);
+		ReadFloat(Aimbot, SentinelHipfireSmooth1);
+		ReadFloat(Aimbot, SentinelADSSmooth1);
+		ReadFloat(Aimbot, SentinelMinHipfireSmooth1);
+		ReadFloat(Aimbot, SentinelMaxHipfireSmooth1);
+		ReadFloat(Aimbot, SentinelMinADSSmooth1);
+		ReadFloat(Aimbot, SentinelMaxADSSmooth1);
+		ReadFloat(Aimbot, SentinelExtraSmooth1);
+		ReadFloat(Aimbot, SentinelDeadzone);
+		ReadFloat(Aimbot, SentinelFOV1);
+		ReadFloat(Aimbot, SentinelMinDistance1);
+		ReadFloat(Aimbot, SentinelMaxDistance1);
+
+		ReadFloat(Aimbot, WingmanHipfireSmooth1);
+		ReadFloat(Aimbot, WingmanADSSmooth1);
+		ReadFloat(Aimbot, WingmanMinHipfireSmooth1);
+		ReadFloat(Aimbot, WingmanMaxHipfireSmooth1);
+		ReadFloat(Aimbot, WingmanMinADSSmooth1);
+		ReadFloat(Aimbot, WingmanMaxADSSmooth1);
+		ReadFloat(Aimbot, WingmanExtraSmooth1);
+		ReadFloat(Aimbot, WingmanDeadzone);
+		ReadFloat(Aimbot, WingmanFOV1);
+		ReadFloat(Aimbot, WingmanMinDistance1);
+		ReadFloat(Aimbot, WingmanMaxDistance1);
+		ReadFloat(Aimbot, ProwlerHipfireSmooth1);
+		ReadFloat(Aimbot, ProwlerADSSmooth1);
+		ReadFloat(Aimbot, ProwlerMinHipfireSmooth1);
+		ReadFloat(Aimbot, ProwlerMaxHipfireSmooth1);
+		ReadFloat(Aimbot, ProwlerMinADSSmooth1);
+		ReadFloat(Aimbot, ProwlerMaxADSSmooth1);
+		ReadFloat(Aimbot, ProwlerExtraSmooth1);
+		ReadFloat(Aimbot, ProwlerDeadzone);
+		ReadFloat(Aimbot, ProwlerFOV1);
+		ReadFloat(Aimbot, ProwlerMinDistance1);
+		ReadFloat(Aimbot, ProwlerMaxDistance1);
+		ReadFloat(Aimbot, BocekHipfireSmooth1);
+		ReadFloat(Aimbot, BocekADSSmooth1);
+		ReadFloat(Aimbot, BocekMinHipfireSmooth1);
+		ReadFloat(Aimbot, BocekMaxHipfireSmooth1);
+		ReadFloat(Aimbot, BocekMinADSSmooth1);
+		ReadFloat(Aimbot, BocekMaxADSSmooth1);
+		ReadFloat(Aimbot, BocekExtraSmooth1);
+		ReadFloat(Aimbot, BocekDeadzone);
+		ReadFloat(Aimbot, BocekFOV1);
+		ReadFloat(Aimbot, BocekMinDistance1);
+		ReadFloat(Aimbot, BocekMaxDistance1);
+		ReadFloat(Aimbot, KraberHipfireSmooth1);
+		ReadFloat(Aimbot, KraberADSSmooth1);
+		ReadFloat(Aimbot, KraberMinHipfireSmooth1);
+		ReadFloat(Aimbot, KraberMaxHipfireSmooth1);
+		ReadFloat(Aimbot, KraberMinADSSmooth1);
+		ReadFloat(Aimbot, KraberMaxADSSmooth1);
+		ReadFloat(Aimbot, KraberExtraSmooth1);
+		ReadFloat(Aimbot, KraberDeadzone);
+		ReadFloat(Aimbot, KraberFOV1);
+		ReadFloat(Aimbot, KraberMinDistance1);
+		ReadFloat(Aimbot, KraberMaxDistance1);
+		ReadFloat(Aimbot, ThrowingKnifeHipfireSmooth1);
+		ReadFloat(Aimbot, ThrowingKnifeADSSmooth1);
+		ReadFloat(Aimbot, ThrowingKnifeMinHipfireSmooth1);
+		ReadFloat(Aimbot, ThrowingKnifeMaxHipfireSmooth1);
+		ReadFloat(Aimbot, ThrowingKnifeMinADSSmooth1);
+		ReadFloat(Aimbot, ThrowingKnifeMaxADSSmooth1);
+		ReadFloat(Aimbot, ThrowingKnifeExtraSmooth1);
+		ReadFloat(Aimbot, ThrowingKnifeDeadzone);
+		ReadFloat(Aimbot, ThrowingKnifeFOV1);
+		ReadFloat(Aimbot, ThrowingKnifeMinDistance1);
+		ReadFloat(Aimbot, ThrowingKnifeMaxDistance1);
 
 		ReadInt(AimbotBinds, AimBind);
 		ReadInt(AimbotBinds, ExtraBind);
@@ -5221,6 +5541,7 @@ struct ConfigManager
 
 		ReadBool(Triggerbot, Enabled);
 		ReadInt(Triggerbot, BindMethod);
+		ReadInt(Triggerbot, AttackMethod);
 		ReadInt(Triggerbot, TriggerBind);
 		ReadBool(Triggerbot, OnADS);
 		ReadBool(Triggerbot, HipfireShotguns);
@@ -5297,6 +5618,7 @@ struct ConfigManager
 		ReadFloat(Triggerbot, ThrowingKnifeRange);
 
 		ReadBool(Glow, NewGlow);
+		ReadBool(Glow, KnockedCheck);
 		ReadFloat(Glow, GlowMaxDistance);
 		ReadInt(Glow, GlowColorMode);
 		ReadInt(Glow, GlowColorShieldMode);
@@ -5310,7 +5632,6 @@ struct ConfigManager
 		ReadInt(Glow, ViewModelGlowCombo);
 
 		ReadBool(ItemGlow, ItemGlow);
-		ReadInt(ItemGlow, SelectedItemSelection);
 		ReadBool(ItemGlow, Common);
 		ReadBool(ItemGlow, Rare);
 		ReadBool(ItemGlow, Epic);
@@ -5318,6 +5639,7 @@ struct ConfigManager
 		ReadBool(ItemGlow, Legendary);
 		ReadBool(ItemGlow, Weapons);
 		ReadBool(ItemGlow, Ammo);
+		ReadBool(ItemGlow, Deathbox);
 		ReadInt(ItemGlow, ItemGlowThickness);
 		ReadInt(ItemGlow, SelectedInsideStyle);
 		ReadInt(ItemGlow, SelectedOutlineStyle);
@@ -5328,6 +5650,40 @@ struct ConfigManager
 		ReadBool(Sense, DrawFilledFOVCircle);
 		ReadFloat(Sense, FOVThickness);
 		ReadFloat(Sense, GameFOV);
+
+		ReadBool(Sense, DrawTargetLine);
+		ReadBool(Sense, DrawTargetDot);
+		ReadBool(Sense, DrawTargetBox);
+		ReadInt(Sense, TargetMode);
+		ReadInt(Sense, TargetBoneMode);
+		ReadInt(Sense, TargetSelectedBone);
+		ReadInt(Sense, TargetBone);
+		ReadInt(Sense, TargetHitbox);
+		ReadInt(Sense, TargetLineThickness);
+		ReadInt(Sense, TargetDotRadius);
+		ReadInt(Sense, TargetBoxMode);
+		ReadInt(Sense, TargetBoxThickness);
+		ReadInt(Sense, TargetBoxSize);
+
+		ReadBool(Sense, DrawTargetInfo);
+		ReadInt(Sense, TargetInfoDisplayMode);
+		ReadBool(Sense, DrawTargetInfoName);
+		ReadInt(Sense, TargetInfoNamePos);
+		ReadBool(Sense, DrawTargetInfoLegend);
+		ReadInt(Sense, TargetInfoLegendPos);
+		ReadBool(Sense, DrawTargetInfoTeamID);
+		ReadBool(Sense, DrawTargetInfoDistance);
+		ReadBool(Sense, DrawTargetInfoWeapon);
+		ReadInt(Sense, TargetInfoWeaponPos);
+		ReadBool(Sense, DrawTargetInfoHealth);
+		ReadInt(Sense, TargetInfoHealthPos);
+		ReadBool(Sense, DrawTargetInfoShield);
+		ReadInt(Sense, TargetInfoShieldPos);
+		ReadInt(Sense, TargetInfoColorMode); 
+		ReadInt(Sense, TargetInfoPosX);
+		ReadInt(Sense, TargetInfoPosY);
+		ReadInt(Sense, TargetInfoOffset);
+
 		// Other
 		ReadBool(Sense, DrawCrosshair);
 		ReadFloat(Sense, CrosshairSize);
@@ -5341,16 +5697,20 @@ struct ConfigManager
 		// Settings
 		ReadBool(Sense, TextOutline);
 		ReadBool(Sense, VisibilityCheck);
+		ReadBool(Sense, KnockedCheck);
 		ReadFloat(Sense, ESPMaxDistance);
 
 		ReadBool(SenseEnemy, DrawEnemy);
 		ReadBool(SenseEnemy, DrawBoxes);
+		ReadBool(SenseEnemy, BoxOutline);
 		ReadInt(SenseEnemy, BoxType);
 		ReadInt(SenseEnemy, BoxStyle);
 		ReadFloat(SenseEnemy, BoxThickness);
 		ReadBool(SenseEnemy, DrawSkeleton);
+		ReadBool(SenseEnemy, SkeletonOutline);
 		ReadFloat(SenseEnemy, SkeletonThickness);
 		ReadBool(SenseEnemy, DrawHeadCircle);
+		ReadBool(SenseEnemy, HeadCircleOutline);
 		ReadFloat(SenseEnemy, HeadCircleThickness);
 		ReadBool(SenseEnemy, DrawBars);
 		ReadBool(SenseEnemy, HealthBar);
@@ -5377,12 +5737,15 @@ struct ConfigManager
 
 		ReadBool(SenseTeammate, DrawTeam);
 		ReadBool(SenseTeammate, DrawBoxes);
+		ReadBool(SenseTeammate, BoxOutline);
 		ReadInt(SenseTeammate, BoxType);
 		ReadInt(SenseTeammate, BoxStyle);
 		ReadFloat(SenseTeammate, BoxThickness);
 		ReadBool(SenseTeammate, DrawSkeleton);
+		ReadBool(SenseTeammate, SkeletonOutline);
 		ReadFloat(SenseTeammate, SkeletonThickness);
 		ReadBool(SenseTeammate, DrawHeadCircle);
+		ReadBool(SenseTeammate, HeadCircleOutline);
 		ReadFloat(SenseTeammate, HeadCircleThickness);
 		ReadBool(SenseTeammate, DrawBars);
 		ReadBool(SenseTeammate, HealthBar);
@@ -5429,6 +5792,7 @@ struct ConfigManager
 		ReadFloat(Radar, CircleColorA);
 
 		ReadBool(Misc, SuperGlide);
+		ReadInt(Misc, SuperGlideMode);
 		ReadInt(Misc, SuperGlideFPS);
 		ReadBool(Misc, QuickTurn);
 		ReadInt(Misc, QuickTurnAngle);
@@ -5494,6 +5858,38 @@ struct ConfigManager
 		ReadInt(Misc, SkinKRABER);
 
 		ReadInt(Colors, WeaponColorMode);
+		ReadFloat(Colors, TargetLineColorR);
+		ReadFloat(Colors, TargetLineColorG);
+		ReadFloat(Colors, TargetLineColorB);
+		ReadFloat(Colors, TargetLineColorA);
+		ReadFloat(Colors, TargetLineLockedColorR);
+		ReadFloat(Colors, TargetLineLockedColorG);
+		ReadFloat(Colors, TargetLineLockedColorB);
+		ReadFloat(Colors, TargetLineLockedColorA);
+		ReadFloat(Colors, TargetDotColorR);
+		ReadFloat(Colors, TargetDotColorG);
+		ReadFloat(Colors, TargetDotColorB);
+		ReadFloat(Colors, TargetDotColorA);
+		ReadFloat(Colors, TargetDotLockedColorR);
+		ReadFloat(Colors, TargetDotLockedColorG);
+		ReadFloat(Colors, TargetDotLockedColorB);
+		ReadFloat(Colors, TargetDotLockedColorA);
+		ReadFloat(Colors, TargetBoxColorR);
+		ReadFloat(Colors, TargetBoxColorG);
+		ReadFloat(Colors, TargetBoxColorB);
+		ReadFloat(Colors, TargetBoxColorA);
+		ReadFloat(Colors, TargetBoxLockedColorR);
+		ReadFloat(Colors, TargetBoxLockedColorG);
+		ReadFloat(Colors, TargetBoxLockedColorB);
+		ReadFloat(Colors, TargetBoxLockedColorA);
+		ReadFloat(Colors, TargetInfoColorR);
+		ReadFloat(Colors, TargetInfoColorG);
+		ReadFloat(Colors, TargetInfoColorB);
+		ReadFloat(Colors, TargetInfoColorA);
+		ReadFloat(Colors, TargetInfoLockedColorR);
+		ReadFloat(Colors, TargetInfoLockedColorG);
+		ReadFloat(Colors, TargetInfoLockedColorB);
+		ReadFloat(Colors, TargetInfoLockedColorA);
 		ReadFloat(Colors, FOVColorR);
 		ReadFloat(Colors, FOVColorG);
 		ReadFloat(Colors, FOVColorB);
@@ -5515,6 +5911,11 @@ struct ConfigManager
 		ReadFloat(Colors, VisibleWarningColorB);
 		ReadFloat(Colors, VisibleWarningColorA);
 
+		ReadFloat(Colors, NameColorR);
+		ReadFloat(Colors, NameColorG);
+		ReadFloat(Colors, NameColorB);
+		ReadFloat(Colors, NameColorA);
+
 		ReadFloat(EnemyColors, InvisibleBoxColorR);
 		ReadFloat(EnemyColors, InvisibleBoxColorG);
 		ReadFloat(EnemyColors, InvisibleBoxColorB);
@@ -5523,6 +5924,10 @@ struct ConfigManager
 		ReadFloat(EnemyColors, VisibleBoxColorG);
 		ReadFloat(EnemyColors, VisibleBoxColorB);
 		ReadFloat(EnemyColors, VisibleBoxColorA);
+		ReadFloat(EnemyColors, KnockedBoxColorR);
+		ReadFloat(EnemyColors, KnockedBoxColorG);
+		ReadFloat(EnemyColors, KnockedBoxColorB);
+		ReadFloat(EnemyColors, KnockedBoxColorA);
 		ReadFloat(EnemyColors, InvisibleFilledBoxColorR);
 		ReadFloat(EnemyColors, InvisibleFilledBoxColorG);
 		ReadFloat(EnemyColors, InvisibleFilledBoxColorB);
@@ -5531,6 +5936,10 @@ struct ConfigManager
 		ReadFloat(EnemyColors, VisibleFilledBoxColorG);
 		ReadFloat(EnemyColors, VisibleFilledBoxColorB);
 		ReadFloat(EnemyColors, VisibleFilledBoxColorA);
+		ReadFloat(EnemyColors, KnockedFilledBoxColorR);
+		ReadFloat(EnemyColors, KnockedFilledBoxColorG);
+		ReadFloat(EnemyColors, KnockedFilledBoxColorB);
+		ReadFloat(EnemyColors, KnockedFilledBoxColorA);
 		ReadFloat(EnemyColors, InvisibleTracerColorR);
 		ReadFloat(EnemyColors, InvisibleTracerColorG);
 		ReadFloat(EnemyColors, InvisibleTracerColorB);
@@ -5539,6 +5948,10 @@ struct ConfigManager
 		ReadFloat(EnemyColors, VisibleTracerColorG);
 		ReadFloat(EnemyColors, VisibleTracerColorB);
 		ReadFloat(EnemyColors, VisibleTracerColorA);
+		ReadFloat(EnemyColors, KnockedTracerColorR);
+		ReadFloat(EnemyColors, KnockedTracerColorG);
+		ReadFloat(EnemyColors, KnockedTracerColorB);
+		ReadFloat(EnemyColors, KnockedTracerColorA);
 		ReadFloat(EnemyColors, InvisibleSkeletonColorR);
 		ReadFloat(EnemyColors, InvisibleSkeletonColorG);
 		ReadFloat(EnemyColors, InvisibleSkeletonColorB);
@@ -5547,6 +5960,10 @@ struct ConfigManager
 		ReadFloat(EnemyColors, VisibleSkeletonColorG);
 		ReadFloat(EnemyColors, VisibleSkeletonColorB);
 		ReadFloat(EnemyColors, VisibleSkeletonColorA);
+		ReadFloat(EnemyColors, KnockedSkeletonColorR);
+		ReadFloat(EnemyColors, KnockedSkeletonColorG);
+		ReadFloat(EnemyColors, KnockedSkeletonColorB);
+		ReadFloat(EnemyColors, KnockedSkeletonColorA);
 		ReadFloat(EnemyColors, InvisibleHeadCircleColorR);
 		ReadFloat(EnemyColors, InvisibleHeadCircleColorG);
 		ReadFloat(EnemyColors, InvisibleHeadCircleColorB);
@@ -5555,6 +5972,10 @@ struct ConfigManager
 		ReadFloat(EnemyColors, VisibleHeadCircleColorG);
 		ReadFloat(EnemyColors, VisibleHeadCircleColorB);
 		ReadFloat(EnemyColors, VisibleHeadCircleColorA);
+		ReadFloat(EnemyColors, KnockedHeadCircleColorR);
+		ReadFloat(EnemyColors, KnockedHeadCircleColorG);
+		ReadFloat(EnemyColors, KnockedHeadCircleColorB);
+		ReadFloat(EnemyColors, KnockedHeadCircleColorA);
 		ReadFloat(EnemyColors, InvisibleNameColorR);
 		ReadFloat(EnemyColors, InvisibleNameColorG);
 		ReadFloat(EnemyColors, InvisibleNameColorB);
@@ -5563,6 +5984,10 @@ struct ConfigManager
 		ReadFloat(EnemyColors, VisibleNameColorG);
 		ReadFloat(EnemyColors, VisibleNameColorB);
 		ReadFloat(EnemyColors, VisibleNameColorA);
+		ReadFloat(EnemyColors, KnockedNameColorR);
+		ReadFloat(EnemyColors, KnockedNameColorG);
+		ReadFloat(EnemyColors, KnockedNameColorB);
+		ReadFloat(EnemyColors, KnockedNameColorA);
 		ReadFloat(EnemyColors, InvisibleDistanceColorR);
 		ReadFloat(EnemyColors, InvisibleDistanceColorG);
 		ReadFloat(EnemyColors, InvisibleDistanceColorB);
@@ -5571,6 +5996,10 @@ struct ConfigManager
 		ReadFloat(EnemyColors, VisibleDistanceColorG);
 		ReadFloat(EnemyColors, VisibleDistanceColorB);
 		ReadFloat(EnemyColors, VisibleDistanceColorA);
+		ReadFloat(EnemyColors, KnockedDistanceColorR);
+		ReadFloat(EnemyColors, KnockedDistanceColorG);
+		ReadFloat(EnemyColors, KnockedDistanceColorB);
+		ReadFloat(EnemyColors, KnockedDistanceColorA);
 		ReadFloat(EnemyColors, InvisibleLegendColorR);
 		ReadFloat(EnemyColors, InvisibleLegendColorG);
 		ReadFloat(EnemyColors, InvisibleLegendColorB);
@@ -5579,6 +6008,10 @@ struct ConfigManager
 		ReadFloat(EnemyColors, VisibleLegendColorG);
 		ReadFloat(EnemyColors, VisibleLegendColorB);
 		ReadFloat(EnemyColors, VisibleLegendColorA);
+		ReadFloat(EnemyColors, KnockedLegendColorR);
+		ReadFloat(EnemyColors, KnockedLegendColorG);
+		ReadFloat(EnemyColors, KnockedLegendColorB);
+		ReadFloat(EnemyColors, KnockedLegendColorA);
 		// Bar
 		ReadInt(EnemyColors, BarColorMode);
 		// WeaponESP Colors
@@ -5590,6 +6023,10 @@ struct ConfigManager
 		ReadFloat(EnemyColors, VisibleWeaponColorG);
 		ReadFloat(EnemyColors, VisibleWeaponColorB);
 		ReadFloat(EnemyColors, VisibleWeaponColorA);
+		ReadFloat(EnemyColors, KnockedWeaponColorR);
+		ReadFloat(EnemyColors, KnockedWeaponColorG);
+		ReadFloat(EnemyColors, KnockedWeaponColorB);
+		ReadFloat(EnemyColors, KnockedWeaponColorA);
 		// Multiple
 		ReadFloat(EnemyColors, LightWeaponColorR);
 		ReadFloat(EnemyColors, LightWeaponColorG);
@@ -5630,9 +6067,12 @@ struct ConfigManager
 		ReadFloat(EnemyColors, VisibleGlowColorR);
 		ReadFloat(EnemyColors, VisibleGlowColorG);
 		ReadFloat(EnemyColors, VisibleGlowColorB);
+		ReadFloat(EnemyColors, KnockedGlowColorR);
+		ReadFloat(EnemyColors, KnockedGlowColorG);
+		ReadFloat(EnemyColors, KnockedGlowColorB);
 		ReadFloat(EnemyColors, RedShieldColorR);
 		ReadFloat(EnemyColors, RedShieldColorG);
-		ReadFloat(EnemyColors, RedShieldColorG);
+		ReadFloat(EnemyColors, RedShieldColorB);
 		ReadFloat(EnemyColors, PurpleShieldColorR);
 		ReadFloat(EnemyColors, PurpleShieldColorG);
 		ReadFloat(EnemyColors, PurpleShieldColorB);
@@ -5642,6 +6082,9 @@ struct ConfigManager
 		ReadFloat(EnemyColors, GreyShieldColorR);
 		ReadFloat(EnemyColors, GreyShieldColorG);
 		ReadFloat(EnemyColors, GreyShieldColorB);
+		ReadFloat(EnemyColors, LowGlowColorR);
+		ReadFloat(EnemyColors, LowGlowColorG);
+		ReadFloat(EnemyColors, LowGlowColorB);
 
 		ReadFloat(TeammateColors, InvisibleBoxColorR);
 		ReadFloat(TeammateColors, InvisibleBoxColorG);
@@ -5651,6 +6094,10 @@ struct ConfigManager
 		ReadFloat(TeammateColors, VisibleBoxColorG);
 		ReadFloat(TeammateColors, VisibleBoxColorB);
 		ReadFloat(TeammateColors, VisibleBoxColorA);
+		ReadFloat(TeammateColors, KnockedBoxColorR);
+		ReadFloat(TeammateColors, KnockedBoxColorG);
+		ReadFloat(TeammateColors, KnockedBoxColorB);
+		ReadFloat(TeammateColors, KnockedBoxColorA);
 		ReadFloat(TeammateColors, InvisibleFilledBoxColorR);
 		ReadFloat(TeammateColors, InvisibleFilledBoxColorG);
 		ReadFloat(TeammateColors, InvisibleFilledBoxColorB);
@@ -5659,6 +6106,10 @@ struct ConfigManager
 		ReadFloat(TeammateColors, VisibleFilledBoxColorG);
 		ReadFloat(TeammateColors, VisibleFilledBoxColorB);
 		ReadFloat(TeammateColors, VisibleFilledBoxColorA);
+		ReadFloat(TeammateColors, KnockedFilledBoxColorR);
+		ReadFloat(TeammateColors, KnockedFilledBoxColorG);
+		ReadFloat(TeammateColors, KnockedFilledBoxColorB);
+		ReadFloat(TeammateColors, KnockedFilledBoxColorA);
 		ReadFloat(TeammateColors, InvisibleTracerColorR);
 		ReadFloat(TeammateColors, InvisibleTracerColorG);
 		ReadFloat(TeammateColors, InvisibleTracerColorB);
@@ -5667,6 +6118,10 @@ struct ConfigManager
 		ReadFloat(TeammateColors, VisibleTracerColorG);
 		ReadFloat(TeammateColors, VisibleTracerColorB);
 		ReadFloat(TeammateColors, VisibleTracerColorA);
+		ReadFloat(TeammateColors, KnockedTracerColorR);
+		ReadFloat(TeammateColors, KnockedTracerColorG);
+		ReadFloat(TeammateColors, KnockedTracerColorB);
+		ReadFloat(TeammateColors, KnockedTracerColorA);
 		ReadFloat(TeammateColors, InvisibleSkeletonColorR);
 		ReadFloat(TeammateColors, InvisibleSkeletonColorG);
 		ReadFloat(TeammateColors, InvisibleSkeletonColorB);
@@ -5675,6 +6130,10 @@ struct ConfigManager
 		ReadFloat(TeammateColors, VisibleSkeletonColorG);
 		ReadFloat(TeammateColors, VisibleSkeletonColorB);
 		ReadFloat(TeammateColors, VisibleSkeletonColorA);
+		ReadFloat(TeammateColors, KnockedSkeletonColorR);
+		ReadFloat(TeammateColors, KnockedSkeletonColorG);
+		ReadFloat(TeammateColors, KnockedSkeletonColorB);
+		ReadFloat(TeammateColors, KnockedSkeletonColorA);
 		ReadFloat(TeammateColors, InvisibleHeadCircleColorR);
 		ReadFloat(TeammateColors, InvisibleHeadCircleColorG);
 		ReadFloat(TeammateColors, InvisibleHeadCircleColorB);
@@ -5683,6 +6142,10 @@ struct ConfigManager
 		ReadFloat(TeammateColors, VisibleHeadCircleColorG);
 		ReadFloat(TeammateColors, VisibleHeadCircleColorB);
 		ReadFloat(TeammateColors, VisibleHeadCircleColorA);
+		ReadFloat(TeammateColors, KnockedHeadCircleColorR);
+		ReadFloat(TeammateColors, KnockedHeadCircleColorG);
+		ReadFloat(TeammateColors, KnockedHeadCircleColorB);
+		ReadFloat(TeammateColors, KnockedHeadCircleColorA);
 		ReadFloat(TeammateColors, InvisibleNameColorR);
 		ReadFloat(TeammateColors, InvisibleNameColorG);
 		ReadFloat(TeammateColors, InvisibleNameColorB);
@@ -5691,6 +6154,10 @@ struct ConfigManager
 		ReadFloat(TeammateColors, VisibleNameColorG);
 		ReadFloat(TeammateColors, VisibleNameColorB);
 		ReadFloat(TeammateColors, VisibleNameColorA);
+		ReadFloat(TeammateColors, KnockedNameColorR);
+		ReadFloat(TeammateColors, KnockedNameColorG);
+		ReadFloat(TeammateColors, KnockedNameColorB);
+		ReadFloat(TeammateColors, KnockedNameColorA);
 		ReadFloat(TeammateColors, InvisibleDistanceColorR);
 		ReadFloat(TeammateColors, InvisibleDistanceColorG);
 		ReadFloat(TeammateColors, InvisibleDistanceColorB);
@@ -5699,6 +6166,10 @@ struct ConfigManager
 		ReadFloat(TeammateColors, VisibleDistanceColorG);
 		ReadFloat(TeammateColors, VisibleDistanceColorB);
 		ReadFloat(TeammateColors, VisibleDistanceColorA);
+		ReadFloat(TeammateColors, KnockedDistanceColorR);
+		ReadFloat(TeammateColors, KnockedDistanceColorG);
+		ReadFloat(TeammateColors, KnockedDistanceColorB);
+		ReadFloat(TeammateColors, KnockedDistanceColorA);
 		ReadFloat(TeammateColors, InvisibleLegendColorR);
 		ReadFloat(TeammateColors, InvisibleLegendColorG);
 		ReadFloat(TeammateColors, InvisibleLegendColorB);
@@ -5707,6 +6178,10 @@ struct ConfigManager
 		ReadFloat(TeammateColors, VisibleLegendColorG);
 		ReadFloat(TeammateColors, VisibleLegendColorB);
 		ReadFloat(TeammateColors, VisibleLegendColorA);
+		ReadFloat(TeammateColors, KnockedLegendColorR);
+		ReadFloat(TeammateColors, KnockedLegendColorG);
+		ReadFloat(TeammateColors, KnockedLegendColorB);
+		ReadFloat(TeammateColors, KnockedLegendColorA);
 		// Bar
 		ReadInt(TeammateColors, BarColorMode);
 		// WeaponESP Colors
@@ -5718,6 +6193,10 @@ struct ConfigManager
 		ReadFloat(TeammateColors, VisibleWeaponColorG);
 		ReadFloat(TeammateColors, VisibleWeaponColorB);
 		ReadFloat(TeammateColors, VisibleWeaponColorA);
+		ReadFloat(TeammateColors, KnockedWeaponColorR);
+		ReadFloat(TeammateColors, KnockedWeaponColorG);
+		ReadFloat(TeammateColors, KnockedWeaponColorB);
+		ReadFloat(TeammateColors, KnockedWeaponColorA);
 		// Multiple
 		ReadFloat(TeammateColors, LightWeaponColorR);
 		ReadFloat(TeammateColors, LightWeaponColorG);
@@ -5756,10 +6235,13 @@ struct ConfigManager
 		ReadInt(Watermark, WatermarkPosition);
 		ReadBool(Watermark, Name);
 		ReadBool(Watermark, ProcessingSpeed);
+		ReadBool(Watermark, GameFPS);
 		ReadBool(Watermark, Spectators);
 
 		ReadBool(Settings, ESPEnabled);
+		ReadBool(Settings, DeadCheck);
 		ReadBool(Settings, OverlayEnabled);
+		ReadBool(Settings, AntiAliasedLines);
 		ReadBool(Settings, FPSCap);
 		ReadInt(Settings, CappedFPS);
 

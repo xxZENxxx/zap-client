@@ -1,6 +1,7 @@
 // Externals
 #pragma once
 #include <chrono>
+#include <cstddef>
 #include <string>
 #include <thread>
 #include <GLFW/glfw3.h>
@@ -10,14 +11,15 @@
 #include "../imgui/imgui_impl_glfw.h"
 #include "../imgui/imgui_impl_opengl3.h"
 #include "../imgui/imgui_internal.h"
+#include "FontAwesome.h"
 #define IMGUI_DEFINE_MATH_OPERATORS
 
 // Internals
 #include "Font.hpp"
 #include "../Utils/InputManager.hpp"
-#include "../Utils/Themes.hpp"
 #include "../Utils/Config.hpp"
 #include "../Utils/Features.hpp"
+#include "../Features/Legitbot.hpp"
 #include "AdvancedGUI.hpp"
 #include "Overlay.hpp"
 #include "../Core/LocalPlayer.hpp"
@@ -65,21 +67,21 @@ struct Menu
 
 	MenuTabs CurrentTab = MenuTabs::Legitbot;
 
-	LocalPlayer *Myself;
-	AdvancedGUI *Advanced;
+	// Icons
+	ImFont* IconFont = nullptr;
 
-	Menu(LocalPlayer *Myself, AdvancedGUI *Advanced)
-	{
+	LocalPlayer* Myself;
+	AdvancedGUI* Advanced;
+
+	Menu(LocalPlayer* Myself, AdvancedGUI* Advanced) {
 		this->Myself = Myself;
 		this->Advanced = Advanced;
 	}
 
 	// Padding between controls
-	const void Space(bool NoSeparator = false)
-	{
+	const void Space(bool NoSeparator = false) {
 		ImGui::Spacing();
-		if (!NoSeparator)
-		{
+		if (!NoSeparator) {
 			ImGui::Spacing();
 			ImGui::Separator();
 		}
@@ -88,27 +90,23 @@ struct Menu
 	}
 
 	// Two Spacings In One! Who Would've Thought!
-	const void DoubleSpacing()
-	{
+	const void DoubleSpacing() {
 		ImGui::Spacing();
 		ImGui::Spacing();
 	}
 
 	// Ok, Three Spacings In One Is Pushing It.
-	const void TripleSpacing()
-	{
+	const void TripleSpacing() {
 		ImGui::Spacing();
 		ImGui::Spacing();
 		ImGui::Spacing();
 	}
 
 	// Help Marker
-	const void DrawHelpMarker(const char *desc)
-	{
+	const void DrawHelpMarker(const char* desc) {
 		ImGui::SameLine(ImGui::GetWindowWidth() - 50);
 		ImGui::TextDisabled("[?]");
-		if (ImGui::IsItemHovered())
-		{
+		if (ImGui::IsItemHovered()) {
 			ImGui::BeginTooltip();
 			ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
 			ImGui::TextUnformatted(desc);
@@ -118,13 +116,11 @@ struct Menu
 	}
 
 	// Help Marker
-	static void Helper(const char *desc)
-	{
+	static void Helper(const char* desc) {
 
 		ImGui::SameLine(0.f, 5.f);
 		ImGui::Text("(?)");
-		if (ImGui::IsItemHovered())
-		{
+		if (ImGui::IsItemHovered()) {
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(4, 4));
 			ImGui::BeginTooltip();
 			ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
@@ -135,8 +131,7 @@ struct Menu
 		}
 	}
 
-	void ComboBox(const char *label, const char *desc, int *current_item, const char *items_separated_by_zeros, int height_in_items)
-	{
+	void ComboBox(const char* label, const char* desc, int* current_item, const char* items_separated_by_zeros, int height_in_items) {
 		ImGui::Spacing();
 		ImGui::SameLine(15);
 		ImGui::TextColored(ImColor(255, 255, 255, 255), label);
@@ -148,9 +143,34 @@ struct Menu
 		ImGui::Spacing();
 	}
 
+	void MultiCombo(const char* label, bool variable[], const char* labels[], int count) {
+		ImGuiContext& g = *GImGui;
+
+		std::string preview = "None";
+
+		for (auto i = 0, j = 0; i < count; i++) {
+			if (variable[i]) {
+				if (j)
+					preview += (", ") + (std::string)labels[i];
+				else
+					preview = labels[i];
+
+				j++;
+			}
+		}
+
+		if (ImGui::BeginCombo(label, preview.c_str(), count)) // draw start
+		{
+			for (auto i = 0; i < count; i++)
+				ImGui::Selectable(labels[i], &variable[i], ImGuiSelectableFlags_DontClosePopups);
+			ImGui::EndCombo();
+		}
+
+		preview = ("None"); // reset preview to use later
+	}
+
 	// Render GUI Tabs
-	void RenderLegitbot()
-	{
+	void RenderLegitbot(Overlay OverlayWindow) {
 		ImVec2 TabSize;
 		TabSize = ImGui::GetWindowSize();
 		ImGui::SetCursorPos(ImVec2(0, 0));
@@ -187,27 +207,25 @@ struct Menu
 			SelectedLegitbotSubTab = 6;
 		ImGui::EndGroup();
 
-		ImGui::SetCursorPos({15, 35});
+		ImGui::SetCursorPos({ 15, 35 });
 
 		ImGui::BeginChild("workzone", ImVec2(WindowWidth - 186, WindowHeight - 90), false, ImGuiWindowFlags_NoScrollbar);
 
 		ImGui::Separator();
 		DoubleSpacing();
 
-		if (SelectedLegitbotSubTab == 0)
-		{
+		if (SelectedLegitbotSubTab == 0) {
 			ImGui::BeginChildFrame(1, ImVec2(WindowWidth - 220, 135), true);
 			{
 				ImGui::Spacing();
 				ImGui::Text("Aimbot");
 				ImGui::Checkbox("Enabled", &Features::Aimbot::AimbotEnabled);
-				if (Features::Aimbot::AimbotEnabled)
-				{
-					const char *AimbotModeIndex[] = {"Cubic Bezier [xap-client]", "Grinder", "[New] Cubic Bezier [Testing]"};
+				if (Features::Aimbot::AimbotEnabled) {
+					const char* AimbotModeIndex[] = { "Cubic Bezier [xap-client]", "Linear [Grinder]", "Cubic Bezier 2 [Nika]" };
 					ImGui::ComboBox("Aimbot Method", &Features::Aimbot::AimbotMode, AimbotModeIndex, IM_ARRAYSIZE(AimbotModeIndex));
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 						ImGui::SetTooltip("What Aimbot Method You Would Like.\nYou may find Grinder To Be More Legit/Smooth.");
-					const char *InputMethodIndex[] = {"Mouse", "Memory (Controller Supported)"};
+					const char* InputMethodIndex[] = { "Mouse", "Memory (Controller Supported)" };
 					ImGui::ComboBox("Input Method", &Features::Aimbot::InputMethod, InputMethodIndex, IM_ARRAYSIZE(InputMethodIndex));
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 						ImGui::SetTooltip("What Input Method The Aimbot Will Use.\nYou Can Use Controller Method With KBM, But I Recommend Mouse.\nNote: Controller Input Method Requires Low Processing Speed To Work Well (Below 10-15ms).");
@@ -215,17 +233,15 @@ struct Menu
 				ImGui::EndChildFrame();
 			}
 
-			if (Features::Aimbot::AimbotEnabled && Features::Aimbot::AimbotMode == 0 or Features::Aimbot::AimbotMode == 2 && !Features::Aimbot::AdvancedAim)
-			{
+			if (Features::Aimbot::AimbotEnabled && Features::Aimbot::AimbotMode == 0 or Features::Aimbot::AimbotMode == 2 && !Features::Aimbot::AdvancedAim) {
 				ImGui::Columns(2, nullptr, false);
 				ImGui::BeginChildFrame(2, ImVec2(WindowWidth - 613, 93), true);
 				{
 					ImGui::Spacing();
 					ImGui::Text("Selected Hitbox");
 					ImGui::Checkbox("Closest To Crosshair", &Features::Aimbot::ClosestHitbox);
-					if (!Features::Aimbot::ClosestHitbox)
-					{
-						const char *HitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+					if (!Features::Aimbot::ClosestHitbox) {
+						const char* HitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 						int HitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::Hitbox);
 						ImGui::ComboBox("Hitbox Type", &HitboxTypeIndex, HitboxTypes, IM_ARRAYSIZE(HitboxTypes));
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -238,18 +254,15 @@ struct Menu
 				ImGui::BeginChildFrame(3, ImVec2(WindowWidth - 613, 190), true);
 				{
 					ImGui::Spacing();
-					const char *BindMethodIndex[] = {"Memory", "Keybinds"};
+					const char* BindMethodIndex[] = { "Memory", "Keybinds" };
 					ImGui::ComboBox("Aim Bind Method", &Features::Aimbot::BindMethod, BindMethodIndex, IM_ARRAYSIZE(BindMethodIndex));
-					if (!Features::Aimbot::AdvancedAim)
-					{
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire and OnADS
+					if (!Features::Aimbot::AdvancedAim) {
+						if (Features::Aimbot::BindMethod == 0) { // OnFire and OnADS
 							ImGui::Checkbox("On Fire", &Features::Aimbot::OnFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS", &Features::Aimbot::OnADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int AimBind = static_cast<int>(Features::AimbotBinds::AimBind);
 							ImGui::ComboBox("Aim Bind##Aimbot", &AimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::AimBind = static_cast<InputKeyType>(AimBind);
@@ -261,8 +274,7 @@ struct Menu
 						ImGui::Checkbox("Team Check##Aimbot", &Features::Aimbot::TeamCheck);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Disable this if doing 1v1s in the firing range.\nMay not work with Grinder Aim Method.");
-						if (Features::Aimbot::AimbotMode == 0 or Features::Aimbot::AimbotMode == 2)
-						{ // xap-client
+						if (Features::Aimbot::AimbotMode == 0 or Features::Aimbot::AimbotMode == 2) { // xap-client
 							ImGui::SameLine();
 							ImGui::Checkbox("Visibility Check", &Features::Aimbot::VisCheck);
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -271,19 +283,18 @@ struct Menu
 
 						ImGui::Text("Targeting Options");
 						ImGui::Checkbox("Allow Target Switching", &Features::Aimbot::TargetSwitching);
-						const char *PriorityIndex[] = {"Closest To Crosshair", "Closest To LocalPlayer", "Both"};
+						const char* PriorityIndex[] = { "Closest To Crosshair", "Closest To LocalPlayer", "Both" };
 						ImGui::ComboBox("Target Priority", &Features::Aimbot::Priority, PriorityIndex, IM_ARRAYSIZE(PriorityIndex));
 						DoubleSpacing();
 					}
 					ImGui::EndChildFrame();
 				}
 
-				if (!Features::Aimbot::AdvancedAim && Features::Aimbot::AimbotMode == 0 or Features::Aimbot::AimbotMode == 2)
-				{ // Cubic Bezier [xap-client]
+				if (!Features::Aimbot::AdvancedAim && Features::Aimbot::AimbotMode == 0 or Features::Aimbot::AimbotMode == 2) { // Cubic Bezier [xap-client]
 					ImGui::BeginChildFrame(4, ImVec2(WindowWidth - 613, 169), true);
 					{
 						ImGui::Spacing();
-						const char *SmoothingMethodIndex[] = {"Static", "Random"};
+						const char* SmoothingMethodIndex[] = { "Static", "Random" };
 						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::SmoothingMethod, SmoothingMethodIndex, IM_ARRAYSIZE(SmoothingMethodIndex));
 
 						if (Features::Aimbot::InputMethod == 0) // Mouse Only
@@ -295,8 +306,7 @@ struct Menu
 
 						if (Features::Aimbot::SmoothingMethod == 0) // Static
 						{
-							if (Features::Aimbot::AimbotMode == 0)
-							{
+							if (Features::Aimbot::AimbotMode == 0) {
 								ImGui::MainSliderFloat("Hipfire Smoothing", &Features::Aimbot::HipfireSmooth, 0, 0.99, "%.3f");
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Smoothing for the Aim-Assist whilst hipfiring.\nHigher = Smoother");
@@ -305,8 +315,7 @@ struct Menu
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Smoothing for the Aim-Assist whilst ADS.\nHigher = Smoother");
 							}
-							if (Features::Aimbot::AimbotMode == 2)
-							{
+							if (Features::Aimbot::AimbotMode == 2) {
 								ImGui::MainSliderFloat("Hipfire Smoothing##Test", &Features::Aimbot::MouseHipfireSmoothing, 1, 1000, "%.0f");
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Smoothing for the Aim-Assist whilst hipfiring.\nHigher = Smoother");
@@ -318,8 +327,7 @@ struct Menu
 						}
 						if (Features::Aimbot::SmoothingMethod == 1) // Random
 						{
-							if (Features::Aimbot::AimbotMode == 0)
-							{
+							if (Features::Aimbot::AimbotMode == 0) {
 								ImGui::MainSliderFloat("Minimum Hipfire Smoothing", &Features::Aimbot::MinHipfireSmooth, 0, 0.99, "%.3f");
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Minimum Smoothing for the Aim-Assist whilst hipfiring.\nHigher = Smoother");
@@ -336,8 +344,7 @@ struct Menu
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing for the Aim-Assist whilst ADS.\nHigher = Smoother");
 							}
-							if (Features::Aimbot::AimbotMode == 2)
-							{
+							if (Features::Aimbot::AimbotMode == 2) {
 								ImGui::MainSliderFloat("Minimum Hipfire Smoothing##Test", &Features::Aimbot::MinMouseHipfireSmoothing, 1, 1000, "%.0f");
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Minimum Smoothing for the Aim-Assist whilst hipfiring.\nHigher = Smoother");
@@ -356,8 +363,7 @@ struct Menu
 							}
 						}
 
-						if (Features::Aimbot::AimbotMode == 2)
-						{
+						if (Features::Aimbot::AimbotMode == 2) {
 							ImGui::MainSliderFloat("Distance Smoothing##Test", &Features::Aimbot::MouseExtraSmoothing, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -415,24 +421,20 @@ struct Menu
 				}
 			}
 
-			if (Features::Aimbot::AimbotEnabled && Features::Aimbot::AimbotMode == 1 && !Features::Aimbot::AdvancedAim && Features::Aimbot::InputMethod == 0)
-			{
+			if (Features::Aimbot::AimbotEnabled && Features::Aimbot::AimbotMode == 1 && !Features::Aimbot::AdvancedAim && Features::Aimbot::InputMethod == 0) {
 				ImGui::Columns(2, nullptr, false);
 				ImGui::BeginChildFrame(3, ImVec2(WindowWidth - 613, 217), true);
 				{
 					ImGui::Spacing();
-					const char *BindMethodIndex[] = {"Memory", "Keybinds"};
+					const char* BindMethodIndex[] = { "Memory", "Keybinds" };
 					ImGui::ComboBox("Aim Bind Method", &Features::Aimbot::BindMethod, BindMethodIndex, IM_ARRAYSIZE(BindMethodIndex));
-					if (!Features::Aimbot::AdvancedAim)
-					{
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire and OnADS
+					if (!Features::Aimbot::AdvancedAim) {
+						if (Features::Aimbot::BindMethod == 0) { // OnFire and OnADS
 							ImGui::Checkbox("On Fire", &Features::Aimbot::OnFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS", &Features::Aimbot::OnADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int AimBind = static_cast<int>(Features::AimbotBinds::AimBind);
 							ImGui::ComboBox("Aim Bind##Aimbot", &AimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::AimBind = static_cast<InputKeyType>(AimBind);
@@ -452,9 +454,9 @@ struct Menu
 				{
 					ImGui::Spacing();
 
-					const char *SmoothingMethodIndex[] = {"Static", "Random"};
+					const char* SmoothingMethodIndex[] = { "Static", "Random" };
 					ImGui::ComboBox("Smoothing Method", &Features::Aimbot::SmoothingMethod, SmoothingMethodIndex, IM_ARRAYSIZE(SmoothingMethodIndex));
-					
+
 					if (Features::Aimbot::SmoothingMethod == 0) // Static
 					{
 						ImGui::MainSliderFloat("Hipfire Smoothing##Grinder", &Features::Aimbot::HipfireSmooth1, 1, 1000, "%.0f");
@@ -481,7 +483,7 @@ struct Menu
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist Whilst ADS.\nHigher = Smoother");
 					}
-					
+
 					ImGui::MainSliderFloat("Extra Smoothing##Grinder", &Features::Aimbot::ExtraSmoothing, 1, 9999, "%.0f");
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 						ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -516,30 +518,24 @@ struct Menu
 				ImGui::Spacing();
 			}
 
-			if (Features::Aimbot::AimbotEnabled && Features::Aimbot::AimbotMode == 1 && Features::Aimbot::InputMethod == 1)
-			{
+			if (Features::Aimbot::AimbotEnabled && Features::Aimbot::AimbotMode == 1 && Features::Aimbot::InputMethod == 1) {
 				ImGui::Text("Selected Input Method Is Not Compatible With Selected Aimbot Method, Please Switch Aimbot Method Or Input Method.");
 			}
 
-			if (Features::Aimbot::AimbotEnabled && Features::Aimbot::AdvancedAim)
-			{
+			if (Features::Aimbot::AimbotEnabled && Features::Aimbot::AdvancedAim) {
 				ImGui::Text("Advanced Aim Is Enabled, Use The Advanced Tab.");
 			}
 		}
 
-		if (SelectedLegitbotSubTab == 1)
-		{
+		if (SelectedLegitbotSubTab == 1) {
 			Advanced->AdvancedAimbotTab(Myself->WeaponIndex);
 		}
 
-		if (SelectedLegitbotSubTab == 2)
-		{
-			if (Features::Aimbot::AimbotEnabled)
-			{
+		if (SelectedLegitbotSubTab == 2) {
+			if (Features::Aimbot::AimbotEnabled) {
 				ImGui::Spacing();
 				ImGui::Columns(3, "##aimbotSelection", false);
-				if (ImGui::BeginChildFrame(11, ImVec2({264, 188}), true))
-				{
+				if (ImGui::BeginChildFrame(11, ImVec2({ 264, 188 }), true)) {
 					ImGui::TextColored(ImVec4(0.990, 0.768, 0.039, 1.00f), "Light");
 					ImGui::Checkbox("P2020##Aimbot", &Features::Aimbot::P2020);
 					ImGui::Checkbox("RE-45 Auto##Aimbot", &Features::Aimbot::RE45);
@@ -550,8 +546,7 @@ struct Menu
 					ImGui::Checkbox("G7 Scout##Aimbot", &Features::Aimbot::G7);
 					ImGui::EndChildFrame();
 				}
-				if (ImGui::BeginChildFrame(12, ImVec2({264, 188}), true))
-				{
+				if (ImGui::BeginChildFrame(12, ImVec2({ 264, 188 }), true)) {
 					ImGui::TextColored(ImVec4(0.00990, 0.990, 0.761, 1.00f), "Heavy");
 					ImGui::Checkbox("VK-47 Flatline##Aimbot", &Features::Aimbot::Flatline);
 					ImGui::Checkbox("Prowler Burst SMG##Aimbot", &Features::Aimbot::Prowler);
@@ -564,8 +559,7 @@ struct Menu
 
 				ImGui::NextColumn();
 
-				if (ImGui::BeginChildFrame(13, ImVec2({264, 188}), true))
-				{
+				if (ImGui::BeginChildFrame(13, ImVec2({ 264, 188 }), true)) {
 					ImGui::TextColored(ImVec4(0, 0.99, 0, 1.00f), "Energy");
 					ImGui::Checkbox("Havoc Rifle##Aimbot", &Features::Aimbot::Havoc);
 					ImGui::Checkbox("Devotion LMG##Aimbot", &Features::Aimbot::Devotion);
@@ -575,8 +569,7 @@ struct Menu
 					ImGui::Checkbox("Nemesis Burst AR##Aimbot", &Features::Aimbot::Nemesis);
 					ImGui::EndChildFrame();
 				}
-				if (ImGui::BeginChildFrame(14, ImVec2({264, 188}), true))
-				{
+				if (ImGui::BeginChildFrame(14, ImVec2({ 264, 188 }), true)) {
 					ImGui::TextColored(ImVec4(0.99, 0, 0, 1.00f), "Shotguns");
 					ImGui::Checkbox("Mozambique##Aimbot", &Features::Aimbot::Mozambique);
 					ImGui::Checkbox("Peacekeeper##Aimbot", &Features::Aimbot::Peacekeeper);
@@ -586,8 +579,7 @@ struct Menu
 
 				ImGui::NextColumn();
 
-				if (ImGui::BeginChildFrame(15, ImVec2({237, 188}), true))
-				{
+				if (ImGui::BeginChildFrame(15, ImVec2({ 237, 188 }), true)) {
 					ImGui::TextColored(ImVec4(0.00990, 0.337, 0.990, 1.00f), "Snipers");
 					ImGui::Checkbox("Longbow DMR##Aimbot", &Features::Aimbot::Longbow);
 					ImGui::Checkbox("Charge Rifle##Aimbot", &Features::Aimbot::ChargeRifle);
@@ -595,8 +587,7 @@ struct Menu
 					ImGui::EndChildFrame();
 				}
 
-				if (ImGui::BeginChildFrame(16, ImVec2({237, 188}), true))
-				{
+				if (ImGui::BeginChildFrame(16, ImVec2({ 237, 188 }), true)) {
 					ImGui::TextColored(ImVec4(0.99, 0.530, 0.945, 1.00f), "Legendary");
 					ImGui::Checkbox("Wingman##Aimbot", &Features::Aimbot::Wingman);
 					ImGui::Checkbox("EVA-8 Auto##Aimbot", &Features::Aimbot::EVA8);
@@ -605,55 +596,241 @@ struct Menu
 				}
 				ImGui::NextColumn();
 			}
-			if (!Features::Aimbot::AimbotEnabled)
-			{
+			if (!Features::Aimbot::AimbotEnabled) {
 				ImGui::Text("Aimbot Is Disabled!");
 			}
 		}
 
-		if (SelectedLegitbotSubTab == 3)
-		{
-			ImGui::BeginChildFrame(69, ImVec2(WindowWidth - 220, 130), true);
-			{
-				ImGui::Spacing();
-				ImGui::Text("FOV Circle");
-				ImGui::Checkbox("Draw FOV Circle", &Features::Sense::DrawFOVCircle);
-				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-					ImGui::SetTooltip("Draw A FOV Circle.\nDoes Not Draw If Aimbot Mode == Grinder.");
-				ImGui::Checkbox("Draw Filled FOV Circle", &Features::Sense::DrawFilledFOVCircle);
-				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-					ImGui::SetTooltip("Draw A Filled FOV Circle.\nDoes Not Draw If Aimbot Mode == Grinder.");
-				if (Features::Sense::DrawFOVCircle or Features::Sense::DrawFilledFOVCircle)
+		if (SelectedLegitbotSubTab == 3) {
+			if (Features::Aimbot::AimbotEnabled) {
+				ImGui::BeginChildFrame(69, ImVec2(WindowWidth - 220, 130), true);
 				{
-					ImGui::MainSliderFloat("FOV Circle Thickness", &Features::Sense::FOVThickness, 1, 10, "%.0f");
-					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-						ImGui::SetTooltip("Changes the FOV Circle's thickness\n Recomended: 1-2");
-					ImGui::MainSliderFloat("Game's FOV", &Features::Sense::GameFOV, 70, 120, "%.0f");
-					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-						ImGui::SetTooltip("Your current FOV in Settings");
-					if (Features::Sense::DrawFOVCircle)
-					{
-						ImGui::ColorEdit4("FOV Circle", Features::Colors::FOVColor, ColorEditFlags);
+					ImGui::Spacing();
+					if (Features::Aimbot::AimbotMode == 0 or Features::Aimbot::AimbotMode == 2) {
+						ImGui::Text("FOV Circle");
+						ImGui::Checkbox("Draw FOV Circle", &Features::Sense::DrawFOVCircle);
+						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+							ImGui::SetTooltip("Draw A FOV Circle.\nDoes Not Draw If Aimbot Mode == Grinder.");
+						ImGui::Checkbox("Draw Filled FOV Circle", &Features::Sense::DrawFilledFOVCircle);
+						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+							ImGui::SetTooltip("Draw A Filled FOV Circle.\nDoes Not Draw If Aimbot Mode == Grinder.");
+						if (Features::Sense::DrawFOVCircle or Features::Sense::DrawFilledFOVCircle) {
+							ImGui::MainSliderFloat("FOV Circle Thickness", &Features::Sense::FOVThickness, 1, 10, "%.0f");
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+								ImGui::SetTooltip("Changes the FOV Circle's thickness\n Recomended: 1-2");
+							ImGui::MainSliderFloat("Game's FOV", &Features::Sense::GameFOV, 70, 120, "%.0f");
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+								ImGui::SetTooltip("Your current FOV in Settings");
+							if (Features::Sense::DrawFOVCircle) {
+								ImGui::ColorEdit4("FOV Circle", Features::Colors::FOVColor, ColorEditFlags);
+							}
+							if (Features::Sense::DrawFilledFOVCircle) {
+								ImGui::SameLine();
+								ImGui::ColorEdit4("Filled FOV Circle", Features::Colors::FilledFOVColor, ColorEditFlags);
+							}
+						}
+					} else if (Features::Aimbot::AimbotMode == 1) {
+						ImGui::Text("Selected Aimbot Mode Does Not Support Aimbot Visuals!");
 					}
-					if (Features::Sense::DrawFilledFOVCircle)
+					ImGui::EndChildFrame();
+				}
+
+				if (Features::Aimbot::AimbotMode == 0 or Features::Aimbot::AimbotMode == 2) {
+					ImGui::Columns(2, nullptr, false);
+
+					ImGui::BeginChildFrame(420, ImVec2(WindowWidth - 613, WindowHeight - 245), true);
 					{
-						ImGui::ColorEdit4("Filled FOV Circle", Features::Colors::FilledFOVColor, ColorEditFlags);
+						ImGui::Spacing();
+						ImGui::Text("Target Visuals");
+						ImGui::Checkbox("Draw Target Line", &Features::Sense::DrawTargetLine);
+						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+							ImGui::SetTooltip("Draw A Line From The Center Of The Screen To The CurrentTarget.");
+						ImGui::Checkbox("Draw Target Dot", &Features::Sense::DrawTargetDot);
+						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+							ImGui::SetTooltip("Draw A Dot On The CurrentTarget.");
+						ImGui::Checkbox("Draw Target Box", &Features::Sense::DrawTargetBox);
+						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+							ImGui::SetTooltip("Draw A Box On The CurrentTarget.");
+						if (Features::Sense::DrawTargetLine or Features::Sense::DrawTargetDot or Features::Sense::DrawTargetBox) {
+							const char* TargetVisualsModeIndex[] = { "Current Target", "Best Target" };
+							ImGui::ComboBox("Target Mode", &Features::Sense::TargetMode, TargetVisualsModeIndex, IM_ARRAYSIZE(TargetVisualsModeIndex));
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+								ImGui::SetTooltip("When The Target Visuals Will Be Drawn.\nCurrent Target = Aimbot Target");
+
+							if ((Features::Sense::DrawTargetBox && Features::Sense::TargetBoxMode == 0) or Features::Sense::DrawTargetLine or Features::Sense::DrawTargetDot) {
+								const char* TargetVisualsBoneIndex[] = { "Aimbot Selected Bone", "Custom" };
+								ImGui::ComboBox("Target Bone Mode", &Features::Sense::TargetBoneMode, TargetVisualsBoneIndex, IM_ARRAYSIZE(TargetVisualsBoneIndex));
+								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+									ImGui::SetTooltip("Where The Target Visuals Will Draw To On The Target.");
+							}
+
+							if (Features::Sense::TargetBoneMode == 1) {
+								const char* HitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
+								int HitboxTypeIndex = static_cast<int>(Features::Sense::TargetHitbox);
+								ImGui::ComboBox("Selected Bone", &HitboxTypeIndex, HitboxTypes, IM_ARRAYSIZE(HitboxTypes));
+								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+									ImGui::SetTooltip("Which Bone The Target Line/Dot/Box Will Be Drawn To/On.");
+								Features::Sense::TargetHitbox = static_cast<HitboxType>(HitboxTypeIndex);
+							}
+						}
+
+						if (Features::Sense::DrawTargetLine) {
+							ImGui::MainSliderInt("Target Line Thickness", &Features::Sense::TargetLineThickness, 1, 10);
+							ImGui::ColorEdit4("Target Line Color", Features::Colors::TargetLineColor, ColorEditFlags);
+							if (Features::Sense::TargetMode == 1) {
+								ImGui::SameLine();
+								ImGui::ColorEdit4("Target Line Locked Color", Features::Colors::TargetLineLockedColor, ColorEditFlags);
+							}
+						}
+
+						if (Features::Sense::DrawTargetDot) {
+							ImGui::MainSliderInt("Target Dot Radius", &Features::Sense::TargetDotRadius, 100, 2500);
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+								ImGui::SetTooltip("Size (Radius) Of The Target Dot.\nRecommended: 1000-1500");
+							ImGui::ColorEdit4("Target Dot Color", Features::Colors::TargetDotColor, ColorEditFlags);
+							if (Features::Sense::TargetMode == 1) {
+								ImGui::SameLine();
+								ImGui::ColorEdit4("Target Dot Locked Color", Features::Colors::TargetDotLockedColor, ColorEditFlags);
+							}
+						}
+
+						if (Features::Sense::DrawTargetBox) {
+							const char* TargetBoxModeIndex[] = { "Custom Box", "ESP Box" };
+							ImGui::ComboBox("Target Box Mode", &Features::Sense::TargetBoxMode, TargetBoxModeIndex, IM_ARRAYSIZE(TargetBoxModeIndex));
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+								ImGui::SetTooltip("What Kind Of Box Will Be Drawn.\nESP Box = ESP Box In The ESP Tab");
+
+							if (Features::Sense::TargetBoxMode == 0) {
+								ImGui::MainSliderInt("Target Box Size", &Features::Sense::TargetBoxSize, 1, 20);
+								ImGui::MainSliderInt("Target Box Thickness", &Features::Sense::TargetBoxThickness, 1, 20);
+							}
+
+							ImGui::ColorEdit4("Target Box Color", Features::Colors::TargetBoxColor, ColorEditFlags);
+							if (Features::Sense::TargetMode == 1) {
+								ImGui::SameLine();
+								ImGui::ColorEdit4("Target Box Locked Color", Features::Colors::TargetBoxLockedColor, ColorEditFlags);
+							}
+
+							if (Features::Sense::TargetBoxMode == 1) {
+								ImGui::Text("Go To ESP->Box ESP To Configure The Target Box!");
+							}
+						}
+
+						ImGui::EndChildFrame();
+					}
+
+					ImGui::NextColumn(); // Right
+
+					ImGui::BeginChildFrame(421, ImVec2(WindowWidth - 630, WindowHeight - 245), true);
+					{
+						ImGui::Spacing();
+						ImGui::Text("Target Information");
+						ImGui::Checkbox("Draw Target Information", &Features::Sense::DrawTargetInfo);
+						if (Features::Sense::DrawTargetInfo) {
+							const char* TargetInfoPos[] = { "1", "2", "3", "4", "5" };
+
+							const char* TargetVisualsModeIndex[] = { "Current Target", "Best Target" };
+							ImGui::ComboBox("Target Mode", &Features::Sense::TargetMode, TargetVisualsModeIndex, IM_ARRAYSIZE(TargetVisualsModeIndex));
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+								ImGui::SetTooltip("When The Target Visuals Will Be Drawn.\nCurrent Target = Aimbot Target");
+
+							ImGui::Checkbox("Draw Target Name", &Features::Sense::DrawTargetInfoName);
+							if (Features::Sense::DrawTargetInfoName) {
+								ImGui::ComboBox("Target Name Position", &Features::Sense::TargetInfoNamePos, TargetInfoPos, IM_ARRAYSIZE(TargetInfoPos));
+								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+									ImGui::SetTooltip("Where The Name Text Will Be Drawn.");
+							}
+							ImGui::Checkbox("Draw Target Legend", &Features::Sense::DrawTargetInfoLegend);
+							if (Features::Sense::DrawTargetInfoLegend) {
+								ImGui::ComboBox("Target Legend Position", &Features::Sense::TargetInfoLegendPos, TargetInfoPos, IM_ARRAYSIZE(TargetInfoPos));
+								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+									ImGui::SetTooltip("Where The Legend Text Will Be Drawn.");
+							}
+
+							if (Features::Sense::DrawTargetInfoName && Features::Sense::DrawTargetInfoLegend) {
+								const char* TargetInfoDisplayMode[] = { "Name First, Legend Second", "Legend First, Name Second" };
+								ImGui::ComboBox("Target Display Mode", &Features::Sense::TargetInfoDisplayMode, TargetInfoDisplayMode, IM_ARRAYSIZE(TargetInfoDisplayMode));
+							}
+
+							if (Features::Sense::DrawTargetInfoName && Features::Sense::DrawTargetInfoLegend && Features::Sense::TargetInfoDisplayMode == 0) {
+								Features::Sense::TargetInfoNamePos = 0;
+								Features::Sense::TargetInfoLegendPos = 1;
+							}
+							if (Features::Sense::DrawTargetInfoName && Features::Sense::DrawTargetInfoLegend && Features::Sense::TargetInfoDisplayMode == 1) {
+								Features::Sense::TargetInfoNamePos = 1;
+								Features::Sense::TargetInfoLegendPos = 0;
+							}
+
+							if (Features::Sense::DrawTargetInfoName or Features::Sense::DrawTargetInfoLegend) {
+								ImGui::Checkbox("Draw Target Team ID", &Features::Sense::DrawTargetInfoTeamID);
+								ImGui::Checkbox("Draw Target Distance", &Features::Sense::DrawTargetInfoDistance);
+							}
+
+							ImGui::Checkbox("Draw Target Weapon", &Features::Sense::DrawTargetInfoWeapon);
+							if (Features::Sense::DrawTargetInfoWeapon) {
+								ImGui::ComboBox("Target Weapon Position", &Features::Sense::TargetInfoWeaponPos, TargetInfoPos, IM_ARRAYSIZE(TargetInfoPos));
+								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+									ImGui::SetTooltip("Where The Weapon Text Will Be Drawn.");
+							}
+
+							ImGui::Checkbox("Draw Target Health", &Features::Sense::DrawTargetInfoHealth);
+							if (Features::Sense::DrawTargetInfoHealth) {
+								ImGui::ComboBox("Target Health Position", &Features::Sense::TargetInfoHealthPos, TargetInfoPos, IM_ARRAYSIZE(TargetInfoPos));
+								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+									ImGui::SetTooltip("Where The Health Text Will Be Drawn.");
+							}
+
+							ImGui::Checkbox("Draw Target Shield", &Features::Sense::DrawTargetInfoShield);
+							if (Features::Sense::DrawTargetInfoShield) {
+								ImGui::ComboBox("Target Shield Position", &Features::Sense::TargetInfoShieldPos, TargetInfoPos, IM_ARRAYSIZE(TargetInfoPos));
+								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+									ImGui::SetTooltip("Where The Shield Text Will Be Drawn.");
+							}
+
+							ImGui::MainSliderInt("Target Info Offset", &Features::Sense::TargetInfoOffset, 0, 50);
+
+							int ScreenWidth;
+							int ScreenHeight;
+							OverlayWindow.GetScreenResolution(ScreenWidth, ScreenHeight);
+							ImGui::MainSliderInt("Information Window X", &Features::Sense::TargetInfoPosX, 0, ScreenWidth);
+							ImGui::MainSliderInt("Information Window Y", &Features::Sense::TargetInfoPosY, 0, ScreenHeight);
+							if (ImGui::Button("Auto Set Position##TargetInfo", ImVec2(125, 25))) {
+								int AutoWidth = ScreenWidth / 2;
+								int AutoHeight = (ScreenHeight / 2) + 80;
+								Features::Sense::TargetInfoPosX = AutoWidth;
+								Features::Sense::TargetInfoPosY = AutoHeight;
+							}
+
+							const char* TargetInfoColorMode[] = { "Simple", "Advanced" };
+							ImGui::ComboBox("Target Info Color Mode", &Features::Sense::TargetInfoColorMode, TargetInfoColorMode, IM_ARRAYSIZE(TargetInfoColorMode));
+
+							ImGui::ColorEdit4("Target Info Color", Features::Colors::TargetInfoColor, ColorEditFlags);
+							ImGui::ColorEdit4("Target Info Locked Color", Features::Colors::TargetInfoLockedColor, ColorEditFlags);
+
+							/*static bool multi_num[4] = { true, true, true, false };
+							const char* multi_items[4] = { "Body", "Neck", "Spin", "Legs" };
+							MultiCombo("Body Overlay", multi_num, multi_items, 4);*/
+						}
+						DoubleSpacing();
+
+						ImGui::EndChildFrame();
 					}
 				}
-				ImGui::EndChildFrame();
+			} else if (!Features::Aimbot::AimbotEnabled) {
+				ImGui::Text("Aimbot Is Disabled!");
 			}
+
+			ImGui::NextColumn(); //
 		}
 
-		if (SelectedLegitbotSubTab == 4)
-		{
+		if (SelectedLegitbotSubTab == 4) {
 			ImGui::BeginChildFrame(17, ImVec2(WindowWidth - 220, 93), true);
 			{
 				ImGui::Spacing();
 				ImGui::Text("RCS - Recoil Control");
 				ImGui::Checkbox("Enabled", &Features::RCS::RCSEnabled);
-				if (Features::RCS::RCSEnabled)
-				{
-					const char *RCSModeIndex[] = {"Standalone", "Combined"};
+				if (Features::RCS::RCSEnabled) {
+					const char* RCSModeIndex[] = { "Standalone", "Combined" };
 					ImGui::ComboBox("RCS Method", &Features::RCS::RCSMode, RCSModeIndex, IM_ARRAYSIZE(RCSModeIndex));
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 						ImGui::SetTooltip("What RCS Method You Would Like.\nStandalone Provideds Legit & Customizable Settings.\nCombined Works Alongside Aimbot And Provides Better Recoil Control (Aimbot Must Be Enabled & Aimbot Mode = Cubic Bezier (xap-client)!)\nIf Aimbot Input Method Is Set To Controller, Only Combined Will Work!");
@@ -661,36 +838,30 @@ struct Menu
 				ImGui::EndChildFrame();
 			}
 
-			if (Features::RCS::RCSEnabled && !Features::RCS::AdvancedRCS)
-			{
+			if (Features::RCS::RCSEnabled && !Features::RCS::AdvancedRCS) {
 				ImGui::BeginChildFrame(18, ImVec2(WindowWidth - 220, 131), true);
 				{
 					ImGui::Spacing();
 
-					if (Features::Aimbot::InputMethod == 1 && Features::RCS::RCSMode == 0)
-					{
+					if (Features::Aimbot::InputMethod == 1 && Features::RCS::RCSMode == 0) {
 						ImGui::Text("Selected Aimbot Input Method Is Incompatible With Standalone RCS! Switch To Combined!");
 					}
 
-					if (Features::RCS::RCSMode == 1 && Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && Features::Aimbot::AimbotMode == 1) {
 						ImGui::Text("Selected Aimbot Mode Is Incompatible With Combined RCS! Switch To Standalone!");
 					}
-					if (Features::RCS::RCSMode == 1 && Features::Aimbot::AimbotMode == 2)
-					{
+					if (Features::RCS::RCSMode == 1 && Features::Aimbot::AimbotMode == 2) {
 						ImGui::Text("Selected Aimbot Mode Is Incompatible With Combined RCS! Switch To Standalone!");
 					}
 
-					else
-					{
+					else {
 
 						ImGui::Text("Conditions");
 						ImGui::Checkbox("On ADS Only?", &Features::RCS::OnADS);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Toggle when the RCS will take control\nEnabled = Only when aiming.\nDisabled = Always.");
 						ImGui::Text("Intensity");
-						if (Features::RCS::RCSMode == 0)
-						{
+						if (Features::RCS::RCSMode == 0) {
 							ImGui::MainSliderFloat("Pitch", &Features::RCS::PitchPower, 1, 50, "%.1f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Pitch Power");
@@ -699,8 +870,7 @@ struct Menu
 								ImGui::SetTooltip("Yaw Power");
 						}
 
-						if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 							ImGui::MainSliderFloat("Pitch Reduction %", &Features::RCS::PitchReduction, 0, 100, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced.");
@@ -714,35 +884,28 @@ struct Menu
 				}
 			}
 
-			if (Features::RCS::RCSEnabled && Features::RCS::AdvancedRCS)
-			{
+			if (Features::RCS::RCSEnabled && Features::RCS::AdvancedRCS) {
 				ImGui::Text("Advanced RCS Enabled, Use The Advanced RCS Tab.");
 			}
 		}
 
-		if (SelectedLegitbotSubTab == 5)
-		{
+		if (SelectedLegitbotSubTab == 5) {
 			Advanced->AdvancedRCSTab(Myself->WeaponIndex);
 		}
 
-		if (SelectedLegitbotSubTab == 6)
-		{
-			if (!Features::RCS::RCSEnabled)
-			{
+		if (SelectedLegitbotSubTab == 6) {
+			if (!Features::RCS::RCSEnabled) {
 				ImGui::Spacing();
 				ImGui::Columns(3, "##weaponselection", false);
-				if (ImGui::BeginChildFrame(7, ImVec2({95, 20}), true))
-				{
+				if (ImGui::BeginChildFrame(7, ImVec2({ 95, 20 }), true)) {
 					ImGui::Text("RCS Is Disabled.");
 					ImGui::EndChildFrame();
 				}
 			}
-			if (Features::RCS::RCSEnabled)
-			{
+			if (Features::RCS::RCSEnabled) {
 				ImGui::Spacing();
 				ImGui::Columns(3, "##rcsSelection", false);
-				if (ImGui::BeginChildFrame(7, ImVec2({264, 188}), true))
-				{
+				if (ImGui::BeginChildFrame(7, ImVec2({ 264, 188 }), true)) {
 					ImGui::TextColored(ImVec4(0.990, 0.768, 0.039, 1.00f), "Light");
 					ImGui::Checkbox("P2020##RCS", &Features::RCS::P2020);
 					ImGui::Checkbox("RE-45 Auto##RCS", &Features::RCS::RE45);
@@ -753,8 +916,7 @@ struct Menu
 					ImGui::Checkbox("G7 Scout##RCS", &Features::RCS::G7);
 					ImGui::EndChildFrame();
 				}
-				if (ImGui::BeginChildFrame(8, ImVec2({264, 188}), true))
-				{
+				if (ImGui::BeginChildFrame(8, ImVec2({ 264, 188 }), true)) {
 					ImGui::TextColored(ImVec4(0.00990, 0.990, 0.761, 1.00f), "Heavy");
 					ImGui::Checkbox("VK-47 Flatline##RCS", &Features::RCS::Flatline);
 					ImGui::Checkbox("Prowler Burst SMG##RCS", &Features::RCS::Prowler);
@@ -767,8 +929,7 @@ struct Menu
 
 				ImGui::NextColumn();
 
-				if (ImGui::BeginChildFrame(9, ImVec2({264, 188}), true))
-				{
+				if (ImGui::BeginChildFrame(9, ImVec2({ 264, 188 }), true)) {
 					ImGui::TextColored(ImVec4(0, 0.99, 0, 1.00f), "Energy");
 					ImGui::Checkbox("Havoc Rifle##RCS", &Features::RCS::Havoc);
 					ImGui::Checkbox("Devotion LMG##RCS", &Features::RCS::Devotion);
@@ -778,8 +939,7 @@ struct Menu
 					ImGui::Checkbox("Nemesis Burst AR##RCS", &Features::RCS::Nemesis);
 					ImGui::EndChildFrame();
 				}
-				if (ImGui::BeginChildFrame(10, ImVec2({264, 188}), true))
-				{
+				if (ImGui::BeginChildFrame(10, ImVec2({ 264, 188 }), true)) {
 					ImGui::TextColored(ImVec4(0.99, 0, 0, 1.00f), "Shotguns");
 					ImGui::Checkbox("Mozambique##RCS", &Features::RCS::Mozambique);
 					ImGui::Checkbox("Peacekeeper##RCS", &Features::RCS::Peacekeeper);
@@ -789,16 +949,14 @@ struct Menu
 
 				ImGui::NextColumn();
 
-				if (ImGui::BeginChildFrame(11, ImVec2({237, 188}), true))
-				{
+				if (ImGui::BeginChildFrame(11, ImVec2({ 237, 188 }), true)) {
 					ImGui::TextColored(ImVec4(0.00990, 0.337, 0.990, 1.00f), "Snipers");
 					ImGui::Checkbox("Longbow DMR##RCS", &Features::RCS::Longbow);
 					ImGui::Checkbox("Charge Rifle##RCS", &Features::RCS::ChargeRifle);
 					ImGui::Checkbox("Sentinel##RCS", &Features::RCS::Sentinel);
 					ImGui::EndChildFrame();
 				}
-				if (ImGui::BeginChildFrame(12, ImVec2({237, 188}), true))
-				{
+				if (ImGui::BeginChildFrame(12, ImVec2({ 237, 188 }), true)) {
 					ImGui::TextColored(ImVec4(0.99, 0.530, 0.945, 1.00f), "Legendary");
 					ImGui::Checkbox("Wingman##RCS", &Features::RCS::Wingman);
 					ImGui::Checkbox("EVA-8 Auto##RCS", &Features::RCS::EVA8);
@@ -813,8 +971,7 @@ struct Menu
 		ImGui::EndChild();
 	}
 
-	void RenderRagebot()
-	{
+	void RenderRagebot() {
 		ImVec2 TabSize;
 		TabSize = ImGui::GetWindowSize();
 		ImGui::SetCursorPos(ImVec2(0, 0));
@@ -829,47 +986,42 @@ struct Menu
 			SelectedRagebotSubTab = 1;
 		ImGui::EndGroup();
 
-		ImGui::SetCursorPos({15, 35});
+		ImGui::SetCursorPos({ 15, 35 });
 
 		ImGui::BeginChild("workzone", ImVec2(WindowWidth - 186, WindowHeight - 90), false, ImGuiWindowFlags_NoScrollbar);
 
 		ImGui::Separator();
 		DoubleSpacing();
 
-		if (SelectedRagebotSubTab == 0)
-		{
+		if (SelectedRagebotSubTab == 0) {
 			ImGui::Columns(2, nullptr, false);
 			ImGui::BeginChildFrame(2, ImVec2(WindowWidth - 613, WindowHeight - 110), true);
 			{
 				ImGui::Spacing();
 				ImGui::Text("Ragebot");
 				ImGui::Checkbox("Enabled##RageAimbot", &Features::Ragebot::RageAimbot);
-				if (Features::Ragebot::RageAimbot)
-				{
-					const char *AimMethodIndex[] = {"Memory", "Mouse"};
+				if (Features::Ragebot::RageAimbot) {
+					const char* AimMethodIndex[] = { "Memory", "Mouse" };
 					ImGui::ComboBox("Aim Method##RageAimbot", &Features::Ragebot::AimMethod, AimMethodIndex, IM_ARRAYSIZE(AimMethodIndex));
 
 					ImGui::Text("Selected Hitbox");
 					ImGui::Checkbox("Closest To Crosshair##RageAimbot", &Features::Ragebot::ClosestHitbox);
-					if (!Features::Ragebot::ClosestHitbox)
-					{
-						const char *HitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+					if (!Features::Ragebot::ClosestHitbox) {
+						const char* HitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 						int HitboxTypeIndex = static_cast<int>(Features::Ragebot::Hitbox);
 						ImGui::ComboBox("Hitbox Type##RageAimbot", &HitboxTypeIndex, HitboxTypes, IM_ARRAYSIZE(HitboxTypes));
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Which bone the aimbot will aim at.");
 						Features::Ragebot::Hitbox = static_cast<HitboxType>(HitboxTypeIndex);
 					}
-					const char *BindMethodIndex[] = {"Memory", "Keybinds", "Auto"};
+					const char* BindMethodIndex[] = { "Memory", "Keybinds", "Auto" };
 					ImGui::ComboBox("Aim Bind Method##RageAimbot", &Features::Ragebot::BindMethod, BindMethodIndex, IM_ARRAYSIZE(BindMethodIndex));
-					if (Features::Ragebot::BindMethod == 0)
-					{ // OnFire and OnADS
+					if (Features::Ragebot::BindMethod == 0) { // OnFire and OnADS
 						ImGui::Checkbox("On Fire##RageAimbot", &Features::Ragebot::OnFire);
 						ImGui::SameLine();
 						ImGui::Checkbox("On ADS##RageAimbot", &Features::Ragebot::OnADS);
 					}
-					if (Features::Ragebot::BindMethod == 1)
-					{ // Keybinds
+					if (Features::Ragebot::BindMethod == 1) { // Keybinds
 						int AimBind = static_cast<int>(Features::Ragebot::AimBind);
 						ImGui::ComboBox("Aim Bind##RageAimbot", &AimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 						Features::Ragebot::AimBind = static_cast<InputKeyType>(AimBind);
@@ -888,7 +1040,7 @@ struct Menu
 						ImGui::SetTooltip("Aims At Only Visible Enemies.");
 
 					ImGui::Text("Priority");
-					const char *PriorityIndex[] = {"Closest To Crosshair", "Closest To You"};
+					const char* PriorityIndex[] = { "Closest To Crosshair", "Closest To You" };
 					ImGui::ComboBox("Target Priority##RageAimbot", &Features::Ragebot::Priority, PriorityIndex, IM_ARRAYSIZE(PriorityIndex));
 
 					ImGui::Text("Automation");
@@ -934,15 +1086,13 @@ struct Menu
 				ImGui::EndChildFrame();
 			}
 			ImGui::NextColumn();
-			if (Features::Ragebot::RageAimbot)
-			{
+			if (Features::Ragebot::RageAimbot) {
 				ImGui::BeginChildFrame(3, ImVec2(WindowWidth - 630, WindowHeight - 110), true);
 				{
 					ImGui::Spacing();
 					ImGui::Text("RCS");
 					ImGui::Checkbox("Enabled##RageRCS", &Features::Ragebot::RageRCS);
-					if (Features::Ragebot::RageRCS)
-					{
+					if (Features::Ragebot::RageRCS) {
 						ImGui::MainSliderFloat("Recoil Reduction##RageRCS", &Features::Ragebot::RecoilRate, 1, 100, "%.1f");
 					}
 
@@ -951,14 +1101,11 @@ struct Menu
 			}
 		}
 
-		if (SelectedRagebotSubTab == 1)
-		{
-			if (Features::Ragebot::RageAimbot)
-			{
+		if (SelectedRagebotSubTab == 1) {
+			if (Features::Ragebot::RageAimbot) {
 				ImGui::Spacing();
 				ImGui::Columns(3, "##ragebotSelection", false);
-				if (ImGui::BeginChildFrame(11, ImVec2({264, 188}), true))
-				{
+				if (ImGui::BeginChildFrame(11, ImVec2({ 264, 188 }), true)) {
 					ImGui::TextColored(ImVec4(0.990, 0.768, 0.039, 1.00f), "Light");
 					ImGui::Checkbox("P2020##Ragebot", &Features::Ragebot::P2020);
 					ImGui::Checkbox("RE-45 Auto##Ragebot", &Features::Ragebot::RE45);
@@ -969,8 +1116,7 @@ struct Menu
 					ImGui::Checkbox("G7 Scout##Ragebot", &Features::Ragebot::G7);
 					ImGui::EndChildFrame();
 				}
-				if (ImGui::BeginChildFrame(12, ImVec2({264, 188}), true))
-				{
+				if (ImGui::BeginChildFrame(12, ImVec2({ 264, 188 }), true)) {
 					ImGui::TextColored(ImVec4(0.00990, 0.990, 0.761, 1.00f), "Heavy");
 					ImGui::Checkbox("VK-47 Flatline##Ragebot", &Features::Ragebot::Flatline);
 					ImGui::Checkbox("Prowler Burst SMG##Ragebot", &Features::Ragebot::Prowler);
@@ -983,8 +1129,7 @@ struct Menu
 
 				ImGui::NextColumn();
 
-				if (ImGui::BeginChildFrame(13, ImVec2({264, 188}), true))
-				{
+				if (ImGui::BeginChildFrame(13, ImVec2({ 264, 188 }), true)) {
 					ImGui::TextColored(ImVec4(0, 0.99, 0, 1.00f), "Energy");
 					ImGui::Checkbox("Havoc Rifle##Ragebot", &Features::Ragebot::Havoc);
 					ImGui::Checkbox("Devotion LMG##Ragebot", &Features::Ragebot::Devotion);
@@ -994,8 +1139,7 @@ struct Menu
 					ImGui::Checkbox("Nemesis Burst AR##Ragebot", &Features::Ragebot::Nemesis);
 					ImGui::EndChildFrame();
 				}
-				if (ImGui::BeginChildFrame(14, ImVec2({264, 188}), true))
-				{
+				if (ImGui::BeginChildFrame(14, ImVec2({ 264, 188 }), true)) {
 					ImGui::TextColored(ImVec4(0.99, 0, 0, 1.00f), "Shotguns");
 					ImGui::Checkbox("Mozambique##Ragebot", &Features::Ragebot::Mozambique);
 					ImGui::Checkbox("Peacekeeper##Ragebot", &Features::Ragebot::Peacekeeper);
@@ -1005,8 +1149,7 @@ struct Menu
 
 				ImGui::NextColumn();
 
-				if (ImGui::BeginChildFrame(15, ImVec2({237, 188}), true))
-				{
+				if (ImGui::BeginChildFrame(15, ImVec2({ 237, 188 }), true)) {
 					ImGui::TextColored(ImVec4(0.00990, 0.337, 0.990, 1.00f), "Snipers");
 					ImGui::Checkbox("Longbow DMR##Ragebot", &Features::Ragebot::Longbow);
 					ImGui::Checkbox("Charge Rifle##Ragebot", &Features::Ragebot::ChargeRifle);
@@ -1014,8 +1157,7 @@ struct Menu
 					ImGui::EndChildFrame();
 				}
 
-				if (ImGui::BeginChildFrame(16, ImVec2({237, 188}), true))
-				{
+				if (ImGui::BeginChildFrame(16, ImVec2({ 237, 188 }), true)) {
 					ImGui::TextColored(ImVec4(0.99, 0.530, 0.945, 1.00f), "Legendary");
 					ImGui::Checkbox("Wingman##Ragebot", &Features::Ragebot::Wingman);
 					ImGui::Checkbox("EVA-8 Auto##Ragebot", &Features::Ragebot::EVA8);
@@ -1024,8 +1166,7 @@ struct Menu
 				}
 				ImGui::NextColumn();
 			}
-			if (!Features::Ragebot::RageAimbot)
-			{
+			if (!Features::Ragebot::RageAimbot) {
 				ImGui::Text("Ragebot Is Disabled!");
 			}
 		}
@@ -1036,8 +1177,7 @@ struct Menu
 
 	//---------------------------------------------------------------------- Flickbot UI ----------------------------------------------------------------------
 
-	void RenderFlickbot()
-	{
+	void RenderFlickbot() {
 		ImVec2 TabSize;
 		TabSize = ImGui::GetWindowSize();
 		ImGui::SetCursorPos(ImVec2(0, 0));
@@ -1052,15 +1192,14 @@ struct Menu
 			SelectedFlickbotSubTab = 1;
 		ImGui::EndGroup();
 
-		ImGui::SetCursorPos({15, 35});
+		ImGui::SetCursorPos({ 15, 35 });
 
 		ImGui::BeginChild("workzone", ImVec2(WindowWidth - 186, WindowHeight - 90), false, ImGuiWindowFlags_NoScrollbar);
 
 		ImGui::Separator();
 		DoubleSpacing();
 
-		if (SelectedFlickbotSubTab == 0)
-		{
+		if (SelectedFlickbotSubTab == 0) {
 			ImGui::BeginChildFrame(2, ImVec2(WindowWidth - 220, WindowHeight - 110), true);
 			{
 				ImGui::Spacing();
@@ -1068,15 +1207,13 @@ struct Menu
 				ImGui::Checkbox("Enabled##Flickbot", &Features::Flickbot::Flickbot);
 				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 					ImGui::SetTooltip("Flick Crosshair To Players.\nHIGHLY recommended to use if you are: \nSemi-rage / Rage Cheating\nClose To The Targeted Player\nUsing A Shotgun");
-				if (Features::Flickbot::Flickbot)
-				{
-					const char *FlickbotMethodIndex[] = {"Mouse", "Memory"};
+				if (Features::Flickbot::Flickbot) {
+					const char* FlickbotMethodIndex[] = { "Mouse", "Memory" };
 					ImGui::ComboBox("Flickbot Method##Flickbot", &Features::Flickbot::FlickbotMethod, FlickbotMethodIndex, IM_ARRAYSIZE(FlickbotMethodIndex));
 					ImGui::Text("Selected Hitbox");
 					ImGui::Checkbox("Closest To Crosshair##Flickbot", &Features::Flickbot::ClosestHitbox);
-					if (!Features::Flickbot::ClosestHitbox)
-					{
-						const char *HitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+					if (!Features::Flickbot::ClosestHitbox) {
+						const char* HitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 						int HitboxTypeIndex = static_cast<int>(Features::Flickbot::Hitbox);
 						ImGui::ComboBox("Hitbox Type##Flickbot", &HitboxTypeIndex, HitboxTypes, IM_ARRAYSIZE(HitboxTypes));
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -1092,20 +1229,17 @@ struct Menu
 					ImGui::Checkbox("Auto Shoot", &Features::Flickbot::AutoShoot);
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 						ImGui::SetTooltip("Automatically Shoots When Flicking Onto Target.\nI Recommend Using Triggerbot Instead Of This.");
-					if (Features::Flickbot::AutoShoot)
-					{
+					if (Features::Flickbot::AutoShoot) {
 						ImGui::MainSliderInt("Auto Shoot Delay##Flickbot", &Features::Flickbot::AutoShootDelay, 0, 500);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Delay Between Flicking To Target And Shooting.\nLow Value Recommended.");
 					}
 
-					if (Features::Flickbot::AutoShoot or Features::Triggerbot::Enabled)
-					{
+					if (Features::Flickbot::AutoShoot or Features::Triggerbot::Enabled) {
 						ImGui::Checkbox("Flickback", &Features::Flickbot::FlickBack);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("After Flicking To Target, Your Camera Will Flick Back To Your Original Position.\nHIGHLY recommend NOT using this if you are legit cheating or if you have a high FOV set.\nOnly Works If Triggerbot Or Auto Shoot Is Enabled!");
-						if (Features::Flickbot::FlickBack)
-						{
+						if (Features::Flickbot::FlickBack) {
 							ImGui::MainSliderInt("Flickback Delay##Flickbot", &Features::Flickbot::FlickBackDelay, 0, 500);
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Delay Between Flicking From Target Back To Original Camera Position.");
@@ -1149,19 +1283,15 @@ struct Menu
 			ImGui::NextColumn();
 		}
 
-		if (SelectedFlickbotSubTab == 1)
-		{
-			if (!Features::Flickbot::Flickbot)
-			{
+		if (SelectedFlickbotSubTab == 1) {
+			if (!Features::Flickbot::Flickbot) {
 				ImGui::Text("Flickbot Is Disabled!");
 			}
 
-			if (Features::Flickbot::Flickbot)
-			{
+			if (Features::Flickbot::Flickbot) {
 				ImGui::Spacing();
 				ImGui::Columns(3, "##FlickbotSelection", false);
-				if (ImGui::BeginChildFrame(7, ImVec2({264, 188}), true))
-				{
+				if (ImGui::BeginChildFrame(7, ImVec2({ 264, 188 }), true)) {
 					ImGui::TextColored(ImVec4(0.990, 0.768, 0.039, 1.00f), "Light");
 					ImGui::Checkbox("P2020##Flickbot", &Features::Flickbot::P2020);
 					ImGui::Checkbox("RE-45 Auto##Flickbot", &Features::Flickbot::RE45);
@@ -1172,8 +1302,7 @@ struct Menu
 					ImGui::Checkbox("G7 Scout##Flickbot", &Features::Flickbot::G7);
 					ImGui::EndChildFrame();
 				}
-				if (ImGui::BeginChildFrame(8, ImVec2({264, 188}), true))
-				{
+				if (ImGui::BeginChildFrame(8, ImVec2({ 264, 188 }), true)) {
 					ImGui::TextColored(ImVec4(0.00990, 0.990, 0.761, 1.00f), "Heavy");
 					ImGui::Checkbox("VK-47 Flatline##Flickbot", &Features::Flickbot::Flatline);
 					ImGui::Checkbox("Prowler Burst SMG##Flickbot", &Features::Flickbot::Prowler);
@@ -1186,8 +1315,7 @@ struct Menu
 
 				ImGui::NextColumn();
 
-				if (ImGui::BeginChildFrame(9, ImVec2({264, 188}), true))
-				{
+				if (ImGui::BeginChildFrame(9, ImVec2({ 264, 188 }), true)) {
 					ImGui::TextColored(ImVec4(0, 0.99, 0, 1.00f), "Energy");
 					ImGui::Checkbox("Havoc Rifle##Flickbot", &Features::Flickbot::Havoc);
 					ImGui::Checkbox("Devotion LMG##Flickbot", &Features::Flickbot::Devotion);
@@ -1197,8 +1325,7 @@ struct Menu
 					ImGui::Checkbox("Nemesis Burst AR##Flickbot", &Features::Flickbot::Nemesis);
 					ImGui::EndChildFrame();
 				}
-				if (ImGui::BeginChildFrame(10, ImVec2({264, 188}), true))
-				{
+				if (ImGui::BeginChildFrame(10, ImVec2({ 264, 188 }), true)) {
 					ImGui::TextColored(ImVec4(0.99, 0, 0, 1.00f), "Shotguns");
 					ImGui::Checkbox("Mozambique##Flickbot", &Features::Flickbot::Mozambique);
 					ImGui::Checkbox("Peacekeeper##Flickbot", &Features::Flickbot::Peacekeeper);
@@ -1208,16 +1335,14 @@ struct Menu
 
 				ImGui::NextColumn();
 
-				if (ImGui::BeginChildFrame(11, ImVec2({237, 188}), true))
-				{
+				if (ImGui::BeginChildFrame(11, ImVec2({ 237, 188 }), true)) {
 					ImGui::TextColored(ImVec4(0.00990, 0.337, 0.990, 1.00f), "Snipers");
 					ImGui::Checkbox("Longbow DMR##Flickbot", &Features::Flickbot::Longbow);
 					ImGui::Checkbox("Charge Rifle##Flickbot", &Features::Flickbot::ChargeRifle);
 					ImGui::Checkbox("Sentinel##Flickbot", &Features::Flickbot::Sentinel);
 					ImGui::EndChildFrame();
 				}
-				if (ImGui::BeginChildFrame(12, ImVec2({237, 188}), true))
-				{
+				if (ImGui::BeginChildFrame(12, ImVec2({ 237, 188 }), true)) {
 					ImGui::TextColored(ImVec4(0.99, 0.530, 0.945, 1.00f), "Legendary");
 					ImGui::Checkbox("Wingman##Flickbot", &Features::Flickbot::Wingman);
 					ImGui::Checkbox("EVA-8 Auto##Flickbot", &Features::Flickbot::EVA8);
@@ -1234,8 +1359,7 @@ struct Menu
 
 	//---------------------------------------------------------------------- Triggerbot UI ----------------------------------------------------------------------
 
-	void RenderTriggerbot()
-	{
+	void RenderTriggerbot() {
 		ImGui::SetCursorPos(ImVec2(0, 0));
 		ImGui::BeginChild("workzone", ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar);
 		ImGui::BeginGroup();
@@ -1251,15 +1375,14 @@ struct Menu
 			SelectedTriggerbotSubTab = 2;
 		ImGui::EndGroup();
 
-		ImGui::SetCursorPos({15, 35});
+		ImGui::SetCursorPos({ 15, 35 });
 
 		ImGui::BeginChild("workzone", ImVec2(WindowWidth - 186, WindowHeight - 90), false, ImGuiWindowFlags_NoScrollbar);
 
 		ImGui::Separator();
 		DoubleSpacing();
 
-		if (SelectedTriggerbotSubTab == 0)
-		{
+		if (SelectedTriggerbotSubTab == 0) {
 			ImGui::BeginChildFrame(1, ImVec2(WindowWidth - 220, 43), true);
 			{
 				ImGui::Text("Triggerbot");
@@ -1267,20 +1390,21 @@ struct Menu
 				ImGui::EndChildFrame();
 			}
 
-			if (Features::Triggerbot::Enabled && !Features::Triggerbot::AdvancedTriggerbot)
-			{
-				ImGui::BeginChildFrame(2, ImVec2(WindowWidth - 220, 149), true);
+			if (Features::Triggerbot::Enabled && !Features::Triggerbot::AdvancedTriggerbot) {
+				ImGui::BeginChildFrame(2, ImVec2(WindowWidth - 220, 182), true);
 				{
 					ImGui::Spacing();
-					const char *BindMethodIndex[] = {"Memory", "Keybind"};
+					const char* AttackMethodIndex[] = { "Mouse", "Memory" };
+					ImGui::ComboBox("Attack Method", &Features::Triggerbot::AttackMethod, AttackMethodIndex, IM_ARRAYSIZE(AttackMethodIndex));
+					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+						ImGui::SetTooltip("How Triggerbot Will Input A Click/Attack\nMemory Delay Is More Accurate Than Mouse\nBoth Support Controller");
+					const char* BindMethodIndex[] = { "Memory", "Keybind" };
 					ImGui::ComboBox("Bind Method", &Features::Triggerbot::BindMethod, BindMethodIndex, IM_ARRAYSIZE(BindMethodIndex));
-					if (Features::Triggerbot::BindMethod == 0)
-					{	
+					if (Features::Triggerbot::BindMethod == 0) {
 						ImGui::Checkbox("On ADS Only?", &Features::Triggerbot::OnADS);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Fire only when ADS");
-						if (Features::Triggerbot::OnADS)
-						{
+						if (Features::Triggerbot::OnADS) {
 							ImGui::SameLine();
 							ImGui::Checkbox("Always On For Shotguns", &Features::Triggerbot::HipfireShotguns);
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -1288,45 +1412,41 @@ struct Menu
 						}
 					}
 
-					if (Features::Triggerbot::BindMethod == 1)
-					{	
+					if (Features::Triggerbot::BindMethod == 1) {
 						int TriggerBind = static_cast<int>(Features::Triggerbot::TriggerBind);
 						ImGui::ComboBox("Triggerbot Bind", &TriggerBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 						Features::Triggerbot::TriggerBind = static_cast<InputKeyType>(TriggerBind);
 					}
-					
-					ImGui::Text("Settings");
+
+					ImGui::MainSliderInt("Triggerbot Delay", &Features::Triggerbot::Delay, 0, 150);
+					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+						ImGui::SetTooltip("Triggerbot's Delay Time\nNote: Not Perfect!\nProcessing Time Affects This, Don't Test Settings In The Firing Range!");
 					ImGui::MainSliderFloat("Triggerbot Range", &Features::Triggerbot::Range, 0, 1000, "%.0f");
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-						ImGui::SetTooltip("Triggerbot's activation range.");
+						ImGui::SetTooltip("Triggerbot's activation range");
+					ImGui::Spacing();
 					ImGui::EndChildFrame();
 				}
 			}
 
-			if (Features::Triggerbot::Enabled && Features::Triggerbot::AdvancedTriggerbot)
-			{
+			if (Features::Triggerbot::Enabled && Features::Triggerbot::AdvancedTriggerbot) {
 				ImGui::Text("Advanced Triggerbot Is Enabled!");
 			}
 		}
 
-		if (SelectedTriggerbotSubTab == 1)
-		{
+		if (SelectedTriggerbotSubTab == 1) {
 			Advanced->AdvancedTriggerbotTab(Myself->WeaponIndex);
 		}
 
-		if (SelectedTriggerbotSubTab == 2)
-		{
-			if (!Features::Triggerbot::Enabled)
-			{
+		if (SelectedTriggerbotSubTab == 2) {
+			if (!Features::Triggerbot::Enabled) {
 				ImGui::Text("Triggerbot Is Disabled!");
 			}
 
-			if (Features::Triggerbot::Enabled)
-			{
+			if (Features::Triggerbot::Enabled) {
 				ImGui::Spacing();
 				ImGui::Columns(3, "##triggerbotSelection", false);
-				if (ImGui::BeginChildFrame(7, ImVec2({264, 240}), true))
-				{
+				if (ImGui::BeginChildFrame(7, ImVec2({ 264, 240 }), true)) {
 					ImGui::TextColored(ImVec4(0.990, 0.768, 0.039, 1.00f), "Light");
 					ImGui::Checkbox("P2020##Triggerbot", &Features::Triggerbot::P2020);
 					ImGui::Checkbox("RE-45 Auto##Triggerbot", &Features::Triggerbot::RE45);
@@ -1337,8 +1457,7 @@ struct Menu
 					ImGui::Checkbox("G7 Scout##Triggerbot", &Features::Triggerbot::G7);
 					ImGui::EndChildFrame();
 				}
-				if (ImGui::BeginChildFrame(8, ImVec2({264, 240}), true))
-				{
+				if (ImGui::BeginChildFrame(8, ImVec2({ 264, 240 }), true)) {
 					ImGui::TextColored(ImVec4(0.00990, 0.990, 0.761, 1.00f), "Heavy");
 					ImGui::Checkbox("VK-47 Flatline##Triggerbot", &Features::Triggerbot::Flatline);
 					ImGui::Checkbox("Prowler Burst SMG##Triggerbot", &Features::Triggerbot::Prowler);
@@ -1351,8 +1470,7 @@ struct Menu
 
 				ImGui::NextColumn();
 
-				if (ImGui::BeginChildFrame(9, ImVec2({264, 240}), true))
-				{
+				if (ImGui::BeginChildFrame(9, ImVec2({ 264, 240 }), true)) {
 					ImGui::TextColored(ImVec4(0, 0.99, 0, 1.00f), "Energy");
 					ImGui::Checkbox("Havoc Rifle##Triggerbot", &Features::Triggerbot::Havoc);
 					ImGui::Checkbox("Devotion LMG##Triggerbot", &Features::Triggerbot::Devotion);
@@ -1362,8 +1480,7 @@ struct Menu
 					ImGui::Checkbox("Nemesis Burst AR##Triggerbot", &Features::Triggerbot::Nemesis);
 					ImGui::EndChildFrame();
 				}
-				if (ImGui::BeginChildFrame(10, ImVec2({264, 240}), true))
-				{
+				if (ImGui::BeginChildFrame(10, ImVec2({ 264, 240 }), true)) {
 					ImGui::TextColored(ImVec4(0.99, 0, 0, 1.00f), "Shotguns");
 					ImGui::Checkbox("Mozambique##Triggerbot", &Features::Triggerbot::Mozambique);
 					ImGui::Checkbox("Peacekeeper##Triggerbot", &Features::Triggerbot::Peacekeeper);
@@ -1373,16 +1490,14 @@ struct Menu
 
 				ImGui::NextColumn();
 
-				if (ImGui::BeginChildFrame(11, ImVec2({237, 240}), true))
-				{
+				if (ImGui::BeginChildFrame(11, ImVec2({ 237, 240 }), true)) {
 					ImGui::TextColored(ImVec4(0.00990, 0.337, 0.990, 1.00f), "Snipers");
 					ImGui::Checkbox("Longbow DMR##Triggerbot", &Features::Triggerbot::Longbow);
 					ImGui::Checkbox("Charge Rifle##Triggerbot", &Features::Triggerbot::ChargeRifle);
 					ImGui::Checkbox("Sentinel##Triggerbot", &Features::Triggerbot::Sentinel);
 					ImGui::EndChildFrame();
 				}
-				if (ImGui::BeginChildFrame(12, ImVec2({237, 240}), true))
-				{
+				if (ImGui::BeginChildFrame(12, ImVec2({ 237, 240 }), true)) {
 					ImGui::TextColored(ImVec4(0.99, 0.530, 0.945, 1.00f), "Legendary");
 					ImGui::Checkbox("Wingman##Triggerbot", &Features::Triggerbot::Wingman);
 					ImGui::Checkbox("EVA-8 Auto##Triggerbot", &Features::Triggerbot::EVA8);
@@ -1398,8 +1513,7 @@ struct Menu
 
 	//---------------------------------------------------------------------- Glow UI ----------------------------------------------------------------------
 
-	void RenderGlow()
-	{
+	void RenderGlow() {
 		ImGui::SetCursorPos(ImVec2(0, 0));
 		ImGui::BeginChild("workzone", ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar);
 		ImGui::BeginGroup();
@@ -1415,15 +1529,14 @@ struct Menu
 			SelectedGlowSubTab = 2;
 		ImGui::EndGroup();
 
-		ImGui::SetCursorPos({15, 35});
+		ImGui::SetCursorPos({ 15, 35 });
 
 		ImGui::BeginChild("workzone", ImVec2(WindowWidth - 186, WindowHeight - 90), false, ImGuiWindowFlags_NoScrollbar);
 
 		ImGui::Separator();
 		DoubleSpacing();
 
-		if (SelectedGlowSubTab == 0)
-		{
+		if (SelectedGlowSubTab == 0) {
 			ImGui::BeginChildFrame(1, ImVec2(WindowWidth - 220, 83), true);
 			{
 				ImGui::Spacing();
@@ -1431,8 +1544,11 @@ struct Menu
 				ImGui::Checkbox("Player Glow", &Features::Glow::NewGlow);
 				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 					ImGui::SetTooltip("Toggle Player Glow.");
-				if (Features::Glow::NewGlow)
-				{
+				if (Features::Glow::NewGlow) {
+					ImGui::SameLine();
+					ImGui::Checkbox("Knocked Check", &Features::Glow::KnockedCheck);
+					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+						ImGui::SetTooltip("Will Also Glow Knocked Players");
 					ImGui::MainSliderFloat("Glow Max Distance", &Features::Glow::GlowMaxDistance, 0, 1000, "%.0f");
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 						ImGui::SetTooltip("Only those in range will glow");
@@ -1440,8 +1556,7 @@ struct Menu
 				ImGui::EndChildFrame();
 			}
 
-			if (Features::Glow::NewGlow)
-			{
+			if (Features::Glow::NewGlow) {
 				ImGui::Columns(2, "Player Glow Column", false);
 				ImGui::BeginChildFrame(2, ImVec2(WindowWidth - 613, WindowHeight - 198), true);
 				{
@@ -1451,12 +1566,12 @@ struct Menu
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 						ImGui::SetTooltip("How Thick The Border Is Around A Player.");
 
-					const char *GlowBodyStyleIndex[] = {"None", "Pink", "Pink Visible Only", "Pulsing 1", "Pulsing Line Invisible Only", "Dark Pulsing Line", "Sharp Pulsing Visible", "Sharp Pulsing", "Pulsing Red Line", "Fast Pulsing Invisible Only", "Pulsing Up Visible Only", "Solid Pulsing", "Solid Pulsing 2", "Bright", "Bright 2", "Light", "Light Solid", "Red Pulsing Visible Only", "Wave", "Shaded Visible", "Wireframe", "Wireframe Visible Only", "Black", "Black Visible Only"};
+					const char* GlowBodyStyleIndex[] = { "None", "Pink", "Pink Visible Only", "Pulsing 1", "Pulsing Line Invisible Only", "Dark Pulsing Line", "Sharp Pulsing Visible", "Sharp Pulsing", "Pulsing Red Line", "Fast Pulsing Invisible Only", "Pulsing Up Visible Only", "Solid Pulsing", "Solid Pulsing 2", "Bright", "Bright 2", "Light", "Light Solid", "Red Pulsing Visible Only", "Wave", "Shaded Visible", "Wireframe", "Wireframe Visible Only", "Black", "Black Visible Only" };
 					ImGui::ComboBox("Body Style", &Features::Glow::BodyStyle, GlowBodyStyleIndex, IM_ARRAYSIZE(GlowBodyStyleIndex));
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 						ImGui::SetTooltip("Changes The Player's Body Style.");
 
-					const char *GlowOutlineStyleIndex[] = {"None", "Bright", "Bright Invisible Only", "Dark", "Pink", "White", "Gold Flashing", "Gold", "Brown", "Wave", "Red Visible Only", "Red Bright", "Heartbeat Visible Only", "Green Invisible Only", "Visible Only", "Bright Orange", "Red 2"};
+					const char* GlowOutlineStyleIndex[] = { "None", "Bright", "Bright Invisible Only", "Dark", "Pink", "White", "Gold Flashing", "Gold", "Brown", "Wave", "Red Visible Only", "Red Bright", "Heartbeat Visible Only", "Green Invisible Only", "Visible Only", "Bright Orange", "Red 2" };
 					ImGui::ComboBox("Outline Style", &Features::Glow::OutlineStyle, GlowOutlineStyleIndex, IM_ARRAYSIZE(GlowOutlineStyleIndex));
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 						ImGui::SetTooltip("Changes The Player's Outline Style.");
@@ -1468,14 +1583,13 @@ struct Menu
 				ImGui::BeginChildFrame(3, ImVec2(WindowWidth - 630, WindowHeight - 198), true);
 				{
 					ImGui::Spacing();
-					const char *GlowColorModeIndex[] = {"Shield Based", "Custom Color"};
+					const char* GlowColorModeIndex[] = { "Shield Based", "Custom Color" };
 					ImGui::ComboBox("Color Mode", &Features::Glow::GlowColorMode, GlowColorModeIndex, IM_ARRAYSIZE(GlowColorModeIndex));
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 						ImGui::SetTooltip("What Color The Glow Will Be.\nShield Based = What Shield The Player Has\nCustom Color = Whatever Color You Want.");
 
-					if (Features::Glow::GlowColorMode == 0)
-					{
-						const char *GlowShieldModeIndex[] = {"Current Shield", "Max Shield"};
+					if (Features::Glow::GlowColorMode == 0) {
+						const char* GlowShieldModeIndex[] = { "Current Shield", "Max Shield" };
 						ImGui::ComboBox("Shield Mode", &Features::Glow::GlowColorShieldMode, GlowShieldModeIndex, IM_ARRAYSIZE(GlowShieldModeIndex));
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("What Color The Glow Will Change To\nCurrent Shield = Player's Current Shield Points\nMax Shield = Player's Max Shield Points.");
@@ -1488,28 +1602,31 @@ struct Menu
 						ImGui::SameLine();
 					}
 
-					if (Features::Glow::GlowColorMode == 0 && Features::Glow::GlowColorShieldMode == 0)
-					{
+					if (Features::Glow::GlowColorMode == 0) {
 						ImGui::ColorEdit3("Low HP Color##GlowColor", Features::Colors::Enemy::LowGlowColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("What Color The Glow Will Change To When The Player Has No Shield.");
 						ImGui::SameLine();
 					}
 
-					if (Features::Glow::GlowColorMode == 1)
-					{
+					if (Features::Glow::GlowColorMode == 1) {
 						ImGui::ColorEdit3("Invisible Color##GlowColor", Features::Colors::Enemy::InvisibleGlowColor, ColorEditFlags);
 						ImGui::SameLine();
 					}
 
 					ImGui::ColorEdit3("Visible Color##GlowColor", Features::Colors::Enemy::VisibleGlowColor, ColorEditFlags);
+					if (!Features::Glow::KnockedCheck) {
+						if (Features::Glow::GlowColorMode == 1) {
+							ImGui::SameLine();
+						}
+						ImGui::ColorEdit3("Knocked Color##GlowColor", Features::Colors::Enemy::KnockedGlowColor, ColorEditFlags);
+					}
 					ImGui::EndChildFrame();
 				}
 			}
 		}
 
-		if (SelectedGlowSubTab == 1)
-		{
+		if (SelectedGlowSubTab == 1) {
 			ImGui::BeginChildFrame(2, ImVec2(WindowWidth - 220, WindowHeight - 110), true);
 			{
 				ImGui::Spacing();
@@ -1517,35 +1634,29 @@ struct Menu
 				ImGui::Checkbox("Enabled##Item", &Features::Glow::Item::ItemGlow);
 				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 					ImGui::SetTooltip("Items Will Glow Through Walls.\nIncludes Deathboxes.");
-				if (Features::Glow::Item::ItemGlow)
-				{
-					const char *ItemGlowBodyStyleIndex[] = {"Clear", "Light", "Solid", "Light To Dark Fade"};
+				if (Features::Glow::Item::ItemGlow) {
+					const char* ItemGlowBodyStyleIndex[] = { "Clear", "Light", "Solid", "Light To Dark Fade" };
 					ImGui::ComboBox("Inside Style", &Features::Glow::Item::SelectedInsideStyle, ItemGlowBodyStyleIndex, IM_ARRAYSIZE(ItemGlowBodyStyleIndex));
-					const char *ItemGlowOutlineIndex[] = {"None", "Light 1", "Light 2", "Solid", "Gold", "Orange", "Pulsing", "Light Red (Visible Only)", "Red", "Fading (Visible Only)", "Soft", "Visible Only"};
+					const char* ItemGlowOutlineIndex[] = { "None", "Light 1", "Light 2", "Solid", "Gold", "Orange", "Pulsing", "Light Red (Visible Only)", "Red", "Fading (Visible Only)", "Soft", "Visible Only" };
 					ImGui::ComboBox("Outline Style", &Features::Glow::Item::SelectedOutlineStyle, ItemGlowOutlineIndex, IM_ARRAYSIZE(ItemGlowOutlineIndex));
 					ImGui::MainSliderInt("Glow Thickness", &Features::Glow::Item::ItemGlowThickness, 0, 250);
 					ImGui::Text("Item Glow Toggles");
-					const char *ItemGlowItemSelection[] = {"Simple", "Custom"};
-					ImGui::ComboBox("Item Selection", &Features::Glow::Item::SelectedItemSelection, ItemGlowItemSelection, IM_ARRAYSIZE(ItemGlowItemSelection));
 
-					if (Features::Glow::Item::SelectedItemSelection == 1)
-					{
-						ImGui::Checkbox("Common", &Features::Glow::Item::Common);
-						ImGui::Checkbox("Rare", &Features::Glow::Item::Rare);
-						ImGui::Checkbox("Epic", &Features::Glow::Item::Epic);
-						ImGui::Checkbox("Gold", &Features::Glow::Item::Gold);
-						ImGui::Checkbox("Legendary", &Features::Glow::Item::Legendary);
-						ImGui::Checkbox("Weapons", &Features::Glow::Item::Weapons);
-						ImGui::Checkbox("Ammo", &Features::Glow::Item::Ammo);
-					}
+					ImGui::Checkbox("Common", &Features::Glow::Item::Common);
+					ImGui::Checkbox("Rare", &Features::Glow::Item::Rare);
+					ImGui::Checkbox("Epic", &Features::Glow::Item::Epic);
+					ImGui::Checkbox("Gold", &Features::Glow::Item::Gold);
+					ImGui::Checkbox("Legendary", &Features::Glow::Item::Legendary);
+					ImGui::Checkbox("Weapons", &Features::Glow::Item::Weapons);
+					ImGui::Checkbox("Ammo", &Features::Glow::Item::Ammo);
+					ImGui::Checkbox("Deathboxes", &Features::Glow::Item::Deathbox);
 				}
 
 				ImGui::EndChildFrame();
 			}
 		}
 
-		if (SelectedGlowSubTab == 2)
-		{
+		if (SelectedGlowSubTab == 2) {
 			ImGui::BeginChildFrame(2, ImVec2(WindowWidth - 220, WindowHeight - 110), true);
 			{
 				ImGui::Spacing();
@@ -1553,9 +1664,8 @@ struct Menu
 				ImGui::Checkbox("Enabled", &Features::Glow::ViewModelGlow);
 				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 					ImGui::SetTooltip("Toggle ViewModel Glow.");
-				if (Features::Glow::ViewModelGlow)
-				{
-					const char *ViewmodelGlowIndex[] = {"Cyan Outline", "Light Red Outline", "White Outline", "Orange Outline", "Yellow Outline", "Solid Green", "Solid Orange", "Solid Yellow", "Solid Yellow Pulsing", "Solid Purple", "Solid Light Blue", "Solid Light Grey", "Solid White", "Solid Cyan", "Solid Hot Pink", "Solid Light Yellow", "Solid Light Orange", "Solid Light Green", "Solid Black", "Chrome"};
+				if (Features::Glow::ViewModelGlow) {
+					const char* ViewmodelGlowIndex[] = { "Cyan Outline", "Light Red Outline", "White Outline", "Orange Outline", "Yellow Outline", "Solid Green", "Solid Orange", "Solid Yellow", "Solid Yellow Pulsing", "Solid Purple", "Solid Light Blue", "Solid Light Grey", "Solid White", "Solid Cyan", "Solid Hot Pink", "Solid Light Yellow", "Solid Light Orange", "Solid Light Green", "Solid Black", "Chrome" };
 					ImGui::ComboBox("Selected Color", &Features::Glow::ViewModelGlowCombo, ViewmodelGlowIndex, IM_ARRAYSIZE(ViewmodelGlowIndex));
 				}
 
@@ -1568,8 +1678,7 @@ struct Menu
 
 	//---------------------------------------------------------------------- ESP UI ----------------------------------------------------------------------
 
-	void RenderESP(Overlay OverlayWindow)
-	{
+	void RenderESP(Overlay OverlayWindow) {
 		ImVec2 TabSize;
 		TabSize = ImGui::GetWindowSize();
 		ImGui::SetCursorPos(ImVec2(0, 0));
@@ -1599,7 +1708,7 @@ struct Menu
 			SelectedESPSubTabRight = 3;
 		ImGui::EndGroup();
 
-		ImGui::SetCursorPos({15, 35});
+		ImGui::SetCursorPos({ 15, 35 });
 
 		ImGui::BeginChild("workzone", ImVec2(WindowWidth - 186, WindowHeight - 90), false, ImGuiWindowFlags_NoScrollbar);
 
@@ -1609,18 +1718,17 @@ struct Menu
 		ImGui::BeginChildFrame(1, ImVec2(WindowWidth - 613, WindowHeight - 110), true);
 		{
 			ImGui::Spacing();
-			if (SelectedESPSubTabLeft == 0)
-			{
+			if (SelectedESPSubTabLeft == 0) {
 				ImGui::Text("Player ESP");
 				ImGui::Checkbox("Draw Players", &Features::Sense::Enemy::DrawEnemy);
 
-				if (Features::Sense::Enemy::DrawEnemy)
-				{
+				if (Features::Sense::Enemy::DrawEnemy) {
 					ImGui::Text("Boxes");
 					ImGui::Checkbox("Draw Boxes", &Features::Sense::Enemy::DrawBoxes);
-					if (Features::Sense::Enemy::DrawBoxes)
-					{
-						const char *BoxTypeIndex[] = {"2D", "2D Filled", "2D Corners"};
+					if (Features::Sense::Enemy::DrawBoxes) {
+						ImGui::SameLine();
+						ImGui::Checkbox("Box Outline", &Features::Sense::Enemy::BoxOutline);
+						const char* BoxTypeIndex[] = { "2D", "2D Filled", "2D Corners" };
 						ImGui::ComboBox("Box Type", &Features::Sense::Enemy::BoxType, BoxTypeIndex, IM_ARRAYSIZE(BoxTypeIndex));
 
 						ImGui::MainSliderFloat("Box Thickness", &Features::Sense::Enemy::BoxThickness, 1, 10, "%.0f");
@@ -1630,13 +1738,12 @@ struct Menu
 
 					ImGui::Text("Tracers");
 					ImGui::Checkbox("Draw Tracers", &Features::Sense::Enemy::DrawTracers);
-					if (Features::Sense::Enemy::DrawTracers)
-					{
-						const char *TracerPos[] = {"Top", "Crosshair", "Bottom"};
+					if (Features::Sense::Enemy::DrawTracers) {
+						const char* TracerPos[] = { "Top", "Crosshair", "Bottom" };
 						ImGui::ComboBox("Tracer Position", &Features::Sense::Enemy::TracerPosition, TracerPos, IM_ARRAYSIZE(TracerPos));
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Where tracers will be drawn from.");
-						const char *TracerBones[] = {"Top", "Bottom"};
+						const char* TracerBones[] = { "Top", "Bottom" };
 						ImGui::ComboBox("Tracer Bone", &Features::Sense::Enemy::TracerBone, TracerBones, IM_ARRAYSIZE(TracerBones));
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Where tracers will be drawn to.");
@@ -1649,8 +1756,9 @@ struct Menu
 					ImGui::Checkbox("Draw Skeleton", &Features::Sense::Enemy::DrawSkeleton);
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 						ImGui::SetTooltip("Draw the enemies skeletons (Spooky)");
-					if (Features::Sense::Enemy::DrawSkeleton)
-					{
+					if (Features::Sense::Enemy::DrawSkeleton) {
+						ImGui::SameLine();
+						ImGui::Checkbox("Skeleton Outline", &Features::Sense::Enemy::SkeletonOutline);
 						ImGui::MainSliderFloat("Skeleton Thickness", &Features::Sense::Enemy::SkeletonThickness, 1, 10, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Changes the thickness of the bones");
@@ -1660,8 +1768,9 @@ struct Menu
 					ImGui::Checkbox("Draw Head Circle", &Features::Sense::Enemy::DrawHeadCircle);
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 						ImGui::SetTooltip("Draw the enemies Head");
-					if (Features::Sense::Enemy::DrawHeadCircle)
-					{
+					if (Features::Sense::Enemy::DrawHeadCircle) {
+						ImGui::SameLine();
+						ImGui::Checkbox("Head Circle Outline", &Features::Sense::Enemy::HeadCircleOutline);
 						ImGui::MainSliderFloat("Head Circle Thickness", &Features::Sense::Enemy::HeadCircleThickness, 1, 10, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Changes the thickness of the Circle");
@@ -1669,33 +1778,28 @@ struct Menu
 
 					ImGui::Text("Info Bars");
 					ImGui::Checkbox("Draw Bars", &Features::Sense::Enemy::DrawBars);
-					if (Features::Sense::Enemy::DrawBars)
-					{
-						const char *BarStyleIndex[] = {"Side", "Top", "Seer"};
+					if (Features::Sense::Enemy::DrawBars) {
+						const char* BarStyleIndex[] = { "Side", "Top", "Seer" };
 						ImGui::ComboBox("Bar Style", &Features::Sense::Enemy::BarStyle, BarStyleIndex, IM_ARRAYSIZE(BarStyleIndex));
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Where AND What Style Of Health + Shield Bar Will Be.\nSeer = Seer's Ability.");
 
-						if (!Features::Sense::Enemy::BarStyle == 2)
-						{
+						if (!Features::Sense::Enemy::BarStyle == 2) {
 							Features::Sense::Enemy::DrawSeer = false;
 						}
 
-						if (Features::Sense::Enemy::BarStyle == 0 or Features::Sense::Enemy::BarStyle == 1)
-						{
-							const char *BarModeIndex[] = {"Health Only", "Shield Only", "Health & Shield"};
+						if (Features::Sense::Enemy::BarStyle == 0 or Features::Sense::Enemy::BarStyle == 1) {
+							const char* BarModeIndex[] = { "Health Only", "Shield Only", "Health & Shield" };
 							ImGui::ComboBox("Bar Mode", &Features::Sense::Enemy::BarMode, BarModeIndex, IM_ARRAYSIZE(BarModeIndex));
 						}
 
-						if (Features::Sense::Enemy::BarStyle == 2)
-						{ // Seer
+						if (Features::Sense::Enemy::BarStyle == 2) { // Seer
 							ImGui::Checkbox("Draw Seer", &Features::Sense::Enemy::DrawSeer);
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Draw Seer's abilitiy (Show Health & Armor) on enemies");
 						}
 
-						if (Features::Sense::Enemy::BarStyle == 1)
-						{ // Top
+						if (Features::Sense::Enemy::BarStyle == 1) { // Top
 							ImGui::MainSliderFloat("Bar Height", &Features::Sense::Enemy::BarHeight, 5, 20, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Height of the enemy bar");
@@ -1704,8 +1808,7 @@ struct Menu
 								ImGui::SetTooltip("Width of the enemy bar");
 						}
 
-						if (Features::Sense::Enemy::BarStyle == 1)
-						{ // Top
+						if (Features::Sense::Enemy::BarStyle == 1) { // Top
 							ImGui::MainSliderFloat("Bar Thickness", &Features::Sense::Enemy::BarThickness, 1, 10, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Thickness of the health/shield bar");
@@ -1732,8 +1835,7 @@ struct Menu
 					ImGui::Checkbox("Draw Status", &Features::Sense::Enemy::DrawStatus);
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 						ImGui::SetTooltip("Draw enemies current health and armor");
-					if (Features::Sense::Enemy::DrawStatus)
-					{
+					if (Features::Sense::Enemy::DrawStatus) {
 						ImGui::SameLine();
 						ImGui::Checkbox("Show Max Values", &Features::Sense::Enemy::ShowMaxStatusValues);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -1744,18 +1846,17 @@ struct Menu
 				}
 			}
 
-			if (SelectedESPSubTabLeft == 1)
-			{
+			if (SelectedESPSubTabLeft == 1) {
 				ImGui::Text("Team ESP");
 				ImGui::Checkbox("Draw Teammates", &Features::Sense::Teammate::DrawTeam);
 
-				if (Features::Sense::Teammate::DrawTeam)
-				{
+				if (Features::Sense::Teammate::DrawTeam) {
 					ImGui::Text("Boxes");
 					ImGui::Checkbox("Draw Boxes", &Features::Sense::Teammate::DrawBoxes);
-					if (Features::Sense::Teammate::DrawBoxes)
-					{
-						const char *BoxTypeIndex[] = {"2D", "2D Filled", "2D Corners"};
+					if (Features::Sense::Teammate::DrawBoxes) {
+						ImGui::SameLine();
+						ImGui::Checkbox("Box Outline", &Features::Sense::Teammate::BoxOutline);
+						const char* BoxTypeIndex[] = { "2D", "2D Filled", "2D Corners" };
 						ImGui::ComboBox("Box Type", &Features::Sense::Teammate::BoxType, BoxTypeIndex, IM_ARRAYSIZE(BoxTypeIndex));
 
 						ImGui::MainSliderFloat("Box Thickness", &Features::Sense::Teammate::BoxThickness, 1, 10, "%.0f");
@@ -1765,13 +1866,12 @@ struct Menu
 
 					ImGui::Text("Tracers");
 					ImGui::Checkbox("Draw Tracers", &Features::Sense::Teammate::DrawTracers);
-					if (Features::Sense::Teammate::DrawTracers)
-					{
-						const char *TracerPos[] = {"Top", "Crosshair", "Bottom"};
+					if (Features::Sense::Teammate::DrawTracers) {
+						const char* TracerPos[] = { "Top", "Crosshair", "Bottom" };
 						ImGui::ComboBox("Tracer Position", &Features::Sense::Teammate::TracerPosition, TracerPos, IM_ARRAYSIZE(TracerPos));
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Where tracers will be drawn from.");
-						const char *TracerBones[] = {"Top", "Bottom"};
+						const char* TracerBones[] = { "Top", "Bottom" };
 						ImGui::ComboBox("Tracer Bone", &Features::Sense::Teammate::TracerBone, TracerBones, IM_ARRAYSIZE(TracerBones));
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Where tracers will be drawn to.");
@@ -1783,9 +1883,10 @@ struct Menu
 					ImGui::Text("Skeleton");
 					ImGui::Checkbox("Draw Skeleton", &Features::Sense::Teammate::DrawSkeleton);
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-						ImGui::SetTooltip("Draw the enemies skeletons (Spooky)");
-					if (Features::Sense::Teammate::DrawSkeleton)
-					{
+						ImGui::SetTooltip("Draw the teammates skeletons (Spooky)");
+					if (Features::Sense::Teammate::DrawSkeleton) {
+						ImGui::SameLine();
+						ImGui::Checkbox("Skeleton Outline", &Features::Sense::Teammate::SkeletonOutline);
 						ImGui::MainSliderFloat("Skeleton Thickness", &Features::Sense::Teammate::SkeletonThickness, 1, 10, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Changes the thickness of the bones");
@@ -1795,8 +1896,9 @@ struct Menu
 					ImGui::Checkbox("Draw Head Circle", &Features::Sense::Teammate::DrawHeadCircle);
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 						ImGui::SetTooltip("Draw the enemies Head");
-					if (Features::Sense::Teammate::DrawHeadCircle)
-					{
+					if (Features::Sense::Teammate::DrawHeadCircle) {
+						ImGui::SameLine();
+						ImGui::Checkbox("Head Circle Outline", &Features::Sense::Teammate::HeadCircleOutline);
 						ImGui::MainSliderFloat("Head Circle Thickness", &Features::Sense::Teammate::HeadCircleThickness, 1, 10, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Changes the thickness of the Circle");
@@ -1804,33 +1906,28 @@ struct Menu
 
 					ImGui::Text("Info Bars");
 					ImGui::Checkbox("Draw Bars", &Features::Sense::Teammate::DrawBars);
-					if (Features::Sense::Teammate::DrawBars)
-					{
-						const char *BarStyleIndex[] = {"Side", "Top", "Seer"};
+					if (Features::Sense::Teammate::DrawBars) {
+						const char* BarStyleIndex[] = { "Side", "Top", "Seer" };
 						ImGui::ComboBox("Bar Style", &Features::Sense::Teammate::BarStyle, BarStyleIndex, IM_ARRAYSIZE(BarStyleIndex));
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Where AND What Style Of Health + Shield Bar Will Be.\nSeer = Seer's Ability.");
 
-						if (!Features::Sense::Teammate::BarStyle == 2)
-						{
+						if (!Features::Sense::Teammate::BarStyle == 2) {
 							Features::Sense::Teammate::DrawSeer = false;
 						}
 
-						if (Features::Sense::Teammate::BarStyle == 0 or Features::Sense::Teammate::BarStyle == 1)
-						{
-							const char *BarModeIndex[] = {"Health Only", "Shield Only", "Health & Shield"};
+						if (Features::Sense::Teammate::BarStyle == 0 or Features::Sense::Teammate::BarStyle == 1) {
+							const char* BarModeIndex[] = { "Health Only", "Shield Only", "Health & Shield" };
 							ImGui::ComboBox("Bar Mode", &Features::Sense::Teammate::BarMode, BarModeIndex, IM_ARRAYSIZE(BarModeIndex));
 						}
 
-						if (Features::Sense::Teammate::BarStyle == 2)
-						{ // Seer
+						if (Features::Sense::Teammate::BarStyle == 2) { // Seer
 							ImGui::Checkbox("Draw Seer", &Features::Sense::Teammate::DrawSeer);
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Draw Seer's abilitiy (Show Health & Armor) on enemies");
 						}
 
-						if (Features::Sense::Teammate::BarStyle == 1)
-						{ // Top
+						if (Features::Sense::Teammate::BarStyle == 1) { // Top
 							ImGui::MainSliderFloat("Bar Height", &Features::Sense::Teammate::BarHeight, 5, 20, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Height of the Teammate bar");
@@ -1839,8 +1936,7 @@ struct Menu
 								ImGui::SetTooltip("Width of the Teammate bar");
 						}
 
-						if (Features::Sense::Teammate::BarStyle == 1)
-						{ // Top
+						if (Features::Sense::Teammate::BarStyle == 1) { // Top
 							ImGui::MainSliderFloat("Bar Thickness", &Features::Sense::Teammate::BarThickness, 1, 10, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Thickness of the health/shield bar");
@@ -1867,8 +1963,7 @@ struct Menu
 					ImGui::Checkbox("Draw Status", &Features::Sense::Teammate::DrawStatus);
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 						ImGui::SetTooltip("Draw enemies current health and armor");
-					if (Features::Sense::Teammate::DrawStatus)
-					{
+					if (Features::Sense::Teammate::DrawStatus) {
 						ImGui::SameLine();
 						ImGui::Checkbox("Show Max Values", &Features::Sense::Teammate::ShowMaxStatusValues);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -1879,20 +1974,24 @@ struct Menu
 				}
 			}
 
-			if (SelectedESPSubTabLeft == 2)
-			{
+			if (SelectedESPSubTabLeft == 2) {
 				ImGui::Spacing();
 				ImGui::Text("Settings");
+				ImGui::Checkbox("Knocked Check", &Features::Sense::KnockedCheck);
+				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+					ImGui::SetTooltip("Draw's ESP On Knocked Players");
+				ImGui::SameLine();
 				ImGui::Checkbox("Visibility Check", &Features::Sense::VisibilityCheck);
 				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 					ImGui::SetTooltip("Draw's ESP ONLY On Visible Players");
+
 				ImGui::MainSliderFloat("ESP Max Distance", &Features::Sense::ESPMaxDistance, 0, 1000, "%.0f");
 				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 					ImGui::SetTooltip("Only those in range will be shown.");
 				ImGui::Checkbox("Text Outline", &Features::Sense::TextOutline);
 
 				ImGui::Text("Position Changer");
-				const char *PositionIndex[] = {"Top 1", "Top 2", "Bottom 1", "Bottom 2", "Bottom 3"};
+				const char* PositionIndex[] = { "Top 1", "Top 2", "Bottom 1", "Bottom 2", "Bottom 3" };
 				ImGui::ComboBox("Name Position", &Features::Sense::Positions::NamePosition, PositionIndex, IM_ARRAYSIZE(PositionIndex));
 				ImGui::ComboBox("Distance Position", &Features::Sense::Positions::DistancePosition, PositionIndex, IM_ARRAYSIZE(PositionIndex));
 				ImGui::ComboBox("Legend Position", &Features::Sense::Positions::LegendPosition, PositionIndex, IM_ARRAYSIZE(PositionIndex));
@@ -1907,14 +2006,11 @@ struct Menu
 
 		ImGui::BeginChildFrame(2, ImVec2(WindowWidth - 630, WindowHeight - 110), true);
 		{
-			if (SelectedESPSubTabRight == 0)
-			{
+			if (SelectedESPSubTabRight == 0) {
 				ImGui::Spacing();
-				if (SelectedESPSubTabLeft == 0 or SelectedESPSubTabLeft == 2)
-				{
+				if (SelectedESPSubTabLeft == 0 or SelectedESPSubTabLeft == 2) {
 					ImGui::Text("Colors - Players");
-					if (Features::Sense::Enemy::DrawBoxes)
-					{
+					if (Features::Sense::Enemy::DrawBoxes) {
 						ImGui::Text("Boxes");
 						ImGui::ColorEdit4("Visible##EnemyBoxColor", Features::Colors::Enemy::VisibleBoxColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -1923,22 +2019,30 @@ struct Menu
 						ImGui::ColorEdit4("Invisible##EnemyBoxColor", Features::Colors::Enemy::InvisibleBoxColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Box Invisible Color");
-
-						if (Features::Sense::Enemy::BoxType == 1)
-						{
+						if (!Features::Sense::KnockedCheck) {
 							ImGui::SameLine();
-							ImGui::ColorEdit4("Filled Visible##Enemy", Features::Colors::Enemy::VisibleFilledBoxColor, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+							ImGui::ColorEdit4("Knocked##EnemyBoxColor", Features::Colors::Enemy::KnockedBoxColor, ColorEditFlags);
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+								ImGui::SetTooltip("Box Knocked Color");
+						}
+
+						if (Features::Sense::Enemy::BoxType == 1) {
+							//ImGui::SameLine();
+							ImGui::ColorEdit4("Filled Visible##Enemy", Features::Colors::Enemy::VisibleFilledBoxColor, ColorEditFlags);
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Filled Box Visible Color");
 							ImGui::SameLine();
-							ImGui::ColorEdit4("Filled Invisible##Enemy", Features::Colors::Enemy::InvisibleFilledBoxColor, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+							ImGui::ColorEdit4("Filled Invisible##Enemy", Features::Colors::Enemy::InvisibleFilledBoxColor, ColorEditFlags);
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Filled Box Invisible Color");
+							ImGui::SameLine();
+							ImGui::ColorEdit4("Filled Knocked##Enemy", Features::Colors::Enemy::KnockedFilledBoxColor, ColorEditFlags);
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+								ImGui::SetTooltip("Filled Box Knocked Color");
 						}
 					}
 
-					if (Features::Sense::Enemy::DrawTracers)
-					{
+					if (Features::Sense::Enemy::DrawTracers) {
 						ImGui::Text("Tracers");
 						ImGui::ColorEdit4("Visible##EnemyTracer", Features::Colors::Enemy::VisibleTracerColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -1947,10 +2051,15 @@ struct Menu
 						ImGui::ColorEdit4("Invisible##EnemyTracer", Features::Colors::Enemy::InvisibleTracerColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Tracer Invisible Color");
+						if (!Features::Sense::KnockedCheck) {
+							ImGui::SameLine();
+							ImGui::ColorEdit4("Knocked##EnemyTracer", Features::Colors::Enemy::KnockedTracerColor, ColorEditFlags);
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+								ImGui::SetTooltip("Tracer Knocked Color");
+						}
 					}
 
-					if (Features::Sense::Enemy::DrawSkeleton)
-					{
+					if (Features::Sense::Enemy::DrawSkeleton) {
 						ImGui::Text("Skeleton");
 						ImGui::ColorEdit4("Visible##EnemySkeletonColor", Features::Colors::Enemy::VisibleSkeletonColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -1959,10 +2068,15 @@ struct Menu
 						ImGui::ColorEdit4("Invisible##EnemySkeletonColor", Features::Colors::Enemy::InvisibleSkeletonColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Skeleton Invisible Color");
+						if (!Features::Sense::KnockedCheck) {
+							ImGui::SameLine();
+							ImGui::ColorEdit4("Knocked##EnemySkeletonColor", Features::Colors::Enemy::KnockedSkeletonColor, ColorEditFlags);
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+								ImGui::SetTooltip("Skeleton Knocked Color");
+						}
 					}
 
-					if (Features::Sense::Enemy::DrawHeadCircle)
-					{
+					if (Features::Sense::Enemy::DrawHeadCircle) {
 						ImGui::Text("Head Circle");
 						ImGui::ColorEdit4("Visible##EnemyHeadCircleColor", Features::Colors::Enemy::VisibleHeadCircleColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -1971,22 +2085,25 @@ struct Menu
 						ImGui::ColorEdit4("Invisible##EnemyHeadCircleColor", Features::Colors::Enemy::InvisibleHeadCircleColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Head Circle Invisible Color");
+						if (!Features::Sense::KnockedCheck) {
+							ImGui::SameLine();
+							ImGui::ColorEdit4("Knocked##EnemyHeadCircleColor", Features::Colors::Enemy::KnockedHeadCircleColor, ColorEditFlags);
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+								ImGui::SetTooltip("Head Circle Knocked Color");
+						}
 					}
 
-					if (Features::Sense::Enemy::DrawBars)
-					{
-						if (Features::Sense::Enemy::BarMode == 0 or Features::Sense::Enemy::BarMode == 1)
-						{
+					if (Features::Sense::Enemy::DrawBars) {
+						if (Features::Sense::Enemy::BarMode == 0 or Features::Sense::Enemy::BarMode == 1) {
 							ImGui::Text("Info Bars");
-							const char *BarColorModeIndex[] = {"Max Shield", "Current Shield"};
+							const char* BarColorModeIndex[] = { "Max Shield", "Current Shield" };
 							ImGui::ComboBox("Bar Color", &Features::Sense::Enemy::BarColorMode, BarColorModeIndex, IM_ARRAYSIZE(BarColorModeIndex));
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("What Color The Shield Bar Will Be.");
 						}
 					}
 
-					if (Features::Sense::Enemy::DrawNames)
-					{
+					if (Features::Sense::Enemy::DrawNames) {
 						ImGui::Text("Names");
 						ImGui::ColorEdit4("Visible##EnemyNameColor", Features::Colors::Enemy::VisibleNameColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -1995,10 +2112,15 @@ struct Menu
 						ImGui::ColorEdit4("Invisible##EnemyNameColor", Features::Colors::Enemy::InvisibleNameColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Name Invisible Color");
+						if (!Features::Sense::KnockedCheck) {
+							ImGui::SameLine();
+							ImGui::ColorEdit4("Knocked##EnemyNameColor", Features::Colors::Enemy::KnockedNameColor, ColorEditFlags);
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+								ImGui::SetTooltip("Name Knocked Color");
+						}
 					}
 
-					if (Features::Sense::Enemy::DrawDistance)
-					{
+					if (Features::Sense::Enemy::DrawDistance) {
 						ImGui::Text("Distance");
 						ImGui::ColorEdit4("Visible##EnemyDistanceColor", Features::Colors::Enemy::VisibleDistanceColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -2007,10 +2129,15 @@ struct Menu
 						ImGui::ColorEdit4("Invisible##EnemyDistanceColor", Features::Colors::Enemy::InvisibleDistanceColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Distance Invisible Color");
+						if (!Features::Sense::KnockedCheck) {
+							ImGui::SameLine();
+							ImGui::ColorEdit4("Knocked##EnemyDistanceColor", Features::Colors::Enemy::KnockedDistanceColor, ColorEditFlags);
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+								ImGui::SetTooltip("Distance Knocked Color");
+						}
 					}
 
-					if (Features::Sense::Enemy::DrawLegend)
-					{
+					if (Features::Sense::Enemy::DrawLegend) {
 						ImGui::Text("Legend");
 						ImGui::ColorEdit4("Visible##EnemyLegendColor", Features::Colors::Enemy::VisibleLegendColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -2019,18 +2146,22 @@ struct Menu
 						ImGui::ColorEdit4("Invisible##EnemyLegendColor", Features::Colors::Enemy::InvisibleLegendColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Legend Invisible Color");
+						if (!Features::Sense::KnockedCheck) {
+							ImGui::SameLine();
+							ImGui::ColorEdit4("Knocked##EnemyLegendColor", Features::Colors::Enemy::KnockedLegendColor, ColorEditFlags);
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+								ImGui::SetTooltip("Legend Knocked Color");
+						}
 					}
 
-					if (Features::Sense::Enemy::DrawWeapon)
-					{
+					if (Features::Sense::Enemy::DrawWeapon) {
 						ImGui::Text("Weapon");
-						const char *WeaponColorModeIndex[] = {"Single Color", "Multiple Colors"};
+						const char* WeaponColorModeIndex[] = { "Single Color", "Multiple Colors" };
 						ImGui::ComboBox("Weapon Color Mode", &Features::Colors::WeaponColorMode, WeaponColorModeIndex, IM_ARRAYSIZE(WeaponColorModeIndex));
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Changes The Weapon Text Color To The Ammo Type Of The Weapon.");
 
-						if (Features::Colors::WeaponColorMode == 0)
-						{
+						if (Features::Colors::WeaponColorMode == 0) {
 							ImGui::ColorEdit4("Visible##EnemyWeaponColor", Features::Colors::Enemy::VisibleWeaponColor, ColorEditFlags);
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Weapon Visible Color");
@@ -2038,10 +2169,15 @@ struct Menu
 							ImGui::ColorEdit4("Invisible##EnemyWeaponColor", Features::Colors::Enemy::InvisibleWeaponColor, ColorEditFlags);
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Weapon Invisible Color");
+							if (!Features::Sense::KnockedCheck) {
+								ImGui::SameLine();
+								ImGui::ColorEdit4("Knocked##EnemyWeaponColor", Features::Colors::Enemy::KnockedWeaponColor, ColorEditFlags);
+								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+									ImGui::SetTooltip("Weapon Knocked Color");
+							}
 						}
 
-						if (Features::Colors::WeaponColorMode == 1)
-						{
+						if (Features::Colors::WeaponColorMode == 1) {
 							ImGui::ColorEdit4("Light##ESPEnemyWeaponColor", Features::Colors::Enemy::LightWeaponColor, ColorEditFlags);
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Light Weapon Color");
@@ -2077,11 +2213,9 @@ struct Menu
 					}
 				}
 
-				if (SelectedESPSubTabLeft == 1)
-				{
+				if (SelectedESPSubTabLeft == 1) {
 					ImGui::Text("Colors - Teammates");
-					if (Features::Sense::Teammate::DrawBoxes)
-					{
+					if (Features::Sense::Teammate::DrawBoxes) {
 						ImGui::Text("Boxes");
 						ImGui::ColorEdit4("Visible##TeammateBoxColor", Features::Colors::Teammate::VisibleBoxColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -2090,22 +2224,32 @@ struct Menu
 						ImGui::ColorEdit4("Invisible##TeammateBoxColor", Features::Colors::Teammate::InvisibleBoxColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Box Invisible Color");
-
-						if (Features::Sense::Teammate::BoxType == 1)
-						{
+						if (!Features::Sense::KnockedCheck) {
 							ImGui::SameLine();
-							ImGui::ColorEdit4("Filled Visible##Teammate", Features::Colors::Teammate::VisibleFilledBoxColor, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+							ImGui::ColorEdit4("Knocked##TeammateBoxColor", Features::Colors::Teammate::KnockedBoxColor, ColorEditFlags);
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+								ImGui::SetTooltip("Box Knocked Color");
+						}
+
+						if (Features::Sense::Teammate::BoxType == 1) {
+							ImGui::SameLine();
+							ImGui::ColorEdit4("Filled Visible##Teammate", Features::Colors::Teammate::VisibleFilledBoxColor, ColorEditFlags);
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Filled Box Visible Color");
 							ImGui::SameLine();
-							ImGui::ColorEdit4("Filled Invisible##Teammate", Features::Colors::Teammate::InvisibleFilledBoxColor, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+							ImGui::ColorEdit4("Filled Invisible##Teammate", Features::Colors::Teammate::InvisibleFilledBoxColor, ColorEditFlags);
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Filled Box Invisible Color");
+							if (!Features::Sense::KnockedCheck) {
+								ImGui::SameLine();
+								ImGui::ColorEdit4("Filled Knocked##Teammate", Features::Colors::Teammate::KnockedFilledBoxColor, ColorEditFlags);
+								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+									ImGui::SetTooltip("Filled Box Knocked Color");
+							}
 						}
 					}
 
-					if (Features::Sense::Teammate::DrawTracers)
-					{
+					if (Features::Sense::Teammate::DrawTracers) {
 						ImGui::Text("Tracers");
 						ImGui::ColorEdit4("Visible##TeammateTracer", Features::Colors::Teammate::VisibleTracerColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -2114,10 +2258,15 @@ struct Menu
 						ImGui::ColorEdit4("Invisible##TeammateTracer", Features::Colors::Teammate::InvisibleTracerColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Tracer Invisible Color");
+						if (!Features::Sense::KnockedCheck) {
+							ImGui::SameLine();
+							ImGui::ColorEdit4("Knocked##TeammateTracer", Features::Colors::Teammate::KnockedTracerColor, ColorEditFlags);
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+								ImGui::SetTooltip("Tracer Knocked Color");
+						}
 					}
 
-					if (Features::Sense::Teammate::DrawSkeleton)
-					{
+					if (Features::Sense::Teammate::DrawSkeleton) {
 						ImGui::Text("Skeleton");
 						ImGui::ColorEdit4("Visible##TeammateSkeletonColor", Features::Colors::Teammate::VisibleSkeletonColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -2126,10 +2275,15 @@ struct Menu
 						ImGui::ColorEdit4("Invisible##TeammateSkeletonColor", Features::Colors::Teammate::InvisibleSkeletonColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Skeleton Invisible Color");
+						if (!Features::Sense::KnockedCheck) {
+							ImGui::SameLine();
+							ImGui::ColorEdit4("Knocked##TeammateSkeletonColor", Features::Colors::Teammate::KnockedSkeletonColor, ColorEditFlags);
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+								ImGui::SetTooltip("Skeleton Knocked Color");
+						}
 					}
 
-					if (Features::Sense::Teammate::DrawHeadCircle)
-					{
+					if (Features::Sense::Teammate::DrawHeadCircle) {
 						ImGui::Text("Head Circle");
 						ImGui::ColorEdit4("Visible##TeammateHeadCircleColor", Features::Colors::Teammate::VisibleHeadCircleColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -2138,22 +2292,25 @@ struct Menu
 						ImGui::ColorEdit4("Invisible##TeammateHeadCircleColor", Features::Colors::Teammate::InvisibleHeadCircleColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Head Circle Invisible Color");
+						if (!Features::Sense::KnockedCheck) {
+							ImGui::SameLine();
+							ImGui::ColorEdit4("Knocked##TeammateHeadCircleColor", Features::Colors::Teammate::KnockedHeadCircleColor, ColorEditFlags);
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+								ImGui::SetTooltip("Head Circle Knocked Color");
+						}
 					}
 
-					if (Features::Sense::Teammate::DrawBars)
-					{
-						if (Features::Sense::Teammate::BarMode == 0 or Features::Sense::Teammate::BarMode == 1)
-						{
+					if (Features::Sense::Teammate::DrawBars) {
+						if (Features::Sense::Teammate::BarMode == 0 or Features::Sense::Teammate::BarMode == 1) {
 							ImGui::Text("Info Bars");
-							const char *BarColorModeIndex[] = {"Max Shield", "Current Shield"};
+							const char* BarColorModeIndex[] = { "Max Shield", "Current Shield" };
 							ImGui::ComboBox("Bar Color", &Features::Sense::Teammate::BarColorMode, BarColorModeIndex, IM_ARRAYSIZE(BarColorModeIndex));
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("What Color The Shield Bar Will Be.");
 						}
 					}
 
-					if (Features::Sense::Teammate::DrawNames)
-					{
+					if (Features::Sense::Teammate::DrawNames) {
 						ImGui::Text("Names");
 						ImGui::ColorEdit4("Visible##TeammateNameColor", Features::Colors::Teammate::VisibleNameColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -2162,10 +2319,15 @@ struct Menu
 						ImGui::ColorEdit4("Invisible##TeammateNameColor", Features::Colors::Teammate::InvisibleNameColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Name Invisible Color");
+						if (!Features::Sense::KnockedCheck) {
+							ImGui::SameLine();
+							ImGui::ColorEdit4("Knocked##TeammateNameColor", Features::Colors::Teammate::KnockedNameColor, ColorEditFlags);
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+								ImGui::SetTooltip("Name Knocked Color");
+						}
 					}
 
-					if (Features::Sense::Teammate::DrawDistance)
-					{
+					if (Features::Sense::Teammate::DrawDistance) {
 						ImGui::Text("Distance");
 						ImGui::ColorEdit4("Visible##TeammateDistanceColor", Features::Colors::Teammate::VisibleDistanceColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -2174,10 +2336,15 @@ struct Menu
 						ImGui::ColorEdit4("Invisible##TeammateDistanceColor", Features::Colors::Teammate::InvisibleDistanceColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Distance Invisible Color");
+						if (!Features::Sense::KnockedCheck) {
+							ImGui::SameLine();
+							ImGui::ColorEdit4("Knocked##TeammateDistanceColor", Features::Colors::Teammate::KnockedDistanceColor, ColorEditFlags);
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+								ImGui::SetTooltip("Distance Knocked Color");
+						}
 					}
 
-					if (Features::Sense::Teammate::DrawLegend)
-					{
+					if (Features::Sense::Teammate::DrawLegend) {
 						ImGui::Text("Legend");
 						ImGui::ColorEdit4("Visible##TeammateLegendColor", Features::Colors::Teammate::VisibleLegendColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -2186,18 +2353,22 @@ struct Menu
 						ImGui::ColorEdit4("Invisible##TeammateLegendColor", Features::Colors::Teammate::InvisibleLegendColor, ColorEditFlags);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Legend Invisible Color");
+						if (!Features::Sense::KnockedCheck) {
+							ImGui::SameLine();
+							ImGui::ColorEdit4("Knocked##TeammateLegendColor", Features::Colors::Teammate::KnockedLegendColor, ColorEditFlags);
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+								ImGui::SetTooltip("Legend Knocked Color");
+						}
 					}
 
-					if (Features::Sense::Teammate::DrawWeapon)
-					{
+					if (Features::Sense::Teammate::DrawWeapon) {
 						ImGui::Text("Weapon");
-						const char *WeaponColorModeIndex[] = {"Single Color", "Multiple Colors"};
+						const char* WeaponColorModeIndex[] = { "Single Color", "Multiple Colors" };
 						ImGui::ComboBox("Weapon Color Mode", &Features::Colors::WeaponColorMode, WeaponColorModeIndex, IM_ARRAYSIZE(WeaponColorModeIndex));
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Changes The Weapon Text Color To The Ammo Type Of The Weapon.");
 
-						if (Features::Colors::WeaponColorMode == 0)
-						{
+						if (Features::Colors::WeaponColorMode == 0) {
 							ImGui::ColorEdit4("Visible##TeammateWeaponColor", Features::Colors::Teammate::VisibleWeaponColor, ColorEditFlags);
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Weapon Visible Color");
@@ -2205,10 +2376,15 @@ struct Menu
 							ImGui::ColorEdit4("Invisible##TeammateWeaponColor", Features::Colors::Teammate::InvisibleWeaponColor, ColorEditFlags);
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Weapon Invisible Color");
+							if (!Features::Sense::KnockedCheck) {
+								ImGui::SameLine();
+								ImGui::ColorEdit4("Knocked##TeammateWeaponColor", Features::Colors::Teammate::KnockedWeaponColor, ColorEditFlags);
+								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+									ImGui::SetTooltip("Weapon Knocked Color");
+							}
 						}
 
-						if (Features::Colors::WeaponColorMode == 1)
-						{
+						if (Features::Colors::WeaponColorMode == 1) {
 							ImGui::ColorEdit4("Light##ESPTeammateWeaponColor", Features::Colors::Teammate::LightWeaponColor, ColorEditFlags);
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Light Weapon Color");
@@ -2245,15 +2421,13 @@ struct Menu
 				}
 			}
 
-			if (SelectedESPSubTabRight == 1)
-			{
+			if (SelectedESPSubTabRight == 1) {
 				ImGui::Spacing();
 				ImGui::Text("Mini Map");
 				ImGui::Checkbox("Enabled##MiniMap", &Features::Radar::MiniMap);
 				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 					ImGui::SetTooltip("Toggle the mini map radar on the top left of the screen");
-				if (Features::Radar::MiniMap)
-				{
+				if (Features::Radar::MiniMap) {
 					ImGui::TextColored(ImVec4(0.99, 0, 0, 0.99), "May not be on-point.");
 					ImGui::Separator();
 					ImGui::Text("Range");
@@ -2279,8 +2453,7 @@ struct Menu
 				ImGui::Checkbox("Enabled##BigMap", &Features::Radar::BigMap);
 				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 					ImGui::SetTooltip("Toggle the ALGS Style Map.");
-				if (Features::Radar::BigMap)
-				{
+				if (Features::Radar::BigMap) {
 					int BigMapBind = static_cast<int>(Features::Radar::BigMapBind);
 					ImGui::ComboBox("Bind##BigMap", &BigMapBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -2290,15 +2463,13 @@ struct Menu
 				}
 			}
 
-			if (SelectedESPSubTabRight == 2)
-			{
+			if (SelectedESPSubTabRight == 2) {
 				ImGui::Spacing();
 				ImGui::Text("Crosshair");
 				ImGui::Checkbox("Draw Crosshair", &Features::Sense::DrawCrosshair);
 				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 					ImGui::SetTooltip("Draws a crosshair");
-				if (Features::Sense::DrawCrosshair)
-				{
+				if (Features::Sense::DrawCrosshair) {
 					ImGui::MainSliderFloat("Crosshair Size", &Features::Sense::CrosshairSize, 0, 1000, "%.0f");
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 						ImGui::SetTooltip("Changes the size of the crosshair");
@@ -2308,8 +2479,7 @@ struct Menu
 					ImGui::ColorEdit4("Crosshair Color", Features::Colors::CrosshairColor, ColorEditFlags);
 				}
 			}
-			if (SelectedESPSubTabRight == 3)
-			{
+			if (SelectedESPSubTabRight == 3) {
 				ImGui::Spacing();
 				ImGui::Text("Spectator List");
 				ImGui::Checkbox("Draw Spectator List", &Features::Sense::ShowSpectators);
@@ -2318,41 +2488,40 @@ struct Menu
 
 				ImGui::Text("Watermark");
 				ImGui::Checkbox("Draw Watermark", &Features::Watermark::Watermark);
-				if (Features::Watermark::Watermark)
-				{
+				if (Features::Watermark::Watermark) {
 					ImGui::Text("Watermark Settings");
 					ImGui::Checkbox("Display Name", &Features::Watermark::Name);
-					ImGui::Checkbox("Display Processing Speed", &Features::Watermark::ProcessingSpeed);
+					if (Features::Watermark::Name) {
+						ImGui::ColorEdit4("Name Color", Features::Watermark::NameColor, ColorEditFlags);
+					}
 					ImGui::Checkbox("Display Spectators Number", &Features::Watermark::Spectators);
+					ImGui::Checkbox("Display Processing Speed", &Features::Watermark::ProcessingSpeed);
+					ImGui::Checkbox("Display Game FPS", &Features::Watermark::GameFPS);
 				}
 
 				ImGui::Text("Warning Text");
 				ImGui::Checkbox("Draw Spectator Warning", &Features::Sense::DrawSpectatorWarning);
 				ImGui::Checkbox("Draw Visible Warning", &Features::Sense::DrawVisibleWarning);
-				if (Features::Sense::DrawSpectatorWarning or Features::Sense::DrawVisibleWarning)
-				{
+				if (Features::Sense::DrawSpectatorWarning or Features::Sense::DrawVisibleWarning) {
 					ImGui::Checkbox("Warning Text Outline", &Features::Sense::WarningTextOutline);
 					int ScreenWidth;
 					int ScreenHeight;
 					OverlayWindow.GetScreenResolution(ScreenWidth, ScreenHeight);
 					ImGui::MainSliderInt("Warning Text Position X", &Features::Sense::WarningTextX, 0, ScreenWidth);
 					ImGui::MainSliderInt("Warning Text Position Y", &Features::Sense::WarningTextY, 0, ScreenHeight);
-					if (ImGui::Button("Auto Set Position", ImVec2(125, 25)))
-					{
+					if (ImGui::Button("Auto Set Position", ImVec2(125, 25))) {
 						int AutoWidth = ScreenWidth / 2;
 						int AutoHeight = (ScreenHeight / 2) + 80;
 						Features::Sense::WarningTextX = AutoWidth;
 						Features::Sense::WarningTextY = AutoHeight;
 					}
 
-					if (Features::Sense::DrawSpectatorWarning)
-					{
+					if (Features::Sense::DrawSpectatorWarning) {
 						ImGui::ColorEdit4("Spectator Warning", Features::Colors::SpectatorWarningColor, ColorEditFlags);
 						ImGui::SameLine();
 					}
 
-					if (Features::Sense::DrawVisibleWarning)
-					{
+					if (Features::Sense::DrawVisibleWarning) {
 						ImGui::ColorEdit4("Visible Warning", Features::Colors::VisibleWarningColor, ColorEditFlags);
 					}
 				}
@@ -2363,216 +2532,172 @@ struct Menu
 		ImGui::EndChild();
 	}
 
-	void RenderMisc()
-	{
-		ImVec2 TabSize;
-		TabSize = ImGui::GetWindowSize();
-		ImGui::SetCursorPos(ImVec2(0, 0));
+	void RenderMisc() {
+		ImGui::SetCursorPos(ImVec2(15, 15));
 		ImGui::BeginChild("workzone", ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar);
-		ImGui::BeginGroup();
 		ImGui::Spacing();
 		ImGui::SameLine();
-		if (ImGui::SubTab("MOVEMENT##Misc", 0 == SelectedMiscSubTab, ImVec2(205, 25)))
-			SelectedMiscSubTab = 0;
-		ImGui::SameLine();
-		if (ImGui::SubTab("CAMERA##Misc", 1 == SelectedMiscSubTab, ImVec2(205, 25)))
-			SelectedMiscSubTab = 1;
-		ImGui::SameLine();
-		if (ImGui::SubTab("RAPID FIRE##Misc", 2 == SelectedMiscSubTab, ImVec2(205, 25)))
-			SelectedMiscSubTab = 2;
-		ImGui::SameLine();
-		if (ImGui::SubTab("SKIN CHANGER##Misc", 3 == SelectedMiscSubTab, ImVec2(205, 25)))
-			SelectedMiscSubTab = 3;
-		ImGui::EndGroup();
 
-		ImGui::SetCursorPos({15, 35});
-
-		ImGui::BeginChild("workzone", ImVec2(WindowWidth - 186, WindowHeight - 90), false, ImGuiWindowFlags_NoScrollbar);
-
-		ImGui::Separator();
-		DoubleSpacing();
-
-		if (SelectedMiscSubTab == 0)
+		ImGui::Columns(2, nullptr, false);
+		ImGui::Text("Movement");
+		ImGui::BeginChildFrame(1, ImVec2((WindowWidth - 225) / 2, (WindowHeight - 115) / 2), true);
 		{
-			ImGui::BeginChildFrame(1, ImVec2(WindowWidth - 220, WindowHeight - 110), true);
-			{
-				ImGui::Spacing();
-				ImGui::Text("Movement");
-				ImGui::Checkbox("SuperGlide", &Features::Misc::SuperGlide);
+			ImGui::Spacing();
+			ImGui::Text("Movement");
+			ImGui::Checkbox("SuperGlide", &Features::Misc::SuperGlide);
+			if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+				ImGui::SetTooltip("Hold spacebar whilst climbing over a wall/object to gain extra speed\nNote: Will Not Always Succeed!");
+			if (Features::Misc::SuperGlide) {
+				const char* SuperGlideModeIndex[] = { "Manual", "Automatic" };
+				ImGui::ComboBox("SuperGlide Mode", &Features::Misc::SuperGlideMode, SuperGlideModeIndex, IM_ARRAYSIZE(SuperGlideModeIndex));
 				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-					ImGui::SetTooltip("Hold spacebar whilst climbing over a wall/object to gain extra speed.");
-				if (Features::Misc::SuperGlide)
-				{
-					const char *SuperGlideFPSIndex[] = {"75", "144", "240"};
-					ImGui::ComboBox("SuperGlide FPS", &Features::Misc::SuperGlideFPS, SuperGlideFPSIndex, IM_ARRAYSIZE(SuperGlideFPSIndex));
-					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-						ImGui::SetTooltip("Set this to your in-game FPS to make SuperGlide more accurate!");
-				}
-				ImGui::Checkbox("BHop", &Features::Misc::BHop);
-				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-					ImGui::SetTooltip("Bouncy!\nActivates Whilst Holding A Selected Keybind & Space.");
-				if (Features::Misc::BHop)
-				{
-					int BHopBind = static_cast<int>(Features::Misc::BHopBind);
-					ImGui::ComboBox("Bind##BHop", &BHopBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
-					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-						ImGui::SetTooltip("Bind For BHop.\nHold The Selected Key To Toggle BHop, You Will Still Need To Hold Space.");
-					Features::Misc::BHopBind = static_cast<InputKeyType>(BHopBind);
-					ImGui::MainSliderInt("BHop Delay", &Features::Misc::BHopDelay, 1, 200);
-					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-						ImGui::SetTooltip("Delay Between Inputting Space.");
-				}
+					ImGui::SetTooltip("SuperGlide Mode.\nManual: Requires Space To Be Held Down (Keyboard Only)\nAutomatic: Automatically SuperGlides Over Any Wall/Surface (Supports Controller)");
 
-				ImGui::EndChildFrame();
+				const char* SuperGlideFPSIndex[] = { "75", "144", "240" };
+				ImGui::ComboBox("SuperGlide FPS", &Features::Misc::SuperGlideFPS, SuperGlideFPSIndex, IM_ARRAYSIZE(SuperGlideFPSIndex));
+				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+					ImGui::SetTooltip("Set this to your average in-game FPS to make SuperGlide more accurate!");
 			}
+
+			ImGui::Checkbox("BHop", &Features::Misc::BHop);
+			if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+				ImGui::SetTooltip("Bouncy!\nActivates Whilst Holding A Selected Keybind & Space.");
+			if (Features::Misc::BHop) {
+				int BHopBind = static_cast<int>(Features::Misc::BHopBind);
+				ImGui::ComboBox("Bind##BHop", &BHopBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
+				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+					ImGui::SetTooltip("Bind For BHop.\nHold The Selected Key To Toggle BHop, You Will Still Need To Hold Space.");
+				Features::Misc::BHopBind = static_cast<InputKeyType>(BHopBind);
+				ImGui::MainSliderInt("BHop Delay", &Features::Misc::BHopDelay, 1, 200);
+				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+					ImGui::SetTooltip("Delay Between Inputting Space.");
+			}
+			DoubleSpacing();
+
+			ImGui::EndChildFrame();
 		}
 
-		if (SelectedMiscSubTab == 1)
+		ImGui::Text("Camera");
+		ImGui::BeginChildFrame(2, ImVec2((WindowWidth - 225) / 2, (WindowHeight - 115) / 2), true);
 		{
-			ImGui::BeginChildFrame(2, ImVec2(WindowWidth - 220, WindowHeight - 110), true);
-			{
-				ImGui::Spacing();
-				ImGui::Text("Camera");
-				ImGui::Checkbox("Quick Turn", &Features::Misc::QuickTurn);
-				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-					ImGui::SetTooltip("Quickly Turn Your Camera.\nDoes Not Have Smoothing!");
-				if (Features::Misc::QuickTurn)
-				{
-					int QuickTurnBind = static_cast<int>(Features::Misc::QuickTurnBind);
-					ImGui::ComboBox("QuickTurn Bind", &QuickTurnBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
-					Features::Misc::QuickTurnBind = static_cast<InputKeyType>(QuickTurnBind);
-					ImGui::MainSliderInt("QuickTurn Angle", &Features::Misc::QuickTurnAngle, 1, 360);
-				}
-
-				ImGui::EndChildFrame();
+			ImGui::Spacing();
+			ImGui::Text("Camera");
+			ImGui::Checkbox("Quick Turn", &Features::Misc::QuickTurn);
+			if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+				ImGui::SetTooltip("Quickly Turn Your Camera.\nDoes Not Have Smoothing!");
+			if (Features::Misc::QuickTurn) {
+				int QuickTurnBind = static_cast<int>(Features::Misc::QuickTurnBind);
+				ImGui::ComboBox("QuickTurn Bind", &QuickTurnBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
+				Features::Misc::QuickTurnBind = static_cast<InputKeyType>(QuickTurnBind);
+				ImGui::MainSliderInt("QuickTurn Angle", &Features::Misc::QuickTurnAngle, 1, 360);
 			}
+
+			ImGui::EndChildFrame();
 		}
 
-		if (SelectedMiscSubTab == 2)
+		ImGui::NextColumn();
+
+		ImGui::Text("Weapon");
+		ImGui::BeginChildFrame(3, ImVec2((WindowWidth - 225) / 2, (WindowHeight - 115) / 2), true);
 		{
-			ImGui::Columns(2, nullptr, false);
-			ImGui::BeginChildFrame(3, ImVec2(WindowWidth - 613, WindowHeight - 110), true);
-			{
-				ImGui::Spacing();
-				ImGui::Text("Rapid Fire");
-				ImGui::Checkbox("Enable Rapid Fire", &Features::Misc::RapidFire);
-				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-					ImGui::SetTooltip("Turns Semi-Automatic + Slow Firing Weapons Automatic.");
-				if (Features::Misc::RapidFire)
-				{
-					ImGui::MainSliderInt("Rapid Fire Delay", &Features::Misc::RapidFireDelay, 25, 200);
-					int RapidFireBind = static_cast<int>(Features::Misc::RapidFireBind);
-					ImGui::ComboBox("Rapid Fire Bind", &RapidFireBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
-					Features::Misc::RapidFireBind = static_cast<InputKeyType>(RapidFireBind);
-				}
-				ImGui::EndChildFrame();
+			ImGui::Spacing();
+			ImGui::Text("Rapid Fire");
+			ImGui::Checkbox("Enable Rapid Fire", &Features::Misc::RapidFire);
+			if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+				ImGui::SetTooltip("Turns Semi-Automatic + Slow Firing Weapons Automatic.");
+			if (Features::Misc::RapidFire) {
+				ImGui::MainSliderInt("Rapid Fire Delay", &Features::Misc::RapidFireDelay, 25, 200);
+				int RapidFireBind = static_cast<int>(Features::Misc::RapidFireBind);
+				ImGui::ComboBox("Rapid Fire Bind", &RapidFireBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
+				Features::Misc::RapidFireBind = static_cast<InputKeyType>(RapidFireBind);
+
+				ImGui::TextColored(ImVec4(0.990, 0.768, 0.039, 1.00f), "Light");
+				ImGui::Checkbox("P2020##Misc", &Features::Misc::RapidP2020);
+				ImGui::SameLine();
+				ImGui::Checkbox("R-301 Carbine##Misc", &Features::Misc::RapidR301);
+				ImGui::SameLine();
+				ImGui::Checkbox("G7 Scout##Misc", &Features::Misc::RapidG7);
+
+				ImGui::TextColored(ImVec4(0.00990, 0.990, 0.761, 1.00f), "Heavy");
+				ImGui::Checkbox("VK-47 Flatline##Misc", &Features::Misc::RapidFlatline);
+				ImGui::SameLine();
+				ImGui::Checkbox("Prowler Burst SMG##Misc", &Features::Misc::RapidProwler);
+				ImGui::SameLine();
+				ImGui::Checkbox("Hemlock Burst AR##Misc", &Features::Misc::RapidHemlock);
+
+				ImGui::TextColored(ImVec4(0, 0.99, 0, 1.00f), "Energy");
+				ImGui::Checkbox("Nemesis Burst AR##Misc", &Features::Misc::RapidNemesis);
+
+				ImGui::TextColored(ImVec4(0.99, 0, 0, 1.00f), "Shotguns");
+				ImGui::Checkbox("Mozambique##Misc", &Features::Misc::RapidMozambique);
+
+				ImGui::TextColored(ImVec4(0.99, 0.530, 0.945, 1.00f), "Legendary");
+				ImGui::Checkbox("Wingman##Misc", &Features::Misc::RapidWingman);
+				ImGui::SameLine();
+				ImGui::Checkbox("EVA-8 Auto##Misc", &Features::Misc::RapidEVA8);
 			}
-
-			ImGui::NextColumn(); // Right
-
-			if (Features::Misc::RapidFire)
-			{
-				ImGui::BeginChildFrame(4, ImVec2(WindowWidth - 630, WindowHeight - 110), true);
-				{
-					ImGui::Spacing();
-					ImGui::Text("Weapon Selection");
-
-					ImGui::TextColored(ImVec4(0.990, 0.768, 0.039, 1.00f), "Light");
-					ImGui::Checkbox("P2020##Misc", &Features::Misc::RapidP2020);
-					ImGui::SameLine();
-					ImGui::Checkbox("R-301 Carbine##Misc", &Features::Misc::RapidR301);
-					ImGui::SameLine();
-					ImGui::Checkbox("G7 Scout##Misc", &Features::Misc::RapidG7);
-
-					ImGui::TextColored(ImVec4(0.00990, 0.990, 0.761, 1.00f), "Heavy");
-					ImGui::Checkbox("VK-47 Flatline##Misc", &Features::Misc::RapidFlatline);
-					ImGui::SameLine();
-					ImGui::Checkbox("Prowler Burst SMG##Misc", &Features::Misc::RapidProwler);
-					ImGui::SameLine();
-					ImGui::Checkbox("Hemlock Burst AR##Misc", &Features::Misc::RapidHemlock);
-
-					ImGui::TextColored(ImVec4(0, 0.99, 0, 1.00f), "Energy");
-					ImGui::Checkbox("Nemesis Burst AR##Misc", &Features::Misc::RapidNemesis);
-
-					ImGui::TextColored(ImVec4(0.99, 0, 0, 1.00f), "Shotguns");
-					ImGui::Checkbox("Mozambique##Misc", &Features::Misc::RapidMozambique);
-
-					ImGui::TextColored(ImVec4(0.99, 0.530, 0.945, 1.00f), "Legendary");
-					ImGui::Checkbox("Wingman##Misc", &Features::Misc::RapidWingman);
-					ImGui::SameLine();
-					ImGui::Checkbox("EVA-8 Auto##Misc", &Features::Misc::RapidEVA8);
-					ImGui::EndChildFrame();
-				}
-			}
-			ImGui::NextColumn(); // Fixes SubTab Bar
+			DoubleSpacing();
+			ImGui::EndChildFrame();
 		}
 
-		if (SelectedMiscSubTab == 3)
+		ImGui::Text("Skin Changer");
+		ImGui::BeginChildFrame(5, ImVec2((WindowWidth - 225) / 2, (WindowHeight - 115) / 2), true);
 		{
-			ImGui::BeginChildFrame(5, ImVec2(WindowWidth - 220, WindowHeight - 110), true);
-			{
-				ImGui::Spacing();
-				ImGui::Text("Skin Changer");
-				ImGui::Checkbox("Enable Skin Changer", &Features::Misc::SkinChanger);
+			ImGui::Spacing();
+			ImGui::Text("Skin Changer");
+			ImGui::Checkbox("Enabled", &Features::Misc::SkinChanger);
+			if (Features::Misc::SkinChanger) {
+				ImGui::TextColored(ImVec4(0.990, 0.768, 0.039, 1.00f), "Light");
+				ImGui::MainSliderInt("P2020", &Features::Misc::SkinP2020, 0, 10);
+				ImGui::MainSliderInt("RE-45 Auto", &Features::Misc::SkinRE45, 0, 16);
+				ImGui::MainSliderInt("Alternator SMG", &Features::Misc::SkinALTERNATOR, 0, 16);
+				ImGui::MainSliderInt("R-99 SMG", &Features::Misc::SkinR99, 0, 16);
+				ImGui::MainSliderInt("R-301 Carbine", &Features::Misc::SkinR301, 0, 18);
+				ImGui::MainSliderInt("M600 Spitfire", &Features::Misc::SkinSPITFIRE, 0, 16);
+				ImGui::MainSliderInt("G7 Scout", &Features::Misc::SkinG7, 0, 21);
 
-				if (Features::Misc::SkinChanger)
-				{
-					ImGui::Text("Skin IDs");
+				ImGui::TextColored(ImVec4(0.00990, 0.990, 0.761, 1.00f), "Heavy");
+				ImGui::MainSliderInt("VK-47 Flatline", &Features::Misc::SkinFLATLINE, 0, 20);
+				ImGui::MainSliderInt("Hemlock Burst AR", &Features::Misc::SkinHEMLOCK, 0, 18);
+				ImGui::MainSliderInt("Prowler Burst SMG", &Features::Misc::SkinPROWLER, 0, 11);
+				ImGui::MainSliderInt("30-30 Repeater", &Features::Misc::SkinREPEATER, 0, 11);
+				ImGui::MainSliderInt("Rampage LMG", &Features::Misc::SkinRAMPAGE, 0, 11);
+				ImGui::MainSliderInt("C.A.R SMG", &Features::Misc::SkinCAR, 0, 11);
 
-					ImGui::TextColored(ImVec4(0.990, 0.768, 0.039, 1.00f), "Light");
-					ImGui::MainSliderInt("P2020", &Features::Misc::SkinP2020, 0, 10);
-					ImGui::MainSliderInt("RE-45 Auto", &Features::Misc::SkinRE45, 0, 16);
-					ImGui::MainSliderInt("Alternator SMG", &Features::Misc::SkinALTERNATOR, 0, 16);
-					ImGui::MainSliderInt("R-99 SMG", &Features::Misc::SkinR99, 0, 16);
-					ImGui::MainSliderInt("R-301 Carbine", &Features::Misc::SkinR301, 0, 18);
-					ImGui::MainSliderInt("M600 Spitfire", &Features::Misc::SkinSPITFIRE, 0, 16);
-					ImGui::MainSliderInt("G7 Scout", &Features::Misc::SkinG7, 0, 21);
+				ImGui::TextColored(ImVec4(0, 0.99, 0, 1.00f), "Energy");
+				ImGui::MainSliderInt("Havoc Rifle", &Features::Misc::SkinHAVOC, 0, 14);
+				ImGui::MainSliderInt("L-Star EMG", &Features::Misc::SkinLSTAR, 0, 11);
+				ImGui::MainSliderInt("Triple-Take", &Features::Misc::SkinTRIPLETAKE, 0, 11);
+				ImGui::MainSliderInt("Volt", &Features::Misc::SkinVOLT, 0, 14);
+				ImGui::MainSliderInt("Nemesis Burst AR", &Features::Misc::SkinNEMESIS, 0, 9);
 
-					ImGui::TextColored(ImVec4(0.00990, 0.990, 0.761, 1.00f), "Heavy");
-					ImGui::MainSliderInt("VK-47 Flatline", &Features::Misc::SkinFLATLINE, 0, 20);
-					ImGui::MainSliderInt("Hemlock Burst AR", &Features::Misc::SkinHEMLOCK, 0, 18);
-					ImGui::MainSliderInt("Prowler Burst SMG", &Features::Misc::SkinPROWLER, 0, 11);
-					ImGui::MainSliderInt("30-30 Repeater", &Features::Misc::SkinREPEATER, 0, 11);
-					ImGui::MainSliderInt("Rampage LMG", &Features::Misc::SkinRAMPAGE, 0, 11);
-					ImGui::MainSliderInt("C.A.R SMG", &Features::Misc::SkinCAR, 0, 11);
+				ImGui::TextColored(ImVec4(0.99, 0, 0, 1.00f), "Shotguns");
+				ImGui::MainSliderInt("Mozambique", &Features::Misc::SkinMOZAMBIQUE, 0, 11);
+				ImGui::MainSliderInt("Peacekeeper", &Features::Misc::SkinPEACEKEEPER, 0, 16);
+				ImGui::MainSliderInt("Mastiff", &Features::Misc::SkinMASTIFF, 0, 11);
 
-					ImGui::TextColored(ImVec4(0, 0.99, 0, 1.00f), "Energy");
-					ImGui::MainSliderInt("Havoc Rifle", &Features::Misc::SkinHAVOC, 0, 14);
-					ImGui::MainSliderInt("Devotion LMG", &Features::Misc::SkinDEVOTION, 0, 11);
-					ImGui::MainSliderInt("L-Star EMG", &Features::Misc::SkinLSTAR, 0, 11);
-					ImGui::MainSliderInt("Triple-Take", &Features::Misc::SkinTRIPLETAKE, 0, 11);
-					ImGui::MainSliderInt("Volt", &Features::Misc::SkinVOLT, 0, 14);
-					ImGui::MainSliderInt("Nemesis Burst AR", &Features::Misc::SkinNEMESIS, 0, 9);
+				ImGui::TextColored(ImVec4(0.00990, 0.337, 0.990, 1.00f), "Snipers");
+				ImGui::MainSliderInt("Wingman", &Features::Misc::SkinWINGMAN, 0, 11);
+				ImGui::MainSliderInt("Longbow DMR", &Features::Misc::SkinLONGBOW, 0, 11);
+				ImGui::MainSliderInt("Charge Rifle", &Features::Misc::SkinCHARGE_RIFLE, 0, 11);
+				ImGui::MainSliderInt("Sentinel", &Features::Misc::SkinSENTINEL, 0, 10);
 
-					ImGui::TextColored(ImVec4(0.99, 0, 0, 1.00f), "Shotguns");
-					ImGui::MainSliderInt("Mozambique", &Features::Misc::SkinMOZAMBIQUE, 0, 11);
-					ImGui::MainSliderInt("Peacekeeper", &Features::Misc::SkinPEACEKEEPER, 0, 16);
-					ImGui::MainSliderInt("Mastiff", &Features::Misc::SkinMASTIFF, 0, 11);
+				ImGui::TextColored(ImVec4(0.99, 0.530, 0.945, 1.00f), "Legendary");
+				ImGui::MainSliderInt("EVA-8 Auto", &Features::Misc::SkinEVA8, 0, 11);
+				ImGui::MainSliderInt("Devotion LMG", &Features::Misc::SkinDEVOTION, 0, 11);
+				ImGui::MainSliderInt("Bocek Compound Bow", &Features::Misc::SkinBOCEK, 0, 11);
+				ImGui::MainSliderInt("Kraber .50-CAL Sniper", &Features::Misc::SkinKRABER, 0, 11);
 
-					ImGui::TextColored(ImVec4(0.00990, 0.337, 0.990, 1.00f), "Snipers");
-					ImGui::MainSliderInt("Longbow DMR", &Features::Misc::SkinLONGBOW, 0, 11);
-					ImGui::MainSliderInt("Charge Rifle", &Features::Misc::SkinCHARGE_RIFLE, 0, 11);
-					ImGui::MainSliderInt("Sentinel", &Features::Misc::SkinSENTINEL, 0, 10);
-
-					ImGui::TextColored(ImVec4(0.99, 0.530, 0.945, 1.00f), "Legendary");
-					ImGui::MainSliderInt("Wingman", &Features::Misc::SkinWINGMAN, 0, 11);
-					ImGui::MainSliderInt("EVA-8 Auto", &Features::Misc::SkinEVA8, 0, 11);
-					ImGui::MainSliderInt("Bocek Compound Bow", &Features::Misc::SkinBOCEK, 0, 11);
-					ImGui::MainSliderInt("Kraber .50-CAL Sniper", &Features::Misc::SkinKRABER, 0, 11);
-
-					DoubleSpacing();
-				}
-
-				ImGui::EndChildFrame();
+				DoubleSpacing();
 			}
+
+			ImGui::EndChildFrame();
 		}
 
-		ImGui::EndChild();
 		ImGui::EndChild();
 	}
 
-	void RenderSettings()
-	{
+	void RenderSettings() {
 		ImVec2 TabSize;
 		TabSize = ImGui::GetWindowSize();
 		ImGui::SetCursorPos(ImVec2(0, 0));
@@ -2584,15 +2709,14 @@ struct Menu
 			SelectedSettingsSubTab = 0;
 		ImGui::EndGroup();
 
-		ImGui::SetCursorPos({15, 35});
+		ImGui::SetCursorPos({ 15, 35 });
 
 		ImGui::BeginChild("workzone", ImVec2(WindowWidth - 186, WindowHeight - 90), false, ImGuiWindowFlags_NoScrollbar);
 
 		ImGui::Separator();
 		DoubleSpacing();
 
-		if (SelectedSettingsSubTab == 0)
-		{
+		if (SelectedSettingsSubTab == 0) {
 			ImGui::BeginChildFrame(1, ImVec2(WindowWidth - 220, WindowHeight - 110), true);
 			{
 				ImGui::Spacing();
@@ -2600,21 +2724,32 @@ struct Menu
 				ImGui::Checkbox("Gamemode Check", &Features::Settings::GamemodeCheck);
 				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 					ImGui::SetTooltip("Depending On What Gamemode You Are Playing, You Will Need To Toggle This On Or Off.\nOn: Trios, Duos, Ranked, Gun Run Or Firing Range\nOff: Control, Team Deathmatch");*/
-				//No Longer Needed
+				// No Longer Needed
 
 				ImGui::Text("Overlay Settings");
 				ImGui::Checkbox("Enable Overlay", &Features::Settings::OverlayEnabled);
 
-				if (Features::Settings::OverlayEnabled)
-				{
+				if (Features::Settings::OverlayEnabled) {
 					ImGui::Checkbox("Enable ESP", &Features::Settings::ESPEnabled);
+					ImGui::Checkbox("Anti Aliased Lines", &Features::Settings::AntiAliasedLines);
+					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+						ImGui::SetTooltip("Smoothes Out ESP Features\nDisabled Looks More Pixelated Than Enabled");
 				}
 
+				ImGui::Checkbox("Dead Check", &Features::Settings::DeadCheck);
+				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+						ImGui::SetTooltip("Displays Glow & ESP If You Are Dead/Spectating");
+
 				ImGui::Checkbox("FPS Cap", &Features::Settings::FPSCap);
-				if (Features::Settings::FPSCap)
-				{
+				if (Features::Settings::FPSCap) {
 					ImGui::MainSliderInt("Max FPS", &Features::Settings::CappedFPS, 30, 999);
 				}
+
+				/*if (ImGui::Button("Close Cheat", ImVec2(100, 20))) {
+					std::cout << "Closing Cheat!" << std::endl;
+					exit(0);
+				}*/
+				// Removed this since it doesn't delete the temp binary if the run.sh script is executed
 
 				ImGui::EndChildFrame();
 			}
@@ -2624,9 +2759,7 @@ struct Menu
 		ImGui::EndChild();
 	}
 
-	// ImGui Functions
-	const void SetStyle() // Testing
-	{
+	const void SetStyle() { // Testing - duplicated for some reason....
 		// Style
 		float Alpha = 1.0f;
 		float DisabledAlpha = 1.0f;
@@ -2793,7 +2926,7 @@ struct Menu
 		NavWindowingDimBg = ImVec4(0.19f, 0.17f, 0.54f, 0.50f);
 		ModalWindowDimBg = ImVec4(0.19f, 0.17f, 0.54f, 0.50f);
 
-		ImGuiStyle &style = ImGui::GetStyle();
+		ImGuiStyle& style = ImGui::GetStyle();
 		style.SliderThickness = 0.2f;
 		style.SliderContrast = 0.5f;
 		style.SliderValuePos = ImVec2(0.5f, 0.5f);

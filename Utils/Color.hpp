@@ -16,7 +16,7 @@ struct Color1 {
 };
 
 struct Color {
-    
+
     static const int size;
 
     float r;
@@ -47,10 +47,10 @@ struct Color {
     static Color lerp(Color startColor, Color endColor, float t) {
         t = std::clamp(t, 0.0f, 1.0f);
 
-        startColor *= (1.0f-t);
+        startColor *= (1.0f - t);
         endColor *= t;
         auto result = startColor + endColor;
-        
+
         return result.clamp();
     }
 

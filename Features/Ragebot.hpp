@@ -35,12 +35,12 @@ struct Ragebot
 	int FinalDistance = 0;
 	Vector3D TargetBoneW2S;
 
-	XDisplay *X11Display;
-	LocalPlayer *Myself;
-	std::vector<Player *> *Players;
-	Level *Map;
+	XDisplay* X11Display;
+	LocalPlayer* Myself;
+	std::vector<Player*>* Players;
+	Level* Map;
 
-	Player *CurrentTarget = nullptr;
+	Player* CurrentTarget = nullptr;
 	bool TargetSelected = true;
 	std::chrono::milliseconds LastAimTime;
 	std::chrono::milliseconds LastClickTime;
@@ -48,18 +48,15 @@ struct Ragebot
 	Vector2D previous_weaponPunchAngles;
 	Vector2D RCSLastPunch;
 
-	Ragebot(XDisplay *X11Display, Level *Map, LocalPlayer *Myself, std::vector<Player *> *GamePlayers)
-	{
+	Ragebot(XDisplay* X11Display, Level* Map, LocalPlayer* Myself, std::vector<Player*>* GamePlayers) {
 		this->X11Display = X11Display;
 		this->Myself = Myself;
 		this->Map = Map;
 		this->Players = GamePlayers;
 	}
 
-	bool Save()
-	{
-		try
-		{
+	static bool Save() {
+		try {
 
 			Config::Ragebot::RagebotEnabled = Features::Ragebot::RagebotEnabled;
 			Config::Ragebot::RageAimbot = Features::Ragebot::RageAimbot;
@@ -132,137 +129,108 @@ struct Ragebot
 			Config::Ragebot::Knife = Features::Ragebot::Knife;
 
 			return true;
-		}
-		catch (...)
-		{
+		} catch (...) {
 			return false;
 		}
 	}
 
-		void UpdateRageList()
-	{
+	void UpdateRageList() {
 		Features::Ragebot::RageList.clear();
+		// Define a lambda function to reduce repetition
+		auto InsertIfEnabled = [&](const bool feature, const int weaponID) {
+		if (feature)
+			Features::Ragebot::RageList.insert(weaponID);
+		};
 		// Light
-		if (Features::Ragebot::P2020)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_P2020);
-		if (Features::Ragebot::RE45)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_RE45);
-		if (Features::Ragebot::Alternator)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_ALTERNATOR);
-		if (Features::Ragebot::R99)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_R99);
-		if (Features::Ragebot::R301)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_R301);
-		if (Features::Ragebot::Spitfire)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_SPITFIRE);
-		if (Features::Ragebot::G7)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_G7);
+		InsertIfEnabled(Features::Ragebot::P2020, WeaponIDs::WEAPON_P2020);
+		InsertIfEnabled(Features::Ragebot::RE45, WeaponIDs::WEAPON_RE45);
+		InsertIfEnabled(Features::Ragebot::Alternator, WeaponIDs::WEAPON_ALTERNATOR);
+		InsertIfEnabled(Features::Ragebot::R99, WeaponIDs::WEAPON_R99);
+		InsertIfEnabled(Features::Ragebot::R301, WeaponIDs::WEAPON_R301);
+		InsertIfEnabled(Features::Ragebot::Spitfire, WeaponIDs::WEAPON_SPITFIRE);
+		InsertIfEnabled(Features::Ragebot::G7, WeaponIDs::WEAPON_G7);
+
 		// Heavy
-		if (Features::Ragebot::Flatline)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_FLATLINE);
-		if (Features::Ragebot::Hemlock)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_HEMLOCK);
-		if (Features::Ragebot::Repeater)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_REPEATER);
-		if (Features::Ragebot::Rampage)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_RAMPAGE);
-		if (Features::Ragebot::CARSMG)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_CAR);
+		InsertIfEnabled(Features::Ragebot::Flatline, WeaponIDs::WEAPON_FLATLINE);
+		InsertIfEnabled(Features::Ragebot::Prowler, WeaponIDs::WEAPON_PROWLER);
+		InsertIfEnabled(Features::Ragebot::Hemlock, WeaponIDs::WEAPON_HEMLOCK);
+		InsertIfEnabled(Features::Ragebot::Repeater, WeaponIDs::WEAPON_REPEATER);
+		InsertIfEnabled(Features::Ragebot::Rampage, WeaponIDs::WEAPON_RAMPAGE);
+		InsertIfEnabled(Features::Ragebot::CARSMG, WeaponIDs::WEAPON_CAR);
+
 		// Energy
-		if (Features::Ragebot::Havoc)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_HAVOC);
-		if (Features::Ragebot::Devotion)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_DEVOTION);
-		if (Features::Ragebot::LSTAR)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_LSTAR);
-		if (Features::Ragebot::TripleTake)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_TRIPLETAKE);
-		if (Features::Ragebot::Volt)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_VOLT);
-		if (Features::Ragebot::Nemesis)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_NEMESIS);
+		InsertIfEnabled(Features::Ragebot::Havoc, WeaponIDs::WEAPON_HAVOC);
+		InsertIfEnabled(Features::Ragebot::Devotion, WeaponIDs::WEAPON_DEVOTION);
+		InsertIfEnabled(Features::Ragebot::LSTAR, WeaponIDs::WEAPON_LSTAR);
+		InsertIfEnabled(Features::Ragebot::TripleTake, WeaponIDs::WEAPON_TRIPLETAKE);
+		InsertIfEnabled(Features::Ragebot::Volt, WeaponIDs::WEAPON_VOLT);
+		InsertIfEnabled(Features::Ragebot::Nemesis, WeaponIDs::WEAPON_NEMESIS);
+
 		// Shotguns
-		if (Features::Ragebot::Mozambique)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_MOZAMBIQUE);
-		if (Features::Ragebot::EVA8)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_EVA8);
-		if (Features::Ragebot::Peacekeeper)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_PEACEKEEPER);
-		if (Features::Ragebot::Mastiff)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_MASTIFF);
+		InsertIfEnabled(Features::Ragebot::Mozambique, WeaponIDs::WEAPON_MOZAMBIQUE);
+		InsertIfEnabled(Features::Ragebot::Peacekeeper, WeaponIDs::WEAPON_PEACEKEEPER);
+		InsertIfEnabled(Features::Ragebot::Mastiff, WeaponIDs::WEAPON_MASTIFF);
+
 		// Snipers
-		if (Features::Ragebot::Longbow)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_LONGBOW);
-		if (Features::Ragebot::ChargeRifle)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_CHARGE_RIFLE);
-		if (Features::Ragebot::Sentinel)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_SENTINEL);
+		InsertIfEnabled(Features::Ragebot::Longbow, WeaponIDs::WEAPON_LONGBOW);
+		InsertIfEnabled(Features::Ragebot::ChargeRifle, WeaponIDs::WEAPON_CHARGE_RIFLE);
+		InsertIfEnabled(Features::Ragebot::Sentinel, WeaponIDs::WEAPON_SENTINEL);
+
 		// Legendary
-		if (Features::Ragebot::Wingman)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_WINGMAN);
-		if (Features::Ragebot::Prowler)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_PROWLER);
-		if (Features::Ragebot::Bocek)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_BOCEK);
-		if (Features::Ragebot::Kraber)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_KRABER);
-		if (Features::Ragebot::Knife)
-			Features::Ragebot::RageList.insert(WeaponIDs::WEAPON_KNIFE);
+		InsertIfEnabled(Features::Ragebot::Wingman, WeaponIDs::WEAPON_WINGMAN);
+		InsertIfEnabled(Features::Ragebot::EVA8, WeaponIDs::WEAPON_EVA8);
+		InsertIfEnabled(Features::Ragebot::Bocek, WeaponIDs::WEAPON_BOCEK);
+		InsertIfEnabled(Features::Ragebot::Kraber, WeaponIDs::WEAPON_KRABER);
+		InsertIfEnabled(Features::Ragebot::Knife, WeaponIDs::WEAPON_KNIFE);
 	}
 
-	void Update()
-	{
-		if (!Features::Ragebot::RageAimbot)
-		{
+	void Update() {
+
+		if (!Map->IsPlayable) {
 			ReleaseTarget();
 			return;
 		}
 
-		if (Features::Ragebot::RageAimbot)
-		{
+		if (!Features::Ragebot::RageAimbot) {
+			ReleaseTarget();
+			return;
+		}
+
+		if (Features::Ragebot::RageAimbot) {
 
 			if (Myself->IsZooming)
 				FinalDistance = Features::Ragebot::ZoomDistance;
 			else
 				FinalDistance = Features::Ragebot::HipfireDistance;
 
-			if (!Myself->IsCombatReady())
-			{
+			if (!Myself->IsCombatReady()) {
 				CurrentTarget = nullptr;
 				return;
 			}
 
-			if (Features::Ragebot::RageList.find(Myself->WeaponIndex) == Features::Ragebot::RageList.end())
-			{
+			if (Features::Ragebot::RageList.find(Myself->WeaponIndex) == Features::Ragebot::RageList.end()) {
 				ReleaseTarget();
 				return;
 			}
 
-			if (Myself->IsHoldingGrenade)
-			{
+			if (Myself->IsHoldingGrenade) {
 				ReleaseTarget();
 				return;
 			}
 
 
-			if (Features::Ragebot::BindMethod == 0)
-			{
-				if (Features::Ragebot::OnFire && Features::Ragebot::OnADS)
-				{
-					if (!Myself->IsInAttack)
-					{
-						if (!Myself->IsZooming)
-						{
+			if (Features::Ragebot::BindMethod == 0) {
+				if (Features::Ragebot::OnFire && Features::Ragebot::OnADS) {
+					if (!Myself->IsInAttack) {
+						if (!Myself->IsZooming) {
 							ReleaseTarget();
 							TargetSelected = false;
 							CurrentTarget = nullptr;
 							return;
 						}
 					}
-					if (!Myself->IsZooming)
-					{
-						if (!Myself->IsInAttack)
-						{
+					if (!Myself->IsZooming) {
+						if (!Myself->IsInAttack) {
 							ReleaseTarget();
 							TargetSelected = false;
 							CurrentTarget = nullptr;
@@ -270,15 +238,13 @@ struct Ragebot
 						}
 					}
 
-					Player *Target = CurrentTarget;
-					if (!IsValidTarget(Target))
-					{
+					Player* Target = CurrentTarget;
+					if (!IsValidTarget(Target)) {
 						if (TargetSelected)
 							return;
 
 						Target = FindBestTarget();
-						if (!IsValidTarget(Target))
-						{
+						if (!IsValidTarget(Target)) {
 							ReleaseTarget();
 							return;
 						}
@@ -288,11 +254,9 @@ struct Ragebot
 						TargetSelected = true;
 					}
 
-					if (TargetSelected && CurrentTarget)
-					{
+					if (TargetSelected && CurrentTarget) {
 						std::chrono::milliseconds Now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-						if (Now >= LastAimTime + std::chrono::milliseconds(Features::Ragebot::Delay))
-						{
+						if (Now >= LastAimTime + std::chrono::milliseconds(Features::Ragebot::Delay)) {
 							StartAiming();
 							LastAimTime = Now + std::chrono::milliseconds((int)Utils::RandomRange(1, 10));
 						}
@@ -300,25 +264,21 @@ struct Ragebot
 					}
 				}
 
-				if (Features::Ragebot::OnFire)
-				{
-					if (!Myself->IsInAttack)
-					{
+				if (Features::Ragebot::OnFire) {
+					if (!Myself->IsInAttack) {
 						ReleaseTarget();
 						TargetSelected = false;
 						CurrentTarget = nullptr;
 						return;
 					}
 
-					Player *Target = CurrentTarget;
-					if (!IsValidTarget(Target))
-					{
+					Player* Target = CurrentTarget;
+					if (!IsValidTarget(Target)) {
 						if (TargetSelected)
 							return;
 
 						Target = FindBestTarget();
-						if (!IsValidTarget(Target))
-						{
+						if (!IsValidTarget(Target)) {
 							ReleaseTarget();
 							return;
 						}
@@ -328,11 +288,9 @@ struct Ragebot
 						TargetSelected = true;
 					}
 
-					if (TargetSelected && CurrentTarget)
-					{
+					if (TargetSelected && CurrentTarget) {
 						std::chrono::milliseconds Now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-						if (Now >= LastAimTime + std::chrono::milliseconds(Features::Ragebot::Delay))
-						{
+						if (Now >= LastAimTime + std::chrono::milliseconds(Features::Ragebot::Delay)) {
 							StartAiming();
 							LastAimTime = Now + std::chrono::milliseconds((int)Utils::RandomRange(1, 10));
 						}
@@ -340,25 +298,21 @@ struct Ragebot
 					}
 				}
 
-				if (Features::Ragebot::OnADS)
-				{
-					if (!Myself->IsZooming)
-					{
+				if (Features::Ragebot::OnADS) {
+					if (!Myself->IsZooming) {
 						ReleaseTarget();
 						TargetSelected = false;
 						CurrentTarget = nullptr;
 						return;
 					}
 
-					Player *Target = CurrentTarget;
-					if (!IsValidTarget(Target))
-					{
+					Player* Target = CurrentTarget;
+					if (!IsValidTarget(Target)) {
 						if (TargetSelected)
 							return;
 
 						Target = FindBestTarget();
-						if (!IsValidTarget(Target))
-						{
+						if (!IsValidTarget(Target)) {
 							ReleaseTarget();
 							return;
 						}
@@ -368,11 +322,9 @@ struct Ragebot
 						TargetSelected = true;
 					}
 
-					if (TargetSelected && CurrentTarget)
-					{
+					if (TargetSelected && CurrentTarget) {
 						std::chrono::milliseconds Now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-						if (Now >= LastAimTime + std::chrono::milliseconds(Features::Ragebot::Delay))
-						{
+						if (Now >= LastAimTime + std::chrono::milliseconds(Features::Ragebot::Delay)) {
 							StartAiming();
 							LastAimTime = Now + std::chrono::milliseconds((int)Utils::RandomRange(1, 10));
 						}
@@ -381,25 +333,21 @@ struct Ragebot
 				}
 			}
 
-			if (Features::Ragebot::BindMethod == 1)
-			{
-				if (!isKeybindDown())
-				{
+			if (Features::Ragebot::BindMethod == 1) {
+				if (!isKeybindDown()) {
 					ReleaseTarget();
 					TargetSelected = false;
 					CurrentTarget = nullptr;
 					return;
 				}
 
-				Player *Target = CurrentTarget;
-				if (!IsValidTarget(Target))
-				{
+				Player* Target = CurrentTarget;
+				if (!IsValidTarget(Target)) {
 					if (TargetSelected)
 						return;
 
 					Target = FindBestTarget();
-					if (!IsValidTarget(Target))
-					{
+					if (!IsValidTarget(Target)) {
 						ReleaseTarget();
 						return;
 					}
@@ -409,11 +357,9 @@ struct Ragebot
 					TargetSelected = true;
 				}
 
-				if (TargetSelected && CurrentTarget)
-				{
+				if (TargetSelected && CurrentTarget) {
 					std::chrono::milliseconds Now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-					if (Now >= LastAimTime + std::chrono::milliseconds(Features::Ragebot::Delay))
-					{
+					if (Now >= LastAimTime + std::chrono::milliseconds(Features::Ragebot::Delay)) {
 						StartAiming();
 						LastAimTime = Now + std::chrono::milliseconds((int)Utils::RandomRange(1, 10));
 					}
@@ -421,17 +367,14 @@ struct Ragebot
 				}
 			}
 
-			if (Features::Ragebot::BindMethod == 2)
-			{
-				Player *Target = CurrentTarget;
-				if (!IsValidTarget(Target))
-				{
+			if (Features::Ragebot::BindMethod == 2) {
+				Player* Target = CurrentTarget;
+				if (!IsValidTarget(Target)) {
 					if (TargetSelected)
 						return;
 
 					Target = FindBestTarget();
-					if (!IsValidTarget(Target))
-					{
+					if (!IsValidTarget(Target)) {
 						ReleaseTarget();
 						return;
 					}
@@ -441,11 +384,9 @@ struct Ragebot
 					TargetSelected = true;
 				}
 
-				if (TargetSelected && CurrentTarget)
-				{
+				if (TargetSelected && CurrentTarget) {
 					std::chrono::milliseconds Now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-					if (Now >= LastAimTime + std::chrono::milliseconds(Features::Ragebot::Delay))
-					{
+					if (Now >= LastAimTime + std::chrono::milliseconds(Features::Ragebot::Delay)) {
 						StartAiming();
 						LastAimTime = Now + std::chrono::milliseconds((int)Utils::RandomRange(1, 10));
 					}
@@ -455,16 +396,14 @@ struct Ragebot
 		}
 	}
 
-	bool isKeybindDown()
-	{
+	bool isKeybindDown() {
 		bool ActivatedByAimBind = InputManager::isKeyDownOrPress(Features::Ragebot::AimBind);
 		bool ActivatedByExtraBind = InputManager::isKeyDownOrPress(Features::Ragebot::ExtraBind);
 		bool active = (ActivatedByAimBind || ActivatedByExtraBind);
 		return active;
 	}
 
-	void StartAiming()
-	{
+	void StartAiming() {
 		// Get Target Angle
 		QAngle DesiredAngles = QAngle(0, 0);
 		if (!GetAngle(CurrentTarget, DesiredAngles)) // Get Angle to target + prediction
@@ -473,8 +412,7 @@ struct Ragebot
 		SmoothAngle(DesiredAngles); // Apply Smoothing
 
 		// Recoil Control
-		if (Features::Ragebot::RageRCS)
-		{
+		if (Features::Ragebot::RageRCS) {
 			Vector2D PunchAngles = Memory::Read<Vector2D>(Myself->BasePointer + OFF_PUNCH_ANGLES); // Get punch angles
 			PunchAngles.x *= (Features::Ragebot::RecoilRate / 100.f);
 			PunchAngles.y *= (Features::Ragebot::RecoilRate / 100.f);
@@ -487,23 +425,19 @@ struct Ragebot
 		DesiredAngles.NormalizeAngles();
 
 		// Memory Aimbot
-		if (Features::Ragebot::AimMethod == 0)
-		{ // Memory
+		if (Features::Ragebot::AimMethod == 0) { // Memory
 			Vector2D VectorDesiredAngles = Vector2D(DesiredAngles.x, DesiredAngles.y);
-			if (!Features::Ragebot::AutoShoot)
-			{
+			if (!Features::Ragebot::AutoShoot) {
 				Myself->SetViewAngle(VectorDesiredAngles);
 			}
-			if (Features::Ragebot::AutoShoot)
-			{
+			if (Features::Ragebot::AutoShoot) {
 				Myself->SetViewAngle(VectorDesiredAngles);
 				X11Display->MouseClickLeft();
 			}
 		}
 
 		// Mouse Aimbot
-		if (Features::Ragebot::AimMethod == 1)
-		{																															// Mouse
+		if (Features::Ragebot::AimMethod == 1) {																															// Mouse
 			Vector2D aimbotD = Vector2D(CalculatePitchIncrement(DesiredAngles), CalculateYawIncrement(DesiredAngles)).Multiply(30); // 30 = Speed
 
 			int totalYawIncrementInt = RoundHalfEven(AL1AF0(aimbotD.x));
@@ -511,32 +445,26 @@ struct Ragebot
 
 			/*if (totalPitchIncrementInt == 0 && totalYawIncrementInt == 0)
 				return;*/
-			if (!Features::Ragebot::AutoShoot)
-			{
+			if (!Features::Ragebot::AutoShoot) {
 				X11Display->MoveMouse(totalYawIncrementInt, totalPitchIncrementInt);
 			}
-			if (Features::Ragebot::AutoShoot)
-			{
+			if (Features::Ragebot::AutoShoot) {
 				X11Display->MoveMouse(totalYawIncrementInt, totalPitchIncrementInt);
 				X11Display->MouseClickLeft();
 			}
 		}
 	}
 
-	void SmoothAngle(QAngle &Angle)
-	{
+	void SmoothAngle(QAngle& Angle) {
 		QAngle ViewAngles = QAngle(Myself->ViewAngles.x, Myself->ViewAngles.y).NormalizeAngles();
 		QAngle Delta = Angle - ViewAngles;
 		Delta.NormalizeAngles();
 
-		if (Myself->IsZooming)
-		{
+		if (Myself->IsZooming) {
 			Features::Ragebot::Smooth = Features::Ragebot::ADSSmooth;
 			float SmoothValue = powf(Features::Ragebot::Smooth, 0.4f);
 			SmoothValue = std::min(0.99f, SmoothValue);
-		}
-		else if (!Myself->IsZooming)
-		{
+		} else if (!Myself->IsZooming) {
 			Features::Ragebot::Smooth = Features::Ragebot::HipfireSmooth;
 			float SmoothValue = powf(Features::Ragebot::Smooth, 0.4f);
 			SmoothValue = std::min(0.99f, SmoothValue);
@@ -548,8 +476,7 @@ struct Ragebot
 		Angle = ViewAngles + ToChange;
 	}
 
-	bool GetAngle(Player *Target, QAngle &Angle)
-	{
+	bool GetAngle(Player* Target, QAngle& Angle) {
 		const QAngle CurrentAngle = QAngle(Myself->ViewAngles.x, Myself->ViewAngles.y).NormalizeAngles();
 		if (!CurrentAngle.isValid())
 			return false;
@@ -560,15 +487,12 @@ struct Ragebot
 		return true;
 	}
 
-	bool GetAngleToTarget(Player *Target, QAngle &Angle)
-	{
+	bool GetAngleToTarget(Player* Target, QAngle& Angle) {
 		Vector3D TargetPosition;
-		if (!Features::Ragebot::ClosestHitbox)
-		{
+		if (!Features::Ragebot::ClosestHitbox) {
 			TargetPosition = Target->GetBonePosition(Features::Ragebot::Hitbox);
 		}
-		if (Features::Ragebot::ClosestHitbox)
-		{
+		if (Features::Ragebot::ClosestHitbox) {
 			TargetPosition = Target->GetBonePosition(static_cast<HitboxType>(GetBestBone(Target)));
 		}
 
@@ -576,16 +500,11 @@ struct Ragebot
 		Vector3D TargetVelocity = Target->AbsoluteVelocity;
 		Vector3D CameraPosition = Myself->CameraPosition;
 
-		if (Features::Ragebot::PredictBulletDrop && Features::Ragebot::PredictMovement)
-		{
+		if (Features::Ragebot::PredictBulletDrop && Features::Ragebot::PredictMovement) {
 			return Resolver::CalculateAimRotationNew(CameraPosition, TargetPos, TargetVelocity, Myself->WeaponProjectileSpeed, Myself->WeaponProjectileScale, Features::Ragebot::PreditcionAmount, Angle);
-		}
-		else if (Features::Ragebot::PredictMovement)
-		{
+		} else if (Features::Ragebot::PredictMovement) {
 			return Resolver::CalculateAimRotationNew(CameraPosition, TargetPos, Vector3D(0, 0, 0), Myself->WeaponProjectileSpeed, Myself->WeaponProjectileScale, Features::Ragebot::PreditcionAmount, Angle);
-		}
-		else if (Features::Ragebot::PredictBulletDrop)
-		{
+		} else if (Features::Ragebot::PredictBulletDrop) {
 			return Resolver::CalculateAimRotation(CameraPosition, TargetPos, TargetVelocity, Myself->WeaponProjectileSpeed, Angle);
 		}
 
@@ -593,8 +512,7 @@ struct Ragebot
 		return true;
 	}
 
-	bool IsValidTarget(Player *target)
-	{
+	bool IsValidTarget(Player* target) {
 		if (target == nullptr ||
 			!target->IsValid() ||
 			!target->IsCombatReady() ||
@@ -606,8 +524,7 @@ struct Ragebot
 		return true;
 	}
 
-	float CalculatePitchIncrement(QAngle AimbotDesiredAngles)
-	{
+	float CalculatePitchIncrement(QAngle AimbotDesiredAngles) {
 		float wayA = AimbotDesiredAngles.x - Myself->ViewAngles.x;
 		float wayB = 180 - abs(wayA);
 		if (wayA > 0 && wayB > 0)
@@ -617,8 +534,7 @@ struct Ragebot
 		return wayB;
 	}
 
-	float CalculateYawIncrement(QAngle AimbotDesiredAngles)
-	{
+	float CalculateYawIncrement(QAngle AimbotDesiredAngles) {
 		float wayA = AimbotDesiredAngles.y - Myself->ViewAngles.y;
 		float wayB = 360 - abs(wayA);
 		if (wayA > 0 && wayB > 0)
@@ -628,8 +544,7 @@ struct Ragebot
 		return wayB;
 	}
 
-	double CalculateDistanceFromCrosshair(Vector3D TargetPosition)
-	{
+	double CalculateDistanceFromCrosshair(Vector3D TargetPosition) {
 		Vector3D CameraPosition = Myself->CameraPosition;
 		QAngle CurrentAngle = QAngle(Myself->ViewAngles.x, Myself->ViewAngles.y).NormalizeAngles();
 
@@ -643,8 +558,7 @@ struct Ragebot
 		return CurrentAngle.distanceTo(TargetAngle);
 	}
 
-	void ReleaseTarget()
-	{
+	void ReleaseTarget() {
 		if (CurrentTarget != nullptr && CurrentTarget->IsValid())
 			CurrentTarget->IsLockedOn = false;
 
@@ -652,28 +566,22 @@ struct Ragebot
 		CurrentTarget = nullptr;
 	}
 
-	int RoundHalfEven(float x)
-	{
+	static int RoundHalfEven(float x) {
 		return (x >= 0.0)
-				   ? static_cast<int>(std::round(x))
-				   : static_cast<int>(std::round(-x)) * -1;
+			? static_cast<int>(std::round(x))
+			: static_cast<int>(std::round(-x)) * -1;
 	}
 
-	float AL1AF0(float num)
-	{
+	static float AL1AF0(float num) {
 		if (num > 0)
 			return std::max(num, 1.0f);
 		return std::min(num, -1.0f);
 	}
 
-	float GetFOVScale()
-	{
-		if (Myself->IsValid())
-		{
-			if (Myself->IsZooming)
-			{
-				if (Myself->TargetZoomFOV > 1.0 && Myself->TargetZoomFOV < 90.0)
-				{
+	float GetFOVScale() {
+		if (Myself->IsValid()) {
+			if (Myself->IsZooming) {
+				if (Myself->TargetZoomFOV > 1.0 && Myself->TargetZoomFOV < 90.0) {
 					return tanf(DEG2RAD(Myself->TargetZoomFOV) * (0.64285714285));
 				}
 			}
@@ -681,16 +589,13 @@ struct Ragebot
 		return 1.0;
 	}
 
-	int GetBestBone(Player *Target)
-	{
+	int GetBestBone(Player* Target) {
 		float NearestDistance = 999;
 		int NearestBone = 2;
-		for (int i = 0; i < 6; i++)
-		{
+		for (int i = 0; i < 6; i++) {
 			HitboxType Bone = static_cast<HitboxType>(i);
 			double DistanceFromCrosshair = CalculateDistanceFromCrosshair(Target->GetBonePosition(Bone));
-			if (DistanceFromCrosshair < NearestDistance)
-			{
+			if (DistanceFromCrosshair < NearestDistance) {
 				NearestBone = i;
 				NearestDistance = DistanceFromCrosshair;
 			}
@@ -698,20 +603,17 @@ struct Ragebot
 		return NearestBone;
 	}
 
-	Player *FindBestTarget()
-	{
-		Player *NearestTarget = nullptr;
+	Player* FindBestTarget() {
+		Player* NearestTarget = nullptr;
 		float BestDistance = 9999;
 		float BestFOV = std::min(Features::Ragebot::FOV, Features::Ragebot::FOV * (GetFOVScale() * Features::Ragebot::ZoomScale));
 		float LastPov = 9999;
 		Vector3D CameraPosition = Myself->CameraPosition;
-		for (int i = 0; i < Players->size(); i++)
-		{
-			Player *p = Players->at(i);
+		for (int i = 0; i < Players->size(); i++) {
+			Player* p = Players->at(i);
 			if (!IsValidTarget(p))
 				continue;
-			if (p->DistanceToLocalPlayer < Conversion::ToGameUnits(Features::Ragebot::ZoomDistance))
-			{
+			if (p->DistanceToLocalPlayer < Conversion::ToGameUnits(Features::Ragebot::ZoomDistance)) {
 				HitboxType BestBone = static_cast<HitboxType>(GetBestBone(p));
 				Vector3D TargetPosition = p->GetBonePosition(BestBone);
 

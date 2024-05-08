@@ -1,14 +1,16 @@
 #pragma once
 #include "Offsets.hpp"
+#include <string>
+#include <unordered_map>
 #include "../Utils/Memory.hpp"
 #include "../Math/Vector2D.hpp"
 #include "../Math/Vector3D.hpp"
 #include "../Math/FloatVector2D.hpp"
 #include "../Math/FloatVector3D.hpp"
 #include "../Math/QAngle.hpp"
+#include "../Utils/Features.hpp"
 
-struct LocalPlayer
-{
+struct LocalPlayer {
     long BasePointer;
 
     bool IsDead;
@@ -46,13 +48,7 @@ struct LocalPlayer
     FloatVector2D punchAnglesPrev;
     FloatVector2D punchAnglesDiff;
 
-    void ResetPointer()
-    {
-        BasePointer = 0;
-    }
-
-    void Read()
-    {
+    void Read() {
         BasePointer = Memory::Read<long>(OFF_REGION + OFF_LOCAL_PLAYER);
         if (BasePointer == 0)
             return;
@@ -76,15 +72,14 @@ struct LocalPlayer
         PunchAnglesPrevious = PunchAngles;
         ViewYaw = Memory::Read<float>(BasePointer + OFF_YAW);
 
-        //Grinder Aimbot Method
+        // FloatVector2D Versions, For Standalone RCS and Linear Aimbot
         cameraPosition = Memory::Read<FloatVector3D>(BasePointer + OFF_CAMERAORIGIN);
         viewAngles = Memory::Read<FloatVector2D>(BasePointer + OFF_VIEW_ANGLES);
         punchAngles = Memory::Read<FloatVector2D>(BasePointer + OFF_PUNCH_ANGLES);
         punchAnglesDiff = punchAnglesPrev.subtract(punchAngles);
         punchAnglesPrev = punchAngles;
 
-        if (!IsDead && !IsKnocked)
-        {
+        if (!IsDead && !IsKnocked) {
             long WeaponHandle = Memory::Read<long>(BasePointer + OFF_WEAPON_HANDLE);
             long WeaponHandleMasked = WeaponHandle & 0xffff;
             WeaponEntity = Memory::Read<long>(OFF_REGION + OFF_ENTITY_LIST + (WeaponHandleMasked << 5));
@@ -102,13 +97,28 @@ struct LocalPlayer
         }
     }
 
-    bool IsValid()
-    {
+    std::string GetPlayerModelName() {
+        uintptr_t ModelOffset = Memory::Read<uintptr_t>(BasePointer + OFF_MODELNAME);
+        std::string ModelName = Memory::ReadStringSize(ModelOffset, 1024);
+
+        static std::unordered_map<std::string, std::string> ModelNameMap = { {"dummie", "Dummie"}, {"ash", "Ash"}, {"ballistic", "Ballistic"}, {"bangalore", "Bangalore"}, {"bloodhound", "Bloodhound"}, {"catalyst", "Catalyst"}, {"caustic", "Caustic"}, {"conduit", "Conduit"}, {"crypto", "Crypto"}, {"fuse", "Fuse"}, {"gibraltar", "Gibraltar"}, {"horizon", "Horizon"}, {"nova", "Horizon"}, {"holo", "Mirage"}, {"mirage", "Mirage"}, {"lifeline", "Lifeline"}, {"loba", "Loba"}, {"madmaggie", "Mad Maggie"}, {"newcastle", "Newcastle"}, {"octane", "Octane"}, {"pathfinder", "Pathfinder"}, {"rampart", "Rampart"}, {"revenant", "Revenant"}, {"seer", "Seer"}, {"stim", "Octane"}, {"valkyrie", "Valkyrie"}, {"vantage", "Vantage"}, {"wattson", "Wattson"}, {"wraith", "Wraith"}, {"alter", "Alter"}, };
+
+        std::string replacedName = ModelName;
+        for (auto& entry : ModelNameMap) {
+            if (ModelName.find(entry.first) != std::string::npos) {
+                replacedName = entry.second;
+                break;
+            }
+        }
+
+        return replacedName;
+    }
+
+    bool IsValid() {
         return BasePointer != 0;
     }
 
-    bool IsCombatReady()
-    {
+    bool IsCombatReady() {
         if (BasePointer == 0)
             return false;
         if (IsDead)
@@ -118,19 +128,16 @@ struct LocalPlayer
         return true;
     }
 
-    void setYaw(float angle)
-    {
+    void setYaw(float angle) {
         long ptrLong = BasePointer + OFF_VIEW_ANGLES + sizeof(float);
         Memory::Write<float>(ptrLong, angle);
     }
 
-    void SetQAngle(QAngle ViewAngle)
-    {
+    void SetQAngle(QAngle ViewAngle) {
         Memory::Write<QAngle>(BasePointer + OFF_VIEW_ANGLES, NormalizeQAngle(ViewAngle));
     }
 
-    inline QAngle NormalizeQAngle(QAngle angle)
-    {
+    inline QAngle NormalizeQAngle(QAngle angle) {
         while (angle.x > 89.0f)
             angle.x -= 180.f;
 
@@ -140,21 +147,18 @@ struct LocalPlayer
         while (angle.y > 180.f)
             angle.y -= 360.f;
 
-        while (angle.y < -180.f)
-        {
+        while (angle.y < -180.f) {
             angle.y += 360.f;
         }
 
         return angle;
     }
 
-    void SetViewAngle(Vector2D ViewAngle)
-    {
+    void SetViewAngle(Vector2D ViewAngle) {
         Memory::Write<Vector2D>(BasePointer + OFF_VIEW_ANGLES, NormalizeVectorAngles(ViewAngle));
     }
 
-    inline Vector2D NormalizeVectorAngles(Vector2D angle)
-    {
+    inline Vector2D NormalizeVectorAngles(Vector2D angle) {
         while (angle.x > 89.0f)
             angle.x -= 180.f;
 
@@ -164,8 +168,7 @@ struct LocalPlayer
         while (angle.y > 180.f)
             angle.y -= 360.f;
 
-        while (angle.y < -180.f)
-        {
+        while (angle.y < -180.f) {
             angle.y += 360.f;
         }
 

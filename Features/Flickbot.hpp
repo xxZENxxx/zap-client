@@ -35,29 +35,26 @@ struct Flickbot
 
 	int FinalDistance = 0;
 
-	XDisplay *X11Display;
-	LocalPlayer *Myself;
-	std::vector<Player *> *Players;
-	Level *Map;
+	XDisplay* X11Display;
+	LocalPlayer* Myself;
+	std::vector<Player*>* Players;
+	Level* Map;
 
-	Player *CurrentTarget = nullptr;
+	Player* CurrentTarget = nullptr;
 	bool TargetSelected = true;
 	std::chrono::milliseconds LastAimTime;
 	std::chrono::milliseconds LastFlickTime;
 	std::chrono::milliseconds LastFlickBackTime;
 
-	Flickbot(XDisplay *X11Display, Level *Map, LocalPlayer *Myself, std::vector<Player *> *GamePlayers)
-	{
+	Flickbot(XDisplay* X11Display, Level* Map, LocalPlayer* Myself, std::vector<Player*>* GamePlayers) {
 		this->X11Display = X11Display;
 		this->Myself = Myself;
 		this->Map = Map;
 		this->Players = GamePlayers;
 	}
 
-	bool Save()
-	{
-		try
-		{
+	static bool Save() {
+		try {
 
 			Config::Flickbot::Flickbot = Features::Flickbot::Flickbot;
 			Config::Flickbot::FlickbotMethod = Features::Flickbot::FlickbotMethod;
@@ -122,133 +119,101 @@ struct Flickbot
 			Config::Flickbot::Knife = Features::Flickbot::Knife;
 
 			return true;
-		}
-		catch (...)
-		{
+		} catch (...) {
 			return false;
 		}
 	}
 
-	void UpdateFlickList()
-	{
+	void UpdateFlickList() {
 		Features::Flickbot::FlickList.clear();
+		// Define a lambda function to reduce repetition
+		auto InsertIfEnabled = [&](const bool feature, const int weaponID) {
+		if (feature)
+			Features::Flickbot::FlickList.insert(weaponID);
+		};
 		// Light
-		if (Features::Flickbot::P2020)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_P2020);
-		if (Features::Flickbot::RE45)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_RE45);
-		if (Features::Flickbot::Alternator)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_ALTERNATOR);
-		if (Features::Flickbot::R99)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_R99);
-		if (Features::Flickbot::R301)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_R301);
-		if (Features::Flickbot::Spitfire)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_SPITFIRE);
-		if (Features::Flickbot::G7)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_G7);
+		InsertIfEnabled(Features::Flickbot::P2020, WeaponIDs::WEAPON_P2020);
+		InsertIfEnabled(Features::Flickbot::RE45, WeaponIDs::WEAPON_RE45);
+		InsertIfEnabled(Features::Flickbot::Alternator, WeaponIDs::WEAPON_ALTERNATOR);
+		InsertIfEnabled(Features::Flickbot::R99, WeaponIDs::WEAPON_R99);
+		InsertIfEnabled(Features::Flickbot::R301, WeaponIDs::WEAPON_R301);
+		InsertIfEnabled(Features::Flickbot::Spitfire, WeaponIDs::WEAPON_SPITFIRE);
+		InsertIfEnabled(Features::Flickbot::G7, WeaponIDs::WEAPON_G7);
+
 		// Heavy
-		if (Features::Flickbot::Flatline)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_FLATLINE);
-		if (Features::Flickbot::Hemlock)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_HEMLOCK);
-		if (Features::Flickbot::Repeater)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_REPEATER);
-		if (Features::Flickbot::Rampage)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_RAMPAGE);
-		if (Features::Flickbot::CARSMG)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_CAR);
+		InsertIfEnabled(Features::Flickbot::Flatline, WeaponIDs::WEAPON_FLATLINE);
+		InsertIfEnabled(Features::Flickbot::Prowler, WeaponIDs::WEAPON_PROWLER);
+		InsertIfEnabled(Features::Flickbot::Hemlock, WeaponIDs::WEAPON_HEMLOCK);
+		InsertIfEnabled(Features::Flickbot::Repeater, WeaponIDs::WEAPON_REPEATER);
+		InsertIfEnabled(Features::Flickbot::Rampage, WeaponIDs::WEAPON_RAMPAGE);
+		InsertIfEnabled(Features::Flickbot::CARSMG, WeaponIDs::WEAPON_CAR);
+
 		// Energy
-		if (Features::Flickbot::Havoc)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_HAVOC);
-		if (Features::Flickbot::Devotion)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_DEVOTION);
-		if (Features::Flickbot::LSTAR)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_LSTAR);
-		if (Features::Flickbot::TripleTake)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_TRIPLETAKE);
-		if (Features::Flickbot::Volt)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_VOLT);
-		if (Features::Flickbot::Nemesis)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_NEMESIS);
+		InsertIfEnabled(Features::Flickbot::Havoc, WeaponIDs::WEAPON_HAVOC);
+		InsertIfEnabled(Features::Flickbot::Devotion, WeaponIDs::WEAPON_DEVOTION);
+		InsertIfEnabled(Features::Flickbot::LSTAR, WeaponIDs::WEAPON_LSTAR);
+		InsertIfEnabled(Features::Flickbot::TripleTake, WeaponIDs::WEAPON_TRIPLETAKE);
+		InsertIfEnabled(Features::Flickbot::Volt, WeaponIDs::WEAPON_VOLT);
+		InsertIfEnabled(Features::Flickbot::Nemesis, WeaponIDs::WEAPON_NEMESIS);
+
 		// Shotguns
-		if (Features::Flickbot::Mozambique)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_MOZAMBIQUE);
-		if (Features::Flickbot::EVA8)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_EVA8);
-		if (Features::Flickbot::Peacekeeper)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_PEACEKEEPER);
-		if (Features::Flickbot::Mastiff)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_MASTIFF);
+		InsertIfEnabled(Features::Flickbot::Mozambique, WeaponIDs::WEAPON_MOZAMBIQUE);
+		InsertIfEnabled(Features::Flickbot::Peacekeeper, WeaponIDs::WEAPON_PEACEKEEPER);
+		InsertIfEnabled(Features::Flickbot::Mastiff, WeaponIDs::WEAPON_MASTIFF);
+
 		// Snipers
-		if (Features::Flickbot::Longbow)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_LONGBOW);
-		if (Features::Flickbot::ChargeRifle)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_CHARGE_RIFLE);
-		if (Features::Flickbot::Sentinel)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_SENTINEL);
+		InsertIfEnabled(Features::Flickbot::Longbow, WeaponIDs::WEAPON_LONGBOW);
+		InsertIfEnabled(Features::Flickbot::ChargeRifle, WeaponIDs::WEAPON_CHARGE_RIFLE);
+		InsertIfEnabled(Features::Flickbot::Sentinel, WeaponIDs::WEAPON_SENTINEL);
+
 		// Legendary
-		if (Features::Flickbot::Wingman)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_WINGMAN);
-		if (Features::Flickbot::Prowler)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_PROWLER);
-		if (Features::Flickbot::Bocek)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_BOCEK);
-		if (Features::Flickbot::Kraber)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_KRABER);
-		if (Features::Flickbot::Knife)
-			Features::Flickbot::FlickList.insert(WeaponIDs::WEAPON_KNIFE);
+		InsertIfEnabled(Features::Flickbot::Wingman, WeaponIDs::WEAPON_WINGMAN);
+		InsertIfEnabled(Features::Flickbot::EVA8, WeaponIDs::WEAPON_EVA8);
+		InsertIfEnabled(Features::Flickbot::Bocek, WeaponIDs::WEAPON_BOCEK);
+		InsertIfEnabled(Features::Flickbot::Kraber, WeaponIDs::WEAPON_KRABER);
+		InsertIfEnabled(Features::Flickbot::Knife, WeaponIDs::WEAPON_KNIFE);
 	}
 
-	void Update()
-	{
-		if (!Features::Flickbot::Flickbot)
-		{
+	void Update() {
+		if (!Features::Flickbot::Flickbot) {
 			ReleaseTarget();
 			return;
 		}
 
-		if (Features::Flickbot::Flickbot)
-		{
+		if (Features::Flickbot::Flickbot) {
 
 			if (Myself->IsZooming)
 				FinalDistance = Features::Flickbot::ZoomDistance;
 			else
 				FinalDistance = Features::Flickbot::HipfireDistance;
 
-			if (!Myself->IsCombatReady())
-			{
+			if (!Myself->IsCombatReady()) {
 				CurrentTarget = nullptr;
 				return;
 			}
 
-			if (Features::Flickbot::FlickList.find(Myself->WeaponIndex) == Features::Flickbot::FlickList.end())
-			{
+			if (Features::Flickbot::FlickList.find(Myself->WeaponIndex) == Features::Flickbot::FlickList.end()) {
 				ReleaseTarget();
 				return;
 			}
 
-			if (Myself->IsHoldingGrenade)
-			{
+			if (Myself->IsHoldingGrenade) {
 				ReleaseTarget();
 				return;
 			}
 
-			if (!isKeybindDown())
-			{
+			if (!isKeybindDown()) {
 				ReleaseTarget();
 				return;
 			}
 
-			Player *Target = CurrentTarget;
-			if (!IsValidTarget(Target))
-			{
+			Player* Target = CurrentTarget;
+			if (!IsValidTarget(Target)) {
 				if (TargetSelected)
 					return;
 
 				Target = FindBestTarget();
-				if (!IsValidTarget(Target))
-				{
+				if (!IsValidTarget(Target)) {
 					ReleaseTarget();
 					return;
 				}
@@ -258,11 +223,9 @@ struct Flickbot
 				TargetSelected = true;
 			}
 
-			if (TargetSelected && CurrentTarget)
-			{
+			if (TargetSelected && CurrentTarget) {
 				std::chrono::milliseconds Now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-				if (Now >= LastAimTime + std::chrono::milliseconds(Features::Flickbot::Delay))
-				{
+				if (Now >= LastAimTime + std::chrono::milliseconds(Features::Flickbot::Delay)) {
 					StartAiming();
 					LastAimTime = Now + std::chrono::milliseconds((int)Utils::RandomRange(1, 10));
 				}
@@ -271,15 +234,13 @@ struct Flickbot
 		}
 	}
 
-	bool isKeybindDown()
-	{
+	bool isKeybindDown() {
 		bool ActivatedByAimBind = InputManager::isKeyDownOrPress(Features::Flickbot::FlickBind);
 		bool active = (ActivatedByAimBind);
 		return active;
 	}
 
-	void StartAiming()
-	{
+	void StartAiming() {
 		// Get Target Angle
 		QAngle DesiredAngles = QAngle(0, 0);
 		if (!GetAngle(CurrentTarget, DesiredAngles))
@@ -302,17 +263,14 @@ struct Flickbot
 			Vector2D CurrentAngles = Memory::Read<Vector2D>(Myself->BasePointer + OFF_VIEW_ANGLES);
 
 			// Flick Angles
-			if (InputManager::isKeyDownOrPress(Features::Flickbot::FlickBind))
-			{
+			if (InputManager::isKeyDownOrPress(Features::Flickbot::FlickBind)) {
 				X11Display->MoveMouse(FlickbotDelta.x, FlickbotDelta.y * -1);
-				if (Features::Flickbot::AutoShoot)
-				{
+				if (Features::Flickbot::AutoShoot) {
 					std::this_thread::sleep_for(std::chrono::milliseconds(Features::Flickbot::AutoShootDelay));
 					X11Display->MouseClickLeft();
 				}
 
-				if (Features::Flickbot::FlickBack)
-				{
+				if (Features::Flickbot::FlickBack) {
 					std::this_thread::sleep_for(std::chrono::milliseconds(Features::Flickbot::FlickBackDelay));
 					Myself->SetViewAngle(CurrentAngles);
 				}
@@ -324,20 +282,17 @@ struct Flickbot
 			Vector2D CurrentAngles = Memory::Read<Vector2D>(Myself->BasePointer + OFF_VIEW_ANGLES);
 
 			// Flick Angles
-			if (InputManager::isKeyDownOrPress(Features::Flickbot::FlickBind))
-			{
+			if (InputManager::isKeyDownOrPress(Features::Flickbot::FlickBind)) {
 				//Change QAngle To Vector2D
 				Vector2D VectorDesiredAngles = Vector2D(DesiredAngles.x, DesiredAngles.y);
 
 				Myself->SetViewAngle(VectorDesiredAngles);
-				if (Features::Flickbot::AutoShoot)
-				{
+				if (Features::Flickbot::AutoShoot) {
 					std::this_thread::sleep_for(std::chrono::milliseconds(Features::Flickbot::AutoShootDelay));
 					X11Display->MouseClickLeft();
 				}
 
-				if (Features::Flickbot::FlickBack)
-				{
+				if (Features::Flickbot::FlickBack) {
 					std::this_thread::sleep_for(std::chrono::milliseconds(Features::Flickbot::FlickBackDelay));
 					Myself->SetViewAngle(CurrentAngles);
 				}
@@ -345,20 +300,16 @@ struct Flickbot
 		}
 	}
 
-	void SmoothAngle(QAngle &Angle)
-	{
+	void SmoothAngle(QAngle& Angle) {
 		QAngle ViewAngles = QAngle(Myself->ViewAngles.x, Myself->ViewAngles.y).NormalizeAngles();
 		QAngle Delta = Angle - ViewAngles;
 		Delta.NormalizeAngles();
 
-		if (Myself->IsZooming)
-		{
+		if (Myself->IsZooming) {
 			Features::Flickbot::Smooth = Features::Flickbot::ADSSmooth;
 			float SmoothValue = powf(Features::Flickbot::Smooth, 0.4f);
 			SmoothValue = std::min(0.99f, SmoothValue);
-		}
-		else if (!Myself->IsZooming)
-		{
+		} else if (!Myself->IsZooming) {
 			Features::Flickbot::Smooth = Features::Flickbot::HipfireSmooth;
 			float SmoothValue = powf(Features::Flickbot::Smooth, 0.4f);
 			SmoothValue = std::min(0.99f, SmoothValue);
@@ -370,8 +321,7 @@ struct Flickbot
 		Angle = ViewAngles + ToChange;
 	}
 
-	void SmoothBackAngle(QAngle &Angle)
-	{
+	void SmoothBackAngle(QAngle& Angle) {
 		QAngle ViewAngles = QAngle(Myself->ViewAngles.x, Myself->ViewAngles.y).NormalizeAngles();
 		QAngle Delta = Angle - ViewAngles;
 		Delta.NormalizeAngles();
@@ -386,8 +336,7 @@ struct Flickbot
 		Angle = ViewAngles + ToChange;
 	}
 
-	bool GetAngle(Player *Target, QAngle &Angle)
-	{
+	bool GetAngle(Player* Target, QAngle& Angle) {
 		const QAngle CurrentAngle = QAngle(Myself->ViewAngles.x, Myself->ViewAngles.y).NormalizeAngles();
 		if (!CurrentAngle.isValid())
 			return false;
@@ -398,33 +347,24 @@ struct Flickbot
 		return true;
 	}
 
-	bool GetAngleToTarget(Player *Target, QAngle &Angle)
-	{
+	bool GetAngleToTarget(Player* Target, QAngle& Angle) {
 		Vector3D TargetPosition;
-		if (!Features::Flickbot::ClosestHitbox)
-		{
+		if (!Features::Flickbot::ClosestHitbox) {
 			TargetPosition = Target->GetBonePosition(Features::Flickbot::Hitbox);
 		}
-		if (Features::Flickbot::ClosestHitbox)
-		{
+		if (Features::Flickbot::ClosestHitbox) {
 			TargetPosition = Target->GetBonePosition(static_cast<HitboxType>(GetBestBone(Target)));
 		}
 		Vector3D TargetPos = Target->GetBonePosition(Features::Flickbot::Hitbox);
 		Vector3D TargetVelocity = Target->AbsoluteVelocity;
 		Vector3D CameraPosition = Myself->CameraPosition;
 
-		if (Myself->WeaponProjectileSpeed > 1.0f)
-		{
-			if (Features::Flickbot::PredictBulletDrop && Features::Flickbot::PredictMovement)
-			{
+		if (Myself->WeaponProjectileSpeed > 1.0f) {
+			if (Features::Flickbot::PredictBulletDrop && Features::Flickbot::PredictMovement) {
 				return Resolver::CalculateAimRotationNew(CameraPosition, TargetPos, TargetVelocity, Myself->WeaponProjectileSpeed, Myself->WeaponProjectileScale, Features::Flickbot::PreditcionAmount, Angle);
-			}
-			else if (Features::Flickbot::PredictBulletDrop)
-			{
+			} else if (Features::Flickbot::PredictBulletDrop) {
 				return Resolver::CalculateAimRotationNew(CameraPosition, TargetPos, Vector3D(0, 0, 0), Myself->WeaponProjectileSpeed, Myself->WeaponProjectileScale, Features::Flickbot::PreditcionAmount, Angle);
-			}
-			else if (Features::Flickbot::PredictMovement)
-			{
+			} else if (Features::Flickbot::PredictMovement) {
 				return Resolver::CalculateAimRotation(CameraPosition, TargetPos, TargetVelocity, Myself->WeaponProjectileSpeed, Angle);
 			}
 		}
@@ -433,8 +373,7 @@ struct Flickbot
 		return true;
 	}
 
-	bool IsValidTarget(Player *target)
-	{
+	bool IsValidTarget(Player* target) {
 		if (target == nullptr ||
 			!target->IsValid() ||
 			!target->IsCombatReady() ||
@@ -446,8 +385,7 @@ struct Flickbot
 		return true;
 	}
 
-	float CalculatePitchIncrement(QAngle FlickbotDesiredAngles)
-	{
+	float CalculatePitchIncrement(QAngle FlickbotDesiredAngles) {
 		float wayA = FlickbotDesiredAngles.x - Myself->ViewAngles.x;
 		float wayB = 180 - abs(wayA);
 		if (wayA > 0 && wayB > 0)
@@ -457,8 +395,7 @@ struct Flickbot
 		return wayB;
 	}
 
-	float CalculateYawIncrement(QAngle FlickbotDesiredAngles)
-	{
+	float CalculateYawIncrement(QAngle FlickbotDesiredAngles) {
 		float wayA = FlickbotDesiredAngles.y - Myself->ViewAngles.y;
 		float wayB = 360 - abs(wayA);
 		if (wayA > 0 && wayB > 0)
@@ -468,8 +405,7 @@ struct Flickbot
 		return wayB;
 	}
 
-	double CalculateDistanceFromCrosshair(Vector3D TargetPosition)
-	{
+	double CalculateDistanceFromCrosshair(Vector3D TargetPosition) {
 		Vector3D CameraPosition = Myself->CameraPosition;
 		QAngle CurrentAngle = QAngle(Myself->ViewAngles.x, Myself->ViewAngles.y).NormalizeAngles();
 
@@ -483,8 +419,7 @@ struct Flickbot
 		return CurrentAngle.distanceTo(TargetAngle);
 	}
 
-	void ReleaseTarget()
-	{
+	void ReleaseTarget() {
 		if (CurrentTarget != nullptr && CurrentTarget->IsValid())
 			CurrentTarget->IsLockedOn = false;
 
@@ -492,28 +427,22 @@ struct Flickbot
 		CurrentTarget = nullptr;
 	}
 
-	int RoundHalfEven(float x)
-	{
+	static int RoundHalfEven(float x) {
 		return (x >= 0.0)
-				   ? static_cast<int>(std::round(x))
-				   : static_cast<int>(std::round(-x)) * -1;
+			? static_cast<int>(std::round(x))
+			: static_cast<int>(std::round(-x)) * -1;
 	}
 
-	float AL1AF0(float num)
-	{
+	static float AL1AF0(float num) {
 		if (num > 0)
 			return std::max(num, 1.0f);
 		return std::min(num, -1.0f);
 	}
 
-	float GetFOVScale()
-	{
-		if (Myself->IsValid())
-		{
-			if (Myself->IsZooming)
-			{
-				if (Myself->TargetZoomFOV > 1.0 && Myself->TargetZoomFOV < 90.0)
-				{
+	float GetFOVScale() {
+		if (Myself->IsValid()) {
+			if (Myself->IsZooming) {
+				if (Myself->TargetZoomFOV > 1.0 && Myself->TargetZoomFOV < 90.0) {
 					return tanf(DEG2RAD(Myself->TargetZoomFOV) * (0.64285714285));
 				}
 			}
@@ -521,16 +450,13 @@ struct Flickbot
 		return 1.0;
 	}
 
-	int GetBestBone(Player *Target)
-	{
+	int GetBestBone(Player* Target) {
 		float NearestDistance = 999;
 		int NearestBone = 2;
-		for (int i = 0; i < 6; i++)
-		{
+		for (int i = 0; i < 6; i++) {
 			HitboxType Bone = static_cast<HitboxType>(i);
 			double DistanceFromCrosshair = CalculateDistanceFromCrosshair(Target->GetBonePosition(Bone));
-			if (DistanceFromCrosshair < NearestDistance)
-			{
+			if (DistanceFromCrosshair < NearestDistance) {
 				NearestBone = i;
 				NearestDistance = DistanceFromCrosshair;
 			}
@@ -538,20 +464,17 @@ struct Flickbot
 		return NearestBone;
 	}
 
-	Player *FindBestTarget()
-	{
-		Player *NearestTarget = nullptr;
+	Player* FindBestTarget() {
+		Player* NearestTarget = nullptr;
 		float BestDistance = 9999;
 		float BestFOV = std::min(Features::Flickbot::FOV, Features::Flickbot::FOV * (GetFOVScale() * Features::Flickbot::ZoomScale));
 		float LastPov = 9999;
 		Vector3D CameraPosition = Myself->CameraPosition;
-		for (int i = 0; i < Players->size(); i++)
-		{
-			Player *p = Players->at(i);
+		for (int i = 0; i < Players->size(); i++) {
+			Player* p = Players->at(i);
 			if (!IsValidTarget(p))
 				continue;
-			if (p->DistanceToLocalPlayer < Conversion::ToGameUnits(Features::Flickbot::ZoomDistance))
-			{
+			if (p->DistanceToLocalPlayer < Conversion::ToGameUnits(Features::Flickbot::ZoomDistance)) {
 				HitboxType BestBone = static_cast<HitboxType>(GetBestBone(p));
 				Vector3D TargetPosition = p->GetBonePosition(BestBone);
 

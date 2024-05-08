@@ -15,7 +15,6 @@
 // Internals
 #include "Font.hpp"
 #include "../Utils/InputManager.hpp"
-#include "../Utils/Themes.hpp"
 #include "../Utils/Config.hpp"
 #include "../Utils/Features.hpp"
 #include "../Utils/Weapons.hpp"
@@ -37,11 +36,9 @@ struct AdvancedGUI
 	int ColumnOffsetTest = 250;
 
 	// Padding between controls
-	const void Space(bool NoSeparator = false)
-	{
+	const void Space(bool NoSeparator = false) {
 		ImGui::Spacing();
-		if (!NoSeparator)
-		{
+		if (!NoSeparator) {
 			ImGui::Spacing();
 			ImGui::Separator();
 		}
@@ -50,27 +47,23 @@ struct AdvancedGUI
 	}
 
 	// Two Spacings In One! Who Would've Thought!
-	const void DoubleSpacing()
-	{
+	const void DoubleSpacing() {
 		ImGui::Spacing();
 		ImGui::Spacing();
 	}
 
 	// Ok, Three Spacings In One Is Pushing It.
-	const void TripleSpacing()
-	{
+	const void TripleSpacing() {
 		ImGui::Spacing();
 		ImGui::Spacing();
 		ImGui::Spacing();
 	}
 
 	// Help Marker
-	const void DrawHelpMarker(const char *desc)
-	{
+	const void DrawHelpMarker(const char* desc) {
 		ImGui::SameLine(ImGui::GetWindowWidth() - 50);
 		ImGui::TextDisabled("[?]");
-		if (ImGui::IsItemHovered())
-		{
+		if (ImGui::IsItemHovered()) {
 			ImGui::BeginTooltip();
 			ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
 			ImGui::TextUnformatted(desc);
@@ -80,13 +73,11 @@ struct AdvancedGUI
 	}
 
 	// Help Marker
-	static void Helper(const char *desc)
-	{
+	static void Helper(const char* desc) {
 
 		ImGui::SameLine(0.f, 5.f);
 		ImGui::Text("(?)");
-		if (ImGui::IsItemHovered())
-		{
+		if (ImGui::IsItemHovered()) {
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(4, 4));
 			ImGui::BeginTooltip();
 			ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
@@ -97,8 +88,7 @@ struct AdvancedGUI
 		}
 	}
 
-	void ComboBox(const char *label, const char *desc, int *current_item, const char *items_separated_by_zeros, int height_in_items)
-	{
+	void ComboBox(const char* label, const char* desc, int* current_item, const char* items_separated_by_zeros, int height_in_items) {
 		ImGui::Spacing();
 		ImGui::SameLine(15);
 		ImGui::TextColored(ImColor(255, 255, 255, 255), label);
@@ -113,36 +103,31 @@ struct AdvancedGUI
 	// Render Tabs
 
 	// Advanced Aimbot
-	void AdvancedAimbotTab(int WeaponID)
-	{
-		ImGui::BeginChildFrame(8, ImVec2(WindowWidth - 220, 150), true);
-		{
-			if (Features::Aimbot::AimbotEnabled)
+	void AdvancedAimbotTab(int WeaponID) {
+		if (Features::Aimbot::AimbotEnabled) {
+			ImGui::BeginChildFrame(8, ImVec2(WindowWidth - 220, 150), true);
 			{
 				ImGui::Spacing();
 				ImGui::Text("Advanced Aimbot");
 				ImGui::Checkbox("Enabled", &Features::Aimbot::AdvancedAim);
-				if (Features::Aimbot::AdvancedAim)
-				{
-					const char *AimbotModeIndex[] = {"Cubic Bezier [xap-client]", "Grinder", "[New] Cubic Bezier [Testing]"};
+				if (Features::Aimbot::AdvancedAim) {
+					const char* AimbotModeIndex[] = { "Cubic Bezier [xap-client]", "Grinder", "[New] Cubic Bezier [Testing]" };
 					ImGui::ComboBox("Aimbot Method", &Features::Aimbot::AimbotMode, AimbotModeIndex, IM_ARRAYSIZE(AimbotModeIndex));
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 						ImGui::SetTooltip("What Aimbot Method You Would Like.\nYou may find Grinder To Be More Legit/Smooth.");
-					if (Features::Aimbot::AimbotMode == 0 or Features::Aimbot::AimbotMode == 1)
-					{
-						const char *InputMethodIndex[] = {"Mouse", "Controller"};
+					if (Features::Aimbot::AimbotMode == 0 or Features::Aimbot::AimbotMode == 1) {
+						const char* InputMethodIndex[] = { "Mouse", "Controller" };
 						ImGui::ComboBox("Input Method", &Features::Aimbot::InputMethod, InputMethodIndex, IM_ARRAYSIZE(InputMethodIndex));
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("What Input Method The Aimbot Will Use.\nYou Can Use Controller Method With KBM, But I Recommend Mouse.");
 
-						const char *BindMethodIndex[] = {"Memory", "Keybinds"};
+						const char* BindMethodIndex[] = { "Memory", "Keybinds" };
 						ImGui::ComboBox("Aim Bind Method", &Features::Aimbot::BindMethod, BindMethodIndex, IM_ARRAYSIZE(BindMethodIndex));
 						ImGui::Text("Aim Conditions");
 						ImGui::Checkbox("Team Check##Aimbot", &Features::Aimbot::TeamCheck);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Disable this if doing 1v1s in the firing range.\nMay not work with Grinder Aim Method.");
-						if (Features::Aimbot::AimbotMode == 0)
-						{ // xap-client
+						if (Features::Aimbot::AimbotMode == 0) { // xap-client
 							ImGui::SameLine();
 							ImGui::Checkbox("Visibility Check", &Features::Aimbot::VisCheck);
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -159,32 +144,27 @@ struct AdvancedGUI
 
 							ImGui::Text("Targeting Options");
 							ImGui::Checkbox("Allow Target Switching", &Features::Aimbot::TargetSwitching);
-							const char *PriorityIndex[] = {"Closest To Crosshair", "Closest To LocalPlayer", "Both"};
+							const char* PriorityIndex[] = { "Closest To Crosshair", "Closest To LocalPlayer", "Both" };
 							ImGui::ComboBox("Target Priority", &Features::Aimbot::Priority, PriorityIndex, IM_ARRAYSIZE(PriorityIndex));
 							ImGui::Spacing();
 						}
 					}
-					if (Features::Aimbot::AimbotMode == 2)
-					{
+					if (Features::Aimbot::AimbotMode == 2) {
 						ImGui::Text("Selected Aimbot Mode Is Not Avaliable For Advanced Aim Currently (Not Setup Yet). Please Switch Aimbot Mode!");
 					}
 				}
+				ImGui::EndChildFrame();
 			}
-
-			if (!Features::Aimbot::AimbotEnabled)
-			{
-				ImGui::Text("Aimbot Is Disabled.");
-			}
-			ImGui::EndChildFrame();
+		} else if (!Features::Aimbot::AimbotEnabled) {
+			ImGui::Text("Aimbot Is Disabled!");
 		}
 
-		if (Features::Aimbot::AimbotEnabled && Features::Aimbot::AdvancedAim && Features::Aimbot::AimbotMode == 0 or Features::Aimbot::AimbotMode == 1)
-		{
+		if (Features::Aimbot::AimbotEnabled && Features::Aimbot::AdvancedAim && (Features::Aimbot::AimbotMode == 0 or Features::Aimbot::AimbotMode == 1)) {
 
 			// Actual Advanced Aimbot Stuff
 			ImGui::Spacing();
 
-			const char *WeaponsComboBox[] = {"-------- Light --------", "P2020", "RE-45", "Alternator", "R-99", "R-301", "Spitfire", "G7 Scout", "-------- Heavy --------", "Flatline", "Hemlock", "Prowler", "30-30 Repeater", "Rampage", "C.A.R SMG", "-------- Energy --------", "Havoc", "Devotion", "L-STAR", "Triple-Take", "Volt", "Nemesis", "-------- Shotguns --------", "Mozambique", "Peacekeeper", "Mastiff", "-------- Snipers --------", "Longbow", "Charge Rifle", "Sentinel", "-------- Legendary --------", "Wingman", "EVA-8 Auto", "Bocek", "Kraber", "Throwing Knife"};
+			const char* WeaponsComboBox[] = { "-------- Light --------", "P2020", "RE-45", "Alternator", "R-99", "R-301", "Spitfire", "G7 Scout", "-------- Heavy --------", "Flatline", "Hemlock", "Prowler", "30-30 Repeater", "Rampage", "C.A.R SMG", "-------- Energy --------", "Havoc", "Devotion", "L-STAR", "Triple-Take", "Volt", "Nemesis", "-------- Shotguns --------", "Mozambique", "Peacekeeper", "Mastiff", "-------- Snipers --------", "Longbow", "Charge Rifle", "Sentinel", "-------- Legendary --------", "Wingman", "EVA-8 Auto", "Bocek", "Kraber", "Throwing Knife" };
 			static int WeaponsComboBoxCurrent = 5;
 
 			ImGui::BeginChildFrame(25, ImVec2(WindowWidth - 220, WindowHeight - 268), true);
@@ -194,17 +174,14 @@ struct AdvancedGUI
 
 				if (WeaponsComboBoxCurrent == 1) // P2020
 				{
-					if (Features::Aimbot::P2020)
-					{
+					if (Features::Aimbot::P2020) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##P2020Aimbot", &Features::Aimbot::P2020Fire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##P2020Aimbot", &Features::Aimbot::P2020ADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int P2020AimBind = static_cast<int>(Features::AimbotBinds::P2020AimBind);
 							ImGui::ComboBox("Aim Bind##P2020Aimbot", &P2020AimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::P2020AimBind = static_cast<InputKeyType>(P2020AimBind);
@@ -212,13 +189,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##P2020Aimbot", &P2020ExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::P2020ExtraBind = static_cast<InputKeyType>(P2020ExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##P2020AdvancedHitbox", &Features::Aimbot::P2020ClosestHitbox);
-							if (!Features::Aimbot::P2020ClosestHitbox)
-							{
-								const char *P2020HitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::P2020ClosestHitbox) {
+								const char* P2020HitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int P2020HitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::P2020Hitbox);
 								ImGui::ComboBox("Hitbox Type##P2020AdvancedHitbox", &P2020HitboxTypeIndex, P2020HitboxTypes, IM_ARRAYSIZE(P2020HitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -227,11 +202,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *P2020SmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::P2020SmoothingMethod, P2020SmoothingMethodIndex, IM_ARRAYSIZE(P2020SmoothingMethodIndex));
+						const char* P2020SmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::P2020SmoothingMethod, P2020SmoothingMethodIndex, IM_ARRAYSIZE(P2020SmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedP2020", &Features::Aimbot::P2020Speed, 1, 100, "%.0f");
@@ -273,8 +247,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::P2020SmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedP2020", &Features::Aimbot::P2020HipfireSmooth1, 1, 1000, "%.0f");
@@ -319,29 +292,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::P2020MaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 2) // RE45
 				{
-					if (Features::Aimbot::RE45)
-					{
+					if (Features::Aimbot::RE45) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##RE45Aimbot", &Features::Aimbot::RE45Fire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##RE45Aimbot", &Features::Aimbot::RE45ADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int RE45AimBind = static_cast<int>(Features::AimbotBinds::RE45AimBind);
 							ImGui::ComboBox("Aim Bind##RE45Aimbot", &RE45AimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::RE45AimBind = static_cast<InputKeyType>(RE45AimBind);
@@ -349,13 +318,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##RE45Aimbot", &RE45ExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::RE45ExtraBind = static_cast<InputKeyType>(RE45ExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##RE45AdvancedHitbox", &Features::Aimbot::RE45ClosestHitbox);
-							if (!Features::Aimbot::RE45ClosestHitbox)
-							{
-								const char *RE45HitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::RE45ClosestHitbox) {
+								const char* RE45HitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int RE45HitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::RE45Hitbox);
 								ImGui::ComboBox("Hitbox Type##RE45AdvancedHitbox", &RE45HitboxTypeIndex, RE45HitboxTypes, IM_ARRAYSIZE(RE45HitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -364,11 +331,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *RE45SmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::RE45SmoothingMethod, RE45SmoothingMethodIndex, IM_ARRAYSIZE(RE45SmoothingMethodIndex));
+						const char* RE45SmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::RE45SmoothingMethod, RE45SmoothingMethodIndex, IM_ARRAYSIZE(RE45SmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedRE45", &Features::Aimbot::RE45Speed, 1, 100, "%.0f");
@@ -410,8 +376,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::RE45SmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedRE45", &Features::Aimbot::RE45HipfireSmooth1, 1, 1000, "%.0f");
@@ -437,7 +402,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The RE45 Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedRE45", &Features::Aimbot::RE45ExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -456,29 +421,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::RE45MaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 3) // Alternator
 				{
-					if (Features::Aimbot::Alternator)
-					{
+					if (Features::Aimbot::Alternator) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##AlternatorAimbot", &Features::Aimbot::AlternatorFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##AlternatorAimbot", &Features::Aimbot::AlternatorADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int AlternatorAimBind = static_cast<int>(Features::AimbotBinds::AlternatorAimBind);
 							ImGui::ComboBox("Aim Bind##AlternatorAimbot", &AlternatorAimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::AlternatorAimBind = static_cast<InputKeyType>(AlternatorAimBind);
@@ -486,13 +447,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##AlternatorAimbot", &AlternatorExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::AlternatorExtraBind = static_cast<InputKeyType>(AlternatorExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##AlternatorAdvancedHitbox", &Features::Aimbot::AlternatorClosestHitbox);
-							if (!Features::Aimbot::AlternatorClosestHitbox)
-							{
-								const char *AlternatorHitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::AlternatorClosestHitbox) {
+								const char* AlternatorHitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int AlternatorHitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::AlternatorHitbox);
 								ImGui::ComboBox("Hitbox Type##AlternatorAdvancedHitbox", &AlternatorHitboxTypeIndex, AlternatorHitboxTypes, IM_ARRAYSIZE(AlternatorHitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -501,11 +460,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *AlternatorSmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::AlternatorSmoothingMethod, AlternatorSmoothingMethodIndex, IM_ARRAYSIZE(AlternatorSmoothingMethodIndex));
+						const char* AlternatorSmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::AlternatorSmoothingMethod, AlternatorSmoothingMethodIndex, IM_ARRAYSIZE(AlternatorSmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedAlternator", &Features::Aimbot::AlternatorSpeed, 1, 100, "%.0f");
@@ -547,8 +505,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::AlternatorSmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedAlternator", &Features::Aimbot::AlternatorHipfireSmooth1, 1, 1000, "%.0f");
@@ -574,7 +531,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The Alternator Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedAlternator", &Features::Aimbot::AlternatorExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -593,29 +550,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::AlternatorMaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 4) // R99
 				{
-					if (Features::Aimbot::R99)
-					{
+					if (Features::Aimbot::R99) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##R99Aimbot", &Features::Aimbot::R99Fire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##R99Aimbot", &Features::Aimbot::R99ADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int R99AimBind = static_cast<int>(Features::AimbotBinds::R99AimBind);
 							ImGui::ComboBox("Aim Bind##R99Aimbot", &R99AimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::R99AimBind = static_cast<InputKeyType>(R99AimBind);
@@ -623,13 +576,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##R99Aimbot", &R99ExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::R99ExtraBind = static_cast<InputKeyType>(R99ExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##R99AdvancedHitbox", &Features::Aimbot::R99ClosestHitbox);
-							if (!Features::Aimbot::R99ClosestHitbox)
-							{
-								const char *R99HitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::R99ClosestHitbox) {
+								const char* R99HitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int R99HitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::R99Hitbox);
 								ImGui::ComboBox("Hitbox Type##R99AdvancedHitbox", &R99HitboxTypeIndex, R99HitboxTypes, IM_ARRAYSIZE(R99HitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -638,11 +589,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *R99SmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::R99SmoothingMethod, R99SmoothingMethodIndex, IM_ARRAYSIZE(R99SmoothingMethodIndex));
+						const char* R99SmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::R99SmoothingMethod, R99SmoothingMethodIndex, IM_ARRAYSIZE(R99SmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedR99", &Features::Aimbot::R99Speed, 1, 100, "%.0f");
@@ -684,8 +634,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::R99SmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedR99", &Features::Aimbot::R99HipfireSmooth1, 1, 1000, "%.0f");
@@ -711,7 +660,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The R99 Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedR99", &Features::Aimbot::R99ExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -730,29 +679,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::R99MaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 5) // R301
 				{
-					if (Features::Aimbot::R301)
-					{
+					if (Features::Aimbot::R301) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##R301Aimbot", &Features::Aimbot::R301Fire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##R301Aimbot", &Features::Aimbot::R301ADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int R301AimBind = static_cast<int>(Features::AimbotBinds::R301AimBind);
 							ImGui::ComboBox("Aim Bind##R301Aimbot", &R301AimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::R301AimBind = static_cast<InputKeyType>(R301AimBind);
@@ -760,13 +705,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##R301Aimbot", &R301ExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::R301ExtraBind = static_cast<InputKeyType>(R301ExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##R301AdvancedHitbox", &Features::Aimbot::R301ClosestHitbox);
-							if (!Features::Aimbot::R301ClosestHitbox)
-							{
-								const char *R301HitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::R301ClosestHitbox) {
+								const char* R301HitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int R301HitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::R301Hitbox);
 								ImGui::ComboBox("Hitbox Type##R301AdvancedHitbox", &R301HitboxTypeIndex, R301HitboxTypes, IM_ARRAYSIZE(R301HitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -775,11 +718,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *R301SmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::R301SmoothingMethod, R301SmoothingMethodIndex, IM_ARRAYSIZE(R301SmoothingMethodIndex));
+						const char* R301SmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::R301SmoothingMethod, R301SmoothingMethodIndex, IM_ARRAYSIZE(R301SmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedR301", &Features::Aimbot::R301Speed, 1, 100, "%.0f");
@@ -821,8 +763,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::R301SmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedR301", &Features::Aimbot::R301HipfireSmooth1, 1, 1000, "%.0f");
@@ -848,7 +789,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The R301 Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedR301", &Features::Aimbot::R301ExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -867,29 +808,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::R301MaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 6) // Spitfire
 				{
-					if (Features::Aimbot::Spitfire)
-					{
+					if (Features::Aimbot::Spitfire) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##SpitfireAimbot", &Features::Aimbot::SpitfireFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##SpitfireAimbot", &Features::Aimbot::SpitfireADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int SpitfireAimBind = static_cast<int>(Features::AimbotBinds::SpitfireAimBind);
 							ImGui::ComboBox("Aim Bind##SpitfireAimbot", &SpitfireAimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::SpitfireAimBind = static_cast<InputKeyType>(SpitfireAimBind);
@@ -897,13 +834,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##SpitfireAimbot", &SpitfireExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::SpitfireExtraBind = static_cast<InputKeyType>(SpitfireExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##SpitfireAdvancedHitbox", &Features::Aimbot::SpitfireClosestHitbox);
-							if (!Features::Aimbot::SpitfireClosestHitbox)
-							{
-								const char *SpitfireHitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::SpitfireClosestHitbox) {
+								const char* SpitfireHitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int SpitfireHitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::SpitfireHitbox);
 								ImGui::ComboBox("Hitbox Type##SpitfireAdvancedHitbox", &SpitfireHitboxTypeIndex, SpitfireHitboxTypes, IM_ARRAYSIZE(SpitfireHitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -912,11 +847,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *SpitfireSmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::SpitfireSmoothingMethod, SpitfireSmoothingMethodIndex, IM_ARRAYSIZE(SpitfireSmoothingMethodIndex));
+						const char* SpitfireSmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::SpitfireSmoothingMethod, SpitfireSmoothingMethodIndex, IM_ARRAYSIZE(SpitfireSmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedSpitfire", &Features::Aimbot::SpitfireSpeed, 1, 100, "%.0f");
@@ -958,8 +892,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::SpitfireSmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedSpitfire", &Features::Aimbot::SpitfireHipfireSmooth1, 1, 1000, "%.0f");
@@ -985,7 +918,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The Spitfire Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedSpitfire", &Features::Aimbot::SpitfireExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -1004,29 +937,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::SpitfireMaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 7) // G7
 				{
-					if (Features::Aimbot::G7)
-					{
+					if (Features::Aimbot::G7) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##G7Aimbot", &Features::Aimbot::G7Fire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##G7Aimbot", &Features::Aimbot::G7ADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int G7AimBind = static_cast<int>(Features::AimbotBinds::G7AimBind);
 							ImGui::ComboBox("Aim Bind##G7Aimbot", &G7AimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::G7AimBind = static_cast<InputKeyType>(G7AimBind);
@@ -1034,13 +963,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##G7Aimbot", &G7ExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::G7ExtraBind = static_cast<InputKeyType>(G7ExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##G7AdvancedHitbox", &Features::Aimbot::G7ClosestHitbox);
-							if (!Features::Aimbot::G7ClosestHitbox)
-							{
-								const char *G7HitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::G7ClosestHitbox) {
+								const char* G7HitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int G7HitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::G7Hitbox);
 								ImGui::ComboBox("Hitbox Type##G7AdvancedHitbox", &G7HitboxTypeIndex, G7HitboxTypes, IM_ARRAYSIZE(G7HitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -1049,11 +976,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *G7SmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::G7SmoothingMethod, G7SmoothingMethodIndex, IM_ARRAYSIZE(G7SmoothingMethodIndex));
+						const char* G7SmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::G7SmoothingMethod, G7SmoothingMethodIndex, IM_ARRAYSIZE(G7SmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedG7", &Features::Aimbot::G7Speed, 1, 100, "%.0f");
@@ -1095,8 +1021,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::G7SmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedG7", &Features::Aimbot::G7HipfireSmooth1, 1, 1000, "%.0f");
@@ -1122,7 +1047,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The G7 Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedG7", &Features::Aimbot::G7ExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -1141,29 +1066,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::G7MaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 9) // Flatline
 				{
-					if (Features::Aimbot::Flatline)
-					{
+					if (Features::Aimbot::Flatline) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##FlatlineAimbot", &Features::Aimbot::FlatlineFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##FlatlineAimbot", &Features::Aimbot::FlatlineADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int FlatlineAimBind = static_cast<int>(Features::AimbotBinds::FlatlineAimBind);
 							ImGui::ComboBox("Aim Bind##FlatlineAimbot", &FlatlineAimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::FlatlineAimBind = static_cast<InputKeyType>(FlatlineAimBind);
@@ -1171,13 +1092,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##FlatlineAimbot", &FlatlineExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::FlatlineExtraBind = static_cast<InputKeyType>(FlatlineExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##FlatlineAdvancedHitbox", &Features::Aimbot::FlatlineClosestHitbox);
-							if (!Features::Aimbot::FlatlineClosestHitbox)
-							{
-								const char *FlatlineHitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::FlatlineClosestHitbox) {
+								const char* FlatlineHitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int FlatlineHitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::FlatlineHitbox);
 								ImGui::ComboBox("Hitbox Type##FlatlineAdvancedHitbox", &FlatlineHitboxTypeIndex, FlatlineHitboxTypes, IM_ARRAYSIZE(FlatlineHitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -1186,11 +1105,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *FlatlineSmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::FlatlineSmoothingMethod, FlatlineSmoothingMethodIndex, IM_ARRAYSIZE(FlatlineSmoothingMethodIndex));
+						const char* FlatlineSmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::FlatlineSmoothingMethod, FlatlineSmoothingMethodIndex, IM_ARRAYSIZE(FlatlineSmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedFlatline", &Features::Aimbot::FlatlineSpeed, 1, 100, "%.0f");
@@ -1232,8 +1150,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::FlatlineSmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedFlatline", &Features::Aimbot::FlatlineHipfireSmooth1, 1, 1000, "%.0f");
@@ -1259,7 +1176,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The Flatline Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedFlatline", &Features::Aimbot::FlatlineExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -1278,29 +1195,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::FlatlineMaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 10) // Hemlock
 				{
-					if (Features::Aimbot::Hemlock)
-					{
+					if (Features::Aimbot::Hemlock) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##HemlockAimbot", &Features::Aimbot::HemlockFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##HemlockAimbot", &Features::Aimbot::HemlockADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int HemlockAimBind = static_cast<int>(Features::AimbotBinds::HemlockAimBind);
 							ImGui::ComboBox("Aim Bind##HemlockAimbot", &HemlockAimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::HemlockAimBind = static_cast<InputKeyType>(HemlockAimBind);
@@ -1308,13 +1221,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##HemlockAimbot", &HemlockExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::HemlockExtraBind = static_cast<InputKeyType>(HemlockExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##HemlockAdvancedHitbox", &Features::Aimbot::HemlockClosestHitbox);
-							if (!Features::Aimbot::HemlockClosestHitbox)
-							{
-								const char *HemlockHitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::HemlockClosestHitbox) {
+								const char* HemlockHitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int HemlockHitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::HemlockHitbox);
 								ImGui::ComboBox("Hitbox Type##HemlockAdvancedHitbox", &HemlockHitboxTypeIndex, HemlockHitboxTypes, IM_ARRAYSIZE(HemlockHitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -1323,11 +1234,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *HemlockSmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::HemlockSmoothingMethod, HemlockSmoothingMethodIndex, IM_ARRAYSIZE(HemlockSmoothingMethodIndex));
+						const char* HemlockSmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::HemlockSmoothingMethod, HemlockSmoothingMethodIndex, IM_ARRAYSIZE(HemlockSmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedHemlock", &Features::Aimbot::HemlockSpeed, 1, 100, "%.0f");
@@ -1369,8 +1279,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::HemlockSmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedHemlock", &Features::Aimbot::HemlockHipfireSmooth1, 1, 1000, "%.0f");
@@ -1396,7 +1305,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The Hemlock Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedHemlock", &Features::Aimbot::HemlockExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -1415,29 +1324,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::HemlockMaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 11) // Prowler
 				{
-					if (Features::Aimbot::Prowler)
-					{
+					if (Features::Aimbot::Prowler) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##ProwlerAimbot", &Features::Aimbot::ProwlerFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##ProwlerAimbot", &Features::Aimbot::ProwlerADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int ProwlerAimBind = static_cast<int>(Features::AimbotBinds::ProwlerAimBind);
 							ImGui::ComboBox("Aim Bind##ProwlerAimbot", &ProwlerAimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::ProwlerAimBind = static_cast<InputKeyType>(ProwlerAimBind);
@@ -1445,13 +1350,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##ProwlerAimbot", &ProwlerExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::ProwlerExtraBind = static_cast<InputKeyType>(ProwlerExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##ProwlerAdvancedHitbox", &Features::Aimbot::ProwlerClosestHitbox);
-							if (!Features::Aimbot::ProwlerClosestHitbox)
-							{
-								const char *ProwlerHitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::ProwlerClosestHitbox) {
+								const char* ProwlerHitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int ProwlerHitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::ProwlerHitbox);
 								ImGui::ComboBox("Hitbox Type##ProwlerAdvancedHitbox", &ProwlerHitboxTypeIndex, ProwlerHitboxTypes, IM_ARRAYSIZE(ProwlerHitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -1460,11 +1363,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *ProwlerSmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::ProwlerSmoothingMethod, ProwlerSmoothingMethodIndex, IM_ARRAYSIZE(ProwlerSmoothingMethodIndex));
+						const char* ProwlerSmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::ProwlerSmoothingMethod, ProwlerSmoothingMethodIndex, IM_ARRAYSIZE(ProwlerSmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedProwler", &Features::Aimbot::ProwlerSpeed, 1, 100, "%.0f");
@@ -1506,8 +1408,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::ProwlerSmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedProwler", &Features::Aimbot::ProwlerHipfireSmooth1, 1, 1000, "%.0f");
@@ -1533,7 +1434,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The Prowler Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedProwler", &Features::Aimbot::ProwlerExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -1552,29 +1453,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::ProwlerMaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 12) // Repeater
 				{
-					if (Features::Aimbot::Repeater)
-					{
+					if (Features::Aimbot::Repeater) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##RepeaterAimbot", &Features::Aimbot::RepeaterFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##RepeaterAimbot", &Features::Aimbot::RepeaterADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int RepeaterAimBind = static_cast<int>(Features::AimbotBinds::RepeaterAimBind);
 							ImGui::ComboBox("Aim Bind##RepeaterAimbot", &RepeaterAimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::RepeaterAimBind = static_cast<InputKeyType>(RepeaterAimBind);
@@ -1582,13 +1479,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##RepeaterAimbot", &RepeaterExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::RepeaterExtraBind = static_cast<InputKeyType>(RepeaterExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##RepeaterAdvancedHitbox", &Features::Aimbot::RepeaterClosestHitbox);
-							if (!Features::Aimbot::RepeaterClosestHitbox)
-							{
-								const char *RepeaterHitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::RepeaterClosestHitbox) {
+								const char* RepeaterHitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int RepeaterHitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::RepeaterHitbox);
 								ImGui::ComboBox("Hitbox Type##RepeaterAdvancedHitbox", &RepeaterHitboxTypeIndex, RepeaterHitboxTypes, IM_ARRAYSIZE(RepeaterHitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -1597,11 +1492,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *RepeaterSmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::RepeaterSmoothingMethod, RepeaterSmoothingMethodIndex, IM_ARRAYSIZE(RepeaterSmoothingMethodIndex));
+						const char* RepeaterSmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::RepeaterSmoothingMethod, RepeaterSmoothingMethodIndex, IM_ARRAYSIZE(RepeaterSmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedRepeater", &Features::Aimbot::RepeaterSpeed, 1, 100, "%.0f");
@@ -1643,8 +1537,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::RepeaterSmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedRepeater", &Features::Aimbot::RepeaterHipfireSmooth1, 1, 1000, "%.0f");
@@ -1670,7 +1563,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The Repeater Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedRepeater", &Features::Aimbot::RepeaterExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -1689,29 +1582,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::RepeaterMaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 13) // Rampage
 				{
-					if (Features::Aimbot::Rampage)
-					{
+					if (Features::Aimbot::Rampage) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##RampageAimbot", &Features::Aimbot::RampageFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##RampageAimbot", &Features::Aimbot::RampageADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int RampageAimBind = static_cast<int>(Features::AimbotBinds::RampageAimBind);
 							ImGui::ComboBox("Aim Bind##RampageAimbot", &RampageAimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::RampageAimBind = static_cast<InputKeyType>(RampageAimBind);
@@ -1719,13 +1608,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##RampageAimbot", &RampageExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::RampageExtraBind = static_cast<InputKeyType>(RampageExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##RampageAdvancedHitbox", &Features::Aimbot::RampageClosestHitbox);
-							if (!Features::Aimbot::RampageClosestHitbox)
-							{
-								const char *RampageHitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::RampageClosestHitbox) {
+								const char* RampageHitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int RampageHitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::RampageHitbox);
 								ImGui::ComboBox("Hitbox Type##RampageAdvancedHitbox", &RampageHitboxTypeIndex, RampageHitboxTypes, IM_ARRAYSIZE(RampageHitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -1734,11 +1621,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *RampageSmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::RampageSmoothingMethod, RampageSmoothingMethodIndex, IM_ARRAYSIZE(RampageSmoothingMethodIndex));
+						const char* RampageSmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::RampageSmoothingMethod, RampageSmoothingMethodIndex, IM_ARRAYSIZE(RampageSmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedRampage", &Features::Aimbot::RampageSpeed, 1, 100, "%.0f");
@@ -1780,8 +1666,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::RampageSmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedRampage", &Features::Aimbot::RampageHipfireSmooth1, 1, 1000, "%.0f");
@@ -1807,7 +1692,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The Rampage Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedRampage", &Features::Aimbot::RampageExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -1826,29 +1711,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::RampageMaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 14) // CARSMG
 				{
-					if (Features::Aimbot::CARSMG)
-					{
+					if (Features::Aimbot::CARSMG) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##CARSMGAimbot", &Features::Aimbot::CARSMGFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##CARSMGAimbot", &Features::Aimbot::CARSMGADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int CARSMGAimBind = static_cast<int>(Features::AimbotBinds::CARSMGAimBind);
 							ImGui::ComboBox("Aim Bind##CARSMGAimbot", &CARSMGAimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::CARSMGAimBind = static_cast<InputKeyType>(CARSMGAimBind);
@@ -1856,13 +1737,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##CARSMGAimbot", &CARSMGExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::CARSMGExtraBind = static_cast<InputKeyType>(CARSMGExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##CARSMGAdvancedHitbox", &Features::Aimbot::CARSMGClosestHitbox);
-							if (!Features::Aimbot::CARSMGClosestHitbox)
-							{
-								const char *CARSMGHitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::CARSMGClosestHitbox) {
+								const char* CARSMGHitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int CARSMGHitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::CARSMGHitbox);
 								ImGui::ComboBox("Hitbox Type##CARSMGAdvancedHitbox", &CARSMGHitboxTypeIndex, CARSMGHitboxTypes, IM_ARRAYSIZE(CARSMGHitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -1871,11 +1750,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *CARSMGSmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::CARSMGSmoothingMethod, CARSMGSmoothingMethodIndex, IM_ARRAYSIZE(CARSMGSmoothingMethodIndex));
+						const char* CARSMGSmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::CARSMGSmoothingMethod, CARSMGSmoothingMethodIndex, IM_ARRAYSIZE(CARSMGSmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedCARSMG", &Features::Aimbot::CARSMGSpeed, 1, 100, "%.0f");
@@ -1917,8 +1795,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::CARSMGSmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedCARSMG", &Features::Aimbot::CARSMGHipfireSmooth1, 1, 1000, "%.0f");
@@ -1944,7 +1821,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The CARSMG Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedCARSMG", &Features::Aimbot::CARSMGExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -1963,29 +1840,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::CARSMGMaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 16) // Havoc
 				{
-					if (Features::Aimbot::Havoc)
-					{
+					if (Features::Aimbot::Havoc) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##HavocAimbot", &Features::Aimbot::HavocFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##HavocAimbot", &Features::Aimbot::HavocADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int HavocAimBind = static_cast<int>(Features::AimbotBinds::HavocAimBind);
 							ImGui::ComboBox("Aim Bind##HavocAimbot", &HavocAimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::HavocAimBind = static_cast<InputKeyType>(HavocAimBind);
@@ -1993,13 +1866,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##HavocAimbot", &HavocExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::HavocExtraBind = static_cast<InputKeyType>(HavocExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##HavocAdvancedHitbox", &Features::Aimbot::HavocClosestHitbox);
-							if (!Features::Aimbot::HavocClosestHitbox)
-							{
-								const char *HavocHitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::HavocClosestHitbox) {
+								const char* HavocHitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int HavocHitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::HavocHitbox);
 								ImGui::ComboBox("Hitbox Type##HavocAdvancedHitbox", &HavocHitboxTypeIndex, HavocHitboxTypes, IM_ARRAYSIZE(HavocHitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -2008,11 +1879,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *HavocSmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::HavocSmoothingMethod, HavocSmoothingMethodIndex, IM_ARRAYSIZE(HavocSmoothingMethodIndex));
+						const char* HavocSmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::HavocSmoothingMethod, HavocSmoothingMethodIndex, IM_ARRAYSIZE(HavocSmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedHavoc", &Features::Aimbot::HavocSpeed, 1, 100, "%.0f");
@@ -2054,8 +1924,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::HavocSmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedHavoc", &Features::Aimbot::HavocHipfireSmooth1, 1, 1000, "%.0f");
@@ -2081,7 +1950,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The Havoc Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedHavoc", &Features::Aimbot::HavocExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -2100,29 +1969,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::HavocMaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 17) // Devotion
 				{
-					if (Features::Aimbot::Devotion)
-					{
+					if (Features::Aimbot::Devotion) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##DevotionAimbot", &Features::Aimbot::DevotionFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##DevotionAimbot", &Features::Aimbot::DevotionADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int DevotionAimBind = static_cast<int>(Features::AimbotBinds::DevotionAimBind);
 							ImGui::ComboBox("Aim Bind##DevotionAimbot", &DevotionAimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::DevotionAimBind = static_cast<InputKeyType>(DevotionAimBind);
@@ -2130,13 +1995,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##DevotionAimbot", &DevotionExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::DevotionExtraBind = static_cast<InputKeyType>(DevotionExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##DevotionAdvancedHitbox", &Features::Aimbot::DevotionClosestHitbox);
-							if (!Features::Aimbot::DevotionClosestHitbox)
-							{
-								const char *DevotionHitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::DevotionClosestHitbox) {
+								const char* DevotionHitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int DevotionHitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::DevotionHitbox);
 								ImGui::ComboBox("Hitbox Type##DevotionAdvancedHitbox", &DevotionHitboxTypeIndex, DevotionHitboxTypes, IM_ARRAYSIZE(DevotionHitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -2145,11 +2008,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *DevotionSmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::DevotionSmoothingMethod, DevotionSmoothingMethodIndex, IM_ARRAYSIZE(DevotionSmoothingMethodIndex));
+						const char* DevotionSmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::DevotionSmoothingMethod, DevotionSmoothingMethodIndex, IM_ARRAYSIZE(DevotionSmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedDevotion", &Features::Aimbot::DevotionSpeed, 1, 100, "%.0f");
@@ -2191,8 +2053,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::DevotionSmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedDevotion", &Features::Aimbot::DevotionHipfireSmooth1, 1, 1000, "%.0f");
@@ -2218,7 +2079,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The Devotion Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedDevotion", &Features::Aimbot::DevotionExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -2237,29 +2098,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::DevotionMaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 18) // LSTAR
 				{
-					if (Features::Aimbot::LSTAR)
-					{
+					if (Features::Aimbot::LSTAR) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##LSTARAimbot", &Features::Aimbot::LSTARFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##LSTARAimbot", &Features::Aimbot::LSTARADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int LSTARAimBind = static_cast<int>(Features::AimbotBinds::LSTARAimBind);
 							ImGui::ComboBox("Aim Bind##LSTARAimbot", &LSTARAimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::LSTARAimBind = static_cast<InputKeyType>(LSTARAimBind);
@@ -2267,13 +2124,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##LSTARAimbot", &LSTARExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::LSTARExtraBind = static_cast<InputKeyType>(LSTARExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##LSTARAdvancedHitbox", &Features::Aimbot::LSTARClosestHitbox);
-							if (!Features::Aimbot::LSTARClosestHitbox)
-							{
-								const char *LSTARHitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::LSTARClosestHitbox) {
+								const char* LSTARHitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int LSTARHitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::LSTARHitbox);
 								ImGui::ComboBox("Hitbox Type##LSTARAdvancedHitbox", &LSTARHitboxTypeIndex, LSTARHitboxTypes, IM_ARRAYSIZE(LSTARHitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -2282,11 +2137,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *LSTARSmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::LSTARSmoothingMethod, LSTARSmoothingMethodIndex, IM_ARRAYSIZE(LSTARSmoothingMethodIndex));
+						const char* LSTARSmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::LSTARSmoothingMethod, LSTARSmoothingMethodIndex, IM_ARRAYSIZE(LSTARSmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedLSTAR", &Features::Aimbot::LSTARSpeed, 1, 100, "%.0f");
@@ -2328,8 +2182,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::LSTARSmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedLSTAR", &Features::Aimbot::LSTARHipfireSmooth1, 1, 1000, "%.0f");
@@ -2355,7 +2208,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The LSTAR Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedLSTAR", &Features::Aimbot::LSTARExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -2374,29 +2227,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::LSTARMaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 19) // TripleTake
 				{
-					if (Features::Aimbot::TripleTake)
-					{
+					if (Features::Aimbot::TripleTake) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##TripleTakeAimbot", &Features::Aimbot::TripleTakeFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##TripleTakeAimbot", &Features::Aimbot::TripleTakeADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int TripleTakeAimBind = static_cast<int>(Features::AimbotBinds::TripleTakeAimBind);
 							ImGui::ComboBox("Aim Bind##TripleTakeAimbot", &TripleTakeAimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::TripleTakeAimBind = static_cast<InputKeyType>(TripleTakeAimBind);
@@ -2404,13 +2253,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##TripleTakeAimbot", &TripleTakeExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::TripleTakeExtraBind = static_cast<InputKeyType>(TripleTakeExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##TripleTakeAdvancedHitbox", &Features::Aimbot::TripleTakeClosestHitbox);
-							if (!Features::Aimbot::TripleTakeClosestHitbox)
-							{
-								const char *TripleTakeHitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::TripleTakeClosestHitbox) {
+								const char* TripleTakeHitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int TripleTakeHitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::TripleTakeHitbox);
 								ImGui::ComboBox("Hitbox Type##TripleTakeAdvancedHitbox", &TripleTakeHitboxTypeIndex, TripleTakeHitboxTypes, IM_ARRAYSIZE(TripleTakeHitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -2419,11 +2266,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *TripleTakeSmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::TripleTakeSmoothingMethod, TripleTakeSmoothingMethodIndex, IM_ARRAYSIZE(TripleTakeSmoothingMethodIndex));
+						const char* TripleTakeSmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::TripleTakeSmoothingMethod, TripleTakeSmoothingMethodIndex, IM_ARRAYSIZE(TripleTakeSmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedTripleTake", &Features::Aimbot::TripleTakeSpeed, 1, 100, "%.0f");
@@ -2465,8 +2311,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::TripleTakeSmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedTripleTake", &Features::Aimbot::TripleTakeHipfireSmooth1, 1, 1000, "%.0f");
@@ -2492,7 +2337,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The TripleTake Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedTripleTake", &Features::Aimbot::TripleTakeExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -2511,29 +2356,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::TripleTakeMaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 20) // Volt
 				{
-					if (Features::Aimbot::Volt)
-					{
+					if (Features::Aimbot::Volt) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##VoltAimbot", &Features::Aimbot::VoltFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##VoltAimbot", &Features::Aimbot::VoltADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int VoltAimBind = static_cast<int>(Features::AimbotBinds::VoltAimBind);
 							ImGui::ComboBox("Aim Bind##VoltAimbot", &VoltAimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::VoltAimBind = static_cast<InputKeyType>(VoltAimBind);
@@ -2541,13 +2382,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##VoltAimbot", &VoltExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::VoltExtraBind = static_cast<InputKeyType>(VoltExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##VoltAdvancedHitbox", &Features::Aimbot::VoltClosestHitbox);
-							if (!Features::Aimbot::VoltClosestHitbox)
-							{
-								const char *VoltHitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::VoltClosestHitbox) {
+								const char* VoltHitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int VoltHitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::VoltHitbox);
 								ImGui::ComboBox("Hitbox Type##VoltAdvancedHitbox", &VoltHitboxTypeIndex, VoltHitboxTypes, IM_ARRAYSIZE(VoltHitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -2556,11 +2395,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *VoltSmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::VoltSmoothingMethod, VoltSmoothingMethodIndex, IM_ARRAYSIZE(VoltSmoothingMethodIndex));
+						const char* VoltSmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::VoltSmoothingMethod, VoltSmoothingMethodIndex, IM_ARRAYSIZE(VoltSmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedVolt", &Features::Aimbot::VoltSpeed, 1, 100, "%.0f");
@@ -2602,8 +2440,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::VoltSmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedVolt", &Features::Aimbot::VoltHipfireSmooth1, 1, 1000, "%.0f");
@@ -2629,7 +2466,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The Volt Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedVolt", &Features::Aimbot::VoltExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -2648,29 +2485,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::VoltMaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 21) // Nemesis
 				{
-					if (Features::Aimbot::Nemesis)
-					{
+					if (Features::Aimbot::Nemesis) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##NemesisAimbot", &Features::Aimbot::NemesisFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##NemesisAimbot", &Features::Aimbot::NemesisADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int NemesisAimBind = static_cast<int>(Features::AimbotBinds::NemesisAimBind);
 							ImGui::ComboBox("Aim Bind##NemesisAimbot", &NemesisAimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::NemesisAimBind = static_cast<InputKeyType>(NemesisAimBind);
@@ -2678,13 +2511,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##NemesisAimbot", &NemesisExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::NemesisExtraBind = static_cast<InputKeyType>(NemesisExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##NemesisAdvancedHitbox", &Features::Aimbot::NemesisClosestHitbox);
-							if (!Features::Aimbot::NemesisClosestHitbox)
-							{
-								const char *NemesisHitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::NemesisClosestHitbox) {
+								const char* NemesisHitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int NemesisHitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::NemesisHitbox);
 								ImGui::ComboBox("Hitbox Type##NemesisAdvancedHitbox", &NemesisHitboxTypeIndex, NemesisHitboxTypes, IM_ARRAYSIZE(NemesisHitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -2693,11 +2524,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *NemesisSmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::NemesisSmoothingMethod, NemesisSmoothingMethodIndex, IM_ARRAYSIZE(NemesisSmoothingMethodIndex));
+						const char* NemesisSmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::NemesisSmoothingMethod, NemesisSmoothingMethodIndex, IM_ARRAYSIZE(NemesisSmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedNemesis", &Features::Aimbot::NemesisSpeed, 1, 100, "%.0f");
@@ -2739,8 +2569,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::NemesisSmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedNemesis", &Features::Aimbot::NemesisHipfireSmooth1, 1, 1000, "%.0f");
@@ -2766,7 +2595,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The Nemesis Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedNemesis", &Features::Aimbot::NemesisExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -2785,29 +2614,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::NemesisMaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 23) // Mozambique
 				{
-					if (Features::Aimbot::Mozambique)
-					{
+					if (Features::Aimbot::Mozambique) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##MozambiqueAimbot", &Features::Aimbot::MozambiqueFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##MozambiqueAimbot", &Features::Aimbot::MozambiqueADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int MozambiqueAimBind = static_cast<int>(Features::AimbotBinds::MozambiqueAimBind);
 							ImGui::ComboBox("Aim Bind##MozambiqueAimbot", &MozambiqueAimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::MozambiqueAimBind = static_cast<InputKeyType>(MozambiqueAimBind);
@@ -2815,13 +2640,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##MozambiqueAimbot", &MozambiqueExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::MozambiqueExtraBind = static_cast<InputKeyType>(MozambiqueExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##MozambiqueAdvancedHitbox", &Features::Aimbot::MozambiqueClosestHitbox);
-							if (!Features::Aimbot::MozambiqueClosestHitbox)
-							{
-								const char *MozambiqueHitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::MozambiqueClosestHitbox) {
+								const char* MozambiqueHitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int MozambiqueHitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::MozambiqueHitbox);
 								ImGui::ComboBox("Hitbox Type##MozambiqueAdvancedHitbox", &MozambiqueHitboxTypeIndex, MozambiqueHitboxTypes, IM_ARRAYSIZE(MozambiqueHitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -2830,11 +2653,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *MozambiqueSmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::MozambiqueSmoothingMethod, MozambiqueSmoothingMethodIndex, IM_ARRAYSIZE(MozambiqueSmoothingMethodIndex));
+						const char* MozambiqueSmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::MozambiqueSmoothingMethod, MozambiqueSmoothingMethodIndex, IM_ARRAYSIZE(MozambiqueSmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedMozambique", &Features::Aimbot::MozambiqueSpeed, 1, 100, "%.0f");
@@ -2876,8 +2698,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::MozambiqueSmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedMozambique", &Features::Aimbot::MozambiqueHipfireSmooth1, 1, 1000, "%.0f");
@@ -2903,7 +2724,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The Mozambique Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedMozambique", &Features::Aimbot::MozambiqueExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -2922,29 +2743,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::MozambiqueMaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 24) // Peacekeeper
 				{
-					if (Features::Aimbot::Peacekeeper)
-					{
+					if (Features::Aimbot::Peacekeeper) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##PeacekeeperAimbot", &Features::Aimbot::PeacekeeperFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##PeacekeeperAimbot", &Features::Aimbot::PeacekeeperADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int PeacekeeperAimBind = static_cast<int>(Features::AimbotBinds::PeacekeeperAimBind);
 							ImGui::ComboBox("Aim Bind##PeacekeeperAimbot", &PeacekeeperAimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::PeacekeeperAimBind = static_cast<InputKeyType>(PeacekeeperAimBind);
@@ -2952,13 +2769,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##PeacekeeperAimbot", &PeacekeeperExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::PeacekeeperExtraBind = static_cast<InputKeyType>(PeacekeeperExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##PeacekeeperAdvancedHitbox", &Features::Aimbot::PeacekeeperClosestHitbox);
-							if (!Features::Aimbot::PeacekeeperClosestHitbox)
-							{
-								const char *PeacekeeperHitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::PeacekeeperClosestHitbox) {
+								const char* PeacekeeperHitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int PeacekeeperHitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::PeacekeeperHitbox);
 								ImGui::ComboBox("Hitbox Type##PeacekeeperAdvancedHitbox", &PeacekeeperHitboxTypeIndex, PeacekeeperHitboxTypes, IM_ARRAYSIZE(PeacekeeperHitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -2967,11 +2782,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *PeacekeeperSmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::PeacekeeperSmoothingMethod, PeacekeeperSmoothingMethodIndex, IM_ARRAYSIZE(PeacekeeperSmoothingMethodIndex));
+						const char* PeacekeeperSmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::PeacekeeperSmoothingMethod, PeacekeeperSmoothingMethodIndex, IM_ARRAYSIZE(PeacekeeperSmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedPeacekeeper", &Features::Aimbot::PeacekeeperSpeed, 1, 100, "%.0f");
@@ -3013,8 +2827,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::PeacekeeperSmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedPeacekeeper", &Features::Aimbot::PeacekeeperHipfireSmooth1, 1, 1000, "%.0f");
@@ -3040,7 +2853,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The Peacekeeper Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedPeacekeeper", &Features::Aimbot::PeacekeeperExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -3059,29 +2872,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::PeacekeeperMaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 25) // Mastiff
 				{
-					if (Features::Aimbot::Mastiff)
-					{
+					if (Features::Aimbot::Mastiff) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##MastiffAimbot", &Features::Aimbot::MastiffFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##MastiffAimbot", &Features::Aimbot::MastiffADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int MastiffAimBind = static_cast<int>(Features::AimbotBinds::MastiffAimBind);
 							ImGui::ComboBox("Aim Bind##MastiffAimbot", &MastiffAimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::MastiffAimBind = static_cast<InputKeyType>(MastiffAimBind);
@@ -3089,13 +2898,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##MastiffAimbot", &MastiffExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::MastiffExtraBind = static_cast<InputKeyType>(MastiffExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##MastiffAdvancedHitbox", &Features::Aimbot::MastiffClosestHitbox);
-							if (!Features::Aimbot::MastiffClosestHitbox)
-							{
-								const char *MastiffHitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::MastiffClosestHitbox) {
+								const char* MastiffHitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int MastiffHitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::MastiffHitbox);
 								ImGui::ComboBox("Hitbox Type##MastiffAdvancedHitbox", &MastiffHitboxTypeIndex, MastiffHitboxTypes, IM_ARRAYSIZE(MastiffHitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -3104,11 +2911,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *MastiffSmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::MastiffSmoothingMethod, MastiffSmoothingMethodIndex, IM_ARRAYSIZE(MastiffSmoothingMethodIndex));
+						const char* MastiffSmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::MastiffSmoothingMethod, MastiffSmoothingMethodIndex, IM_ARRAYSIZE(MastiffSmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedMastiff", &Features::Aimbot::MastiffSpeed, 1, 100, "%.0f");
@@ -3150,8 +2956,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::MastiffSmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedMastiff", &Features::Aimbot::MastiffHipfireSmooth1, 1, 1000, "%.0f");
@@ -3177,7 +2982,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The Mastiff Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedMastiff", &Features::Aimbot::MastiffExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -3196,29 +3001,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::MastiffMaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 27) // Longbow
 				{
-					if (Features::Aimbot::Longbow)
-					{
+					if (Features::Aimbot::Longbow) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##LongbowAimbot", &Features::Aimbot::LongbowFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##LongbowAimbot", &Features::Aimbot::LongbowADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int LongbowAimBind = static_cast<int>(Features::AimbotBinds::LongbowAimBind);
 							ImGui::ComboBox("Aim Bind##LongbowAimbot", &LongbowAimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::LongbowAimBind = static_cast<InputKeyType>(LongbowAimBind);
@@ -3226,13 +3027,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##LongbowAimbot", &LongbowExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::LongbowExtraBind = static_cast<InputKeyType>(LongbowExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##LongbowAdvancedHitbox", &Features::Aimbot::LongbowClosestHitbox);
-							if (!Features::Aimbot::LongbowClosestHitbox)
-							{
-								const char *LongbowHitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::LongbowClosestHitbox) {
+								const char* LongbowHitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int LongbowHitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::LongbowHitbox);
 								ImGui::ComboBox("Hitbox Type##LongbowAdvancedHitbox", &LongbowHitboxTypeIndex, LongbowHitboxTypes, IM_ARRAYSIZE(LongbowHitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -3241,11 +3040,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *LongbowSmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::LongbowSmoothingMethod, LongbowSmoothingMethodIndex, IM_ARRAYSIZE(LongbowSmoothingMethodIndex));
+						const char* LongbowSmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::LongbowSmoothingMethod, LongbowSmoothingMethodIndex, IM_ARRAYSIZE(LongbowSmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedLongbow", &Features::Aimbot::LongbowSpeed, 1, 100, "%.0f");
@@ -3287,8 +3085,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::LongbowSmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedLongbow", &Features::Aimbot::LongbowHipfireSmooth1, 1, 1000, "%.0f");
@@ -3314,7 +3111,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The Longbow Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedLongbow", &Features::Aimbot::LongbowExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -3333,29 +3130,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::LongbowMaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 28) // ChargeRifle
 				{
-					if (Features::Aimbot::ChargeRifle)
-					{
+					if (Features::Aimbot::ChargeRifle) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##ChargeRifleAimbot", &Features::Aimbot::ChargeRifleFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##ChargeRifleAimbot", &Features::Aimbot::ChargeRifleADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int ChargeRifleAimBind = static_cast<int>(Features::AimbotBinds::ChargeRifleAimBind);
 							ImGui::ComboBox("Aim Bind##ChargeRifleAimbot", &ChargeRifleAimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::ChargeRifleAimBind = static_cast<InputKeyType>(ChargeRifleAimBind);
@@ -3363,13 +3156,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##ChargeRifleAimbot", &ChargeRifleExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::ChargeRifleExtraBind = static_cast<InputKeyType>(ChargeRifleExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##ChargeRifleAdvancedHitbox", &Features::Aimbot::ChargeRifleClosestHitbox);
-							if (!Features::Aimbot::ChargeRifleClosestHitbox)
-							{
-								const char *ChargeRifleHitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::ChargeRifleClosestHitbox) {
+								const char* ChargeRifleHitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int ChargeRifleHitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::ChargeRifleHitbox);
 								ImGui::ComboBox("Hitbox Type##ChargeRifleAdvancedHitbox", &ChargeRifleHitboxTypeIndex, ChargeRifleHitboxTypes, IM_ARRAYSIZE(ChargeRifleHitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -3378,11 +3169,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *ChargeRifleSmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::ChargeRifleSmoothingMethod, ChargeRifleSmoothingMethodIndex, IM_ARRAYSIZE(ChargeRifleSmoothingMethodIndex));
+						const char* ChargeRifleSmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::ChargeRifleSmoothingMethod, ChargeRifleSmoothingMethodIndex, IM_ARRAYSIZE(ChargeRifleSmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedChargeRifle", &Features::Aimbot::ChargeRifleSpeed, 1, 100, "%.0f");
@@ -3424,8 +3214,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::ChargeRifleSmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedChargeRifle", &Features::Aimbot::ChargeRifleHipfireSmooth1, 1, 1000, "%.0f");
@@ -3451,7 +3240,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The ChargeRifle Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedChargeRifle", &Features::Aimbot::ChargeRifleExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -3470,29 +3259,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::ChargeRifleMaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 29) // Sentinel
 				{
-					if (Features::Aimbot::Sentinel)
-					{
+					if (Features::Aimbot::Sentinel) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##SentinelAimbot", &Features::Aimbot::SentinelFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##SentinelAimbot", &Features::Aimbot::SentinelADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int SentinelAimBind = static_cast<int>(Features::AimbotBinds::SentinelAimBind);
 							ImGui::ComboBox("Aim Bind##SentinelAimbot", &SentinelAimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::SentinelAimBind = static_cast<InputKeyType>(SentinelAimBind);
@@ -3500,13 +3285,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##SentinelAimbot", &SentinelExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::SentinelExtraBind = static_cast<InputKeyType>(SentinelExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##SentinelAdvancedHitbox", &Features::Aimbot::SentinelClosestHitbox);
-							if (!Features::Aimbot::SentinelClosestHitbox)
-							{
-								const char *SentinelHitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::SentinelClosestHitbox) {
+								const char* SentinelHitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int SentinelHitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::SentinelHitbox);
 								ImGui::ComboBox("Hitbox Type##SentinelAdvancedHitbox", &SentinelHitboxTypeIndex, SentinelHitboxTypes, IM_ARRAYSIZE(SentinelHitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -3515,11 +3298,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *SentinelSmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::SentinelSmoothingMethod, SentinelSmoothingMethodIndex, IM_ARRAYSIZE(SentinelSmoothingMethodIndex));
+						const char* SentinelSmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::SentinelSmoothingMethod, SentinelSmoothingMethodIndex, IM_ARRAYSIZE(SentinelSmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedSentinel", &Features::Aimbot::SentinelSpeed, 1, 100, "%.0f");
@@ -3561,8 +3343,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::SentinelSmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedSentinel", &Features::Aimbot::SentinelHipfireSmooth1, 1, 1000, "%.0f");
@@ -3588,7 +3369,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The Sentinel Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedSentinel", &Features::Aimbot::SentinelExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -3607,29 +3388,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::SentinelMaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 30) // Wingman
 				{
-					if (Features::Aimbot::Wingman)
-					{
+					if (Features::Aimbot::Wingman) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##WingmanAimbot", &Features::Aimbot::WingmanFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##WingmanAimbot", &Features::Aimbot::WingmanADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int WingmanAimBind = static_cast<int>(Features::AimbotBinds::WingmanAimBind);
 							ImGui::ComboBox("Aim Bind##WingmanAimbot", &WingmanAimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::WingmanAimBind = static_cast<InputKeyType>(WingmanAimBind);
@@ -3637,13 +3414,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##WingmanAimbot", &WingmanExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::WingmanExtraBind = static_cast<InputKeyType>(WingmanExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##WingmanAdvancedHitbox", &Features::Aimbot::WingmanClosestHitbox);
-							if (!Features::Aimbot::WingmanClosestHitbox)
-							{
-								const char *WingmanHitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::WingmanClosestHitbox) {
+								const char* WingmanHitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int WingmanHitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::WingmanHitbox);
 								ImGui::ComboBox("Hitbox Type##WingmanAdvancedHitbox", &WingmanHitboxTypeIndex, WingmanHitboxTypes, IM_ARRAYSIZE(WingmanHitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -3652,11 +3427,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *WingmanSmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::WingmanSmoothingMethod, WingmanSmoothingMethodIndex, IM_ARRAYSIZE(WingmanSmoothingMethodIndex));
+						const char* WingmanSmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::WingmanSmoothingMethod, WingmanSmoothingMethodIndex, IM_ARRAYSIZE(WingmanSmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedWingman", &Features::Aimbot::WingmanSpeed, 1, 100, "%.0f");
@@ -3698,8 +3472,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::WingmanSmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedWingman", &Features::Aimbot::WingmanHipfireSmooth1, 1, 1000, "%.0f");
@@ -3725,7 +3498,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The Wingman Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedWingman", &Features::Aimbot::WingmanExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -3744,29 +3517,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::WingmanMaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 31) // EVA8
 				{
-					if (Features::Aimbot::EVA8)
-					{
+					if (Features::Aimbot::EVA8) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##EVA8Aimbot", &Features::Aimbot::EVA8Fire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##EVA8Aimbot", &Features::Aimbot::EVA8ADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int EVA8AimBind = static_cast<int>(Features::AimbotBinds::EVA8AimBind);
 							ImGui::ComboBox("Aim Bind##EVA8Aimbot", &EVA8AimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::EVA8AimBind = static_cast<InputKeyType>(EVA8AimBind);
@@ -3774,13 +3543,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##EVA8Aimbot", &EVA8ExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::EVA8ExtraBind = static_cast<InputKeyType>(EVA8ExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##EVA8AdvancedHitbox", &Features::Aimbot::EVA8ClosestHitbox);
-							if (!Features::Aimbot::EVA8ClosestHitbox)
-							{
-								const char *EVA8HitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::EVA8ClosestHitbox) {
+								const char* EVA8HitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int EVA8HitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::EVA8Hitbox);
 								ImGui::ComboBox("Hitbox Type##EVA8AdvancedHitbox", &EVA8HitboxTypeIndex, EVA8HitboxTypes, IM_ARRAYSIZE(EVA8HitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -3789,11 +3556,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *EVA8SmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::EVA8SmoothingMethod, EVA8SmoothingMethodIndex, IM_ARRAYSIZE(EVA8SmoothingMethodIndex));
+						const char* EVA8SmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::EVA8SmoothingMethod, EVA8SmoothingMethodIndex, IM_ARRAYSIZE(EVA8SmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedEVA8", &Features::Aimbot::EVA8Speed, 1, 100, "%.0f");
@@ -3835,8 +3601,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::EVA8SmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedEVA8", &Features::Aimbot::EVA8HipfireSmooth1, 1, 1000, "%.0f");
@@ -3862,7 +3627,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The EVA8 Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedEVA8", &Features::Aimbot::EVA8ExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -3881,29 +3646,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::EVA8MaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 32) // Bocek
 				{
-					if (Features::Aimbot::Bocek)
-					{
+					if (Features::Aimbot::Bocek) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##BocekAimbot", &Features::Aimbot::BocekFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##BocekAimbot", &Features::Aimbot::BocekADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int BocekAimBind = static_cast<int>(Features::AimbotBinds::BocekAimBind);
 							ImGui::ComboBox("Aim Bind##BocekAimbot", &BocekAimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::BocekAimBind = static_cast<InputKeyType>(BocekAimBind);
@@ -3911,13 +3672,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##BocekAimbot", &BocekExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::BocekExtraBind = static_cast<InputKeyType>(BocekExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##BocekAdvancedHitbox", &Features::Aimbot::BocekClosestHitbox);
-							if (!Features::Aimbot::BocekClosestHitbox)
-							{
-								const char *BocekHitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::BocekClosestHitbox) {
+								const char* BocekHitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int BocekHitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::BocekHitbox);
 								ImGui::ComboBox("Hitbox Type##BocekAdvancedHitbox", &BocekHitboxTypeIndex, BocekHitboxTypes, IM_ARRAYSIZE(BocekHitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -3926,11 +3685,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *BocekSmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::BocekSmoothingMethod, BocekSmoothingMethodIndex, IM_ARRAYSIZE(BocekSmoothingMethodIndex));
+						const char* BocekSmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::BocekSmoothingMethod, BocekSmoothingMethodIndex, IM_ARRAYSIZE(BocekSmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedBocek", &Features::Aimbot::BocekSpeed, 1, 100, "%.0f");
@@ -3972,8 +3730,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::BocekSmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedBocek", &Features::Aimbot::BocekHipfireSmooth1, 1, 1000, "%.0f");
@@ -3999,7 +3756,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The Bocek Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedBocek", &Features::Aimbot::BocekExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -4018,29 +3775,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::BocekMaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 33) // Kraber
 				{
-					if (Features::Aimbot::Kraber)
-					{
+					if (Features::Aimbot::Kraber) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##KraberAimbot", &Features::Aimbot::KraberFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##KraberAimbot", &Features::Aimbot::KraberADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int KraberAimBind = static_cast<int>(Features::AimbotBinds::KraberAimBind);
 							ImGui::ComboBox("Aim Bind##KraberAimbot", &KraberAimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::KraberAimBind = static_cast<InputKeyType>(KraberAimBind);
@@ -4048,13 +3801,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##KraberAimbot", &KraberExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::KraberExtraBind = static_cast<InputKeyType>(KraberExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##KraberAdvancedHitbox", &Features::Aimbot::KraberClosestHitbox);
-							if (!Features::Aimbot::KraberClosestHitbox)
-							{
-								const char *KraberHitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::KraberClosestHitbox) {
+								const char* KraberHitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int KraberHitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::KraberHitbox);
 								ImGui::ComboBox("Hitbox Type##KraberAdvancedHitbox", &KraberHitboxTypeIndex, KraberHitboxTypes, IM_ARRAYSIZE(KraberHitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -4063,11 +3814,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *KraberSmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::KraberSmoothingMethod, KraberSmoothingMethodIndex, IM_ARRAYSIZE(KraberSmoothingMethodIndex));
+						const char* KraberSmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::KraberSmoothingMethod, KraberSmoothingMethodIndex, IM_ARRAYSIZE(KraberSmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedKraber", &Features::Aimbot::KraberSpeed, 1, 100, "%.0f");
@@ -4109,8 +3859,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::KraberSmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedKraber", &Features::Aimbot::KraberHipfireSmooth1, 1, 1000, "%.0f");
@@ -4136,7 +3885,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The Kraber Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedKraber", &Features::Aimbot::KraberExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -4155,29 +3904,25 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::KraberMaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
 
 				if (WeaponsComboBoxCurrent == 34) // ThrowingKnife
 				{
-					if (Features::Aimbot::Knife)
-					{
+					if (Features::Aimbot::Knife) {
 						ImGui::Text("Keybinds");
-						if (Features::Aimbot::BindMethod == 0)
-						{ // OnFire & OnADS
+						if (Features::Aimbot::BindMethod == 0) { // OnFire & OnADS
 							ImGui::Checkbox("On Fire##ThrowingKnifeAimbot", &Features::Aimbot::ThrowingKnifeFire);
 							ImGui::SameLine();
 							ImGui::Checkbox("On ADS##ThrowingKnifeAimbot", &Features::Aimbot::ThrowingKnifeADS);
 						}
-						if (Features::Aimbot::BindMethod == 1)
-						{ // Keybinds
+						if (Features::Aimbot::BindMethod == 1) { // Keybinds
 							int ThrowingKnifeAimBind = static_cast<int>(Features::AimbotBinds::ThrowingKnifeAimBind);
 							ImGui::ComboBox("Aim Bind##ThrowingKnifeAimbot", &ThrowingKnifeAimBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::ThrowingKnifeAimBind = static_cast<InputKeyType>(ThrowingKnifeAimBind);
@@ -4185,13 +3930,11 @@ struct AdvancedGUI
 							ImGui::ComboBox("Extra Bind##ThrowingKnifeAimbot", &ThrowingKnifeExtraBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 							Features::AimbotBinds::ThrowingKnifeExtraBind = static_cast<InputKeyType>(ThrowingKnifeExtraBind);
 						}
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							ImGui::Text("Hitbox");
 							ImGui::Checkbox("Closest To Crosshair##ThrowingKnifeAdvancedHitbox", &Features::Aimbot::ThrowingKnifeClosestHitbox);
-							if (!Features::Aimbot::ThrowingKnifeClosestHitbox)
-							{
-								const char *ThrowingKnifeHitboxTypes[] = {"Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip"};
+							if (!Features::Aimbot::ThrowingKnifeClosestHitbox) {
+								const char* ThrowingKnifeHitboxTypes[] = { "Head", "Neck", "Upper Chest", "Lower Chest", "Stomach", "Hip" };
 								int ThrowingKnifeHitboxTypeIndex = static_cast<int>(Features::AimbotHitboxes::ThrowingKnifeHitbox);
 								ImGui::ComboBox("Hitbox Type##ThrowingKnifeAdvancedHitbox", &ThrowingKnifeHitboxTypeIndex, ThrowingKnifeHitboxTypes, IM_ARRAYSIZE(ThrowingKnifeHitboxTypes));
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -4200,11 +3943,10 @@ struct AdvancedGUI
 							}
 						}
 
-							const char *ThrowingKnifeSmoothingMethodIndex[] = {"Static", "Random"};
-							ImGui::ComboBox("Smoothing Method", &Features::Aimbot::ThrowingKnifeSmoothingMethod, ThrowingKnifeSmoothingMethodIndex, IM_ARRAYSIZE(ThrowingKnifeSmoothingMethodIndex));
+						const char* ThrowingKnifeSmoothingMethodIndex[] = { "Static", "Random" };
+						ImGui::ComboBox("Smoothing Method", &Features::Aimbot::ThrowingKnifeSmoothingMethod, ThrowingKnifeSmoothingMethodIndex, IM_ARRAYSIZE(ThrowingKnifeSmoothingMethodIndex));
 
-						if (Features::Aimbot::AimbotMode == 0)
-						{
+						if (Features::Aimbot::AimbotMode == 0) {
 							if (Features::Aimbot::InputMethod == 0) // Mouse Only
 							{
 								ImGui::MainSliderFloat("Speed##AdvancedThrowingKnife", &Features::Aimbot::ThrowingKnifeSpeed, 1, 100, "%.0f");
@@ -4246,8 +3988,7 @@ struct AdvancedGUI
 								ImGui::SetTooltip("Field of View For Scopes");
 						}
 
-						if (Features::Aimbot::AimbotMode == 1)
-						{
+						if (Features::Aimbot::AimbotMode == 1) {
 							if (Features::Aimbot::ThrowingKnifeSmoothingMethod == 0) // Static
 							{
 								ImGui::MainSliderFloat("Hipfire Smoothing##1AdvancedThrowingKnife", &Features::Aimbot::ThrowingKnifeHipfireSmooth1, 1, 1000, "%.0f");
@@ -4273,7 +4014,7 @@ struct AdvancedGUI
 								if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 									ImGui::SetTooltip("Maximum Smoothing Of The Aim-Assist For The ThrowingKnife Whilst ADS.\nHigher = Smoother");
 							}
-							
+
 							ImGui::MainSliderFloat("Extra Smoothing##1AdvancedThrowingKnife", &Features::Aimbot::ThrowingKnifeExtraSmooth1, 1, 9999, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Increases the smoothing depending on the distance of the player.");
@@ -4292,16 +4033,15 @@ struct AdvancedGUI
 						ImGui::MainSliderFloat("Max Distance", &Features::Aimbot::ThrowingKnifeMaxDistance1, 1, 500, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Maximum Distance for Aim-Assist to work");
-						
+
 						ImGui::Spacing();
 					}
 
-					else 
-					{
+					else {
 						ImGui::Text("Selected Weapon Is Not Enabled! Check Weapon Selection!");
 					}
 				}
-				
+
 				ImGui::Spacing();
 				ImGui::EndChildFrame();
 			}
@@ -4311,23 +4051,19 @@ struct AdvancedGUI
 		}
 	}
 
-	void AdvancedRCSTab(int WeaponID)
-	{
+	void AdvancedRCSTab(int WeaponID) {
 		ImGui::BeginChildFrame(14, ImVec2(WindowWidth - 220, 128), true);
 		{
-			if (Features::RCS::RCSEnabled)
-			{
+			if (Features::RCS::RCSEnabled) {
 				ImGui::Spacing();
 				ImGui::Text("Advanced RCS - Recoil Control");
 				ImGui::Checkbox("Enabled", &Features::RCS::AdvancedRCS);
 			}
-			if (!Features::RCS::RCSEnabled)
-			{
+			if (!Features::RCS::RCSEnabled) {
 				ImGui::Text("RCS Must Be Enabled To Enable Advanced RCS.");
 			}
-			if (Features::RCS::RCSEnabled && Features::RCS::AdvancedRCS)
-			{
-				const char *RCSModeIndex[] = {"Standalone", "Combined"};
+			if (Features::RCS::RCSEnabled && Features::RCS::AdvancedRCS) {
+				const char* RCSModeIndex[] = { "Standalone", "Combined" };
 				ImGui::ComboBox("RCS Method", &Features::RCS::RCSMode, RCSModeIndex, IM_ARRAYSIZE(RCSModeIndex));
 				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 					ImGui::SetTooltip("What RCS Method You Would Like.\nStandalone Provideds Legit & Customizable Settings.\nCombined Works Alongside Aimbot And Provides Better Recoil Control (Aimbot Must Be Enabled & Aimbot Mode = Cubic Bezier (xap-client)!)");
@@ -4339,18 +4075,15 @@ struct AdvancedGUI
 			ImGui::EndChildFrame();
 		}
 
-		if (Features::RCS::AdvancedRCS)
-		{
-			ImGui::BeginChildFrame(13, ImVec2({WindowWidth - 220, 96}), true);
+		if (Features::RCS::AdvancedRCS) {
+			ImGui::BeginChildFrame(13, ImVec2({ WindowWidth - 220, 96 }), true);
 			{
 				ImGui::Spacing();
 				ImGui::Text("Current Held Weapon: ");
-				if (Features::RCS::P2020 && WeaponID == WeaponIDs::WEAPON_P2020)
-				{
+				if (Features::RCS::P2020 && WeaponID == WeaponIDs::WEAPON_P2020) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0.990, 0.768, 0.039, 1.00f), "P2020");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedP2020", &Features::RCS::P2020Pitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the P2020.");
@@ -4358,8 +4091,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the P2020.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedP2020", &Features::RCS::P2020PitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The P2020.");
@@ -4369,12 +4101,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::RE45 && WeaponID == WeaponIDs::WEAPON_RE45)
-				{
+				if (Features::RCS::RE45 && WeaponID == WeaponIDs::WEAPON_RE45) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0.990, 0.768, 0.039, 1.00f), "RE45");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedRE45", &Features::RCS::RE45Pitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the RE45.");
@@ -4382,8 +4112,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the RE45.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedRE45", &Features::RCS::RE45PitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The RE45.");
@@ -4393,12 +4122,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::Alternator && WeaponID == WeaponIDs::WEAPON_ALTERNATOR)
-				{
+				if (Features::RCS::Alternator && WeaponID == WeaponIDs::WEAPON_ALTERNATOR) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0.990, 0.768, 0.039, 1.00f), "Alternator");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedAlternator", &Features::RCS::AlternatorPitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the Alternator.");
@@ -4406,8 +4133,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the Alternator.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedAlternator", &Features::RCS::AlternatorPitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The Alternator.");
@@ -4417,12 +4143,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::R99 && WeaponID == WeaponIDs::WEAPON_R99)
-				{
+				if (Features::RCS::R99 && WeaponID == WeaponIDs::WEAPON_R99) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0.990, 0.768, 0.039, 1.00f), "R99");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedR99", &Features::RCS::R99Pitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the R99.");
@@ -4430,8 +4154,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the R99.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedR99", &Features::RCS::R99PitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The R99.");
@@ -4441,12 +4164,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::R301 && WeaponID == WeaponIDs::WEAPON_R301)
-				{
+				if (Features::RCS::R301 && WeaponID == WeaponIDs::WEAPON_R301) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0.990, 0.768, 0.039, 1.00f), "R301");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedR301", &Features::RCS::R301Pitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the R301.");
@@ -4454,8 +4175,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the R301.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedR301", &Features::RCS::R301PitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The R301.");
@@ -4465,12 +4185,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::Spitfire && WeaponID == WeaponIDs::WEAPON_SPITFIRE)
-				{
+				if (Features::RCS::Spitfire && WeaponID == WeaponIDs::WEAPON_SPITFIRE) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0.990, 0.768, 0.039, 1.00f), "Spitfire");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedSpitfire", &Features::RCS::SpitfirePitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the Spitfire.");
@@ -4478,8 +4196,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the Spitfire.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedSpitfire", &Features::RCS::SpitfirePitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The Spitfire.");
@@ -4489,12 +4206,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::G7 && WeaponID == WeaponIDs::WEAPON_G7)
-				{
+				if (Features::RCS::G7 && WeaponID == WeaponIDs::WEAPON_G7) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0.990, 0.768, 0.039, 1.00f), "G7");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedG7", &Features::RCS::G7Pitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the G7.");
@@ -4502,8 +4217,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the G7.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedG7", &Features::RCS::G7PitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The G7.");
@@ -4513,12 +4227,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::Flatline && WeaponID == WeaponIDs::WEAPON_FLATLINE)
-				{
+				if (Features::RCS::Flatline && WeaponID == WeaponIDs::WEAPON_FLATLINE) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0.00990, 0.990, 0.761, 1.00f), "Flatline");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedFlatline", &Features::RCS::FlatlinePitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the Flatline.");
@@ -4526,8 +4238,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the Flatline.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedFlatline", &Features::RCS::FlatlinePitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The Flatline.");
@@ -4537,12 +4248,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::Hemlock && WeaponID == WeaponIDs::WEAPON_HEMLOCK)
-				{
+				if (Features::RCS::Hemlock && WeaponID == WeaponIDs::WEAPON_HEMLOCK) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0.00990, 0.990, 0.761, 1.00f), "Hemlock");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedHemlock", &Features::RCS::HemlockPitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the Hemlock.");
@@ -4550,8 +4259,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the Hemlock.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedHemlock", &Features::RCS::HemlockPitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The Hemlock.");
@@ -4561,12 +4269,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::Prowler && WeaponID == WeaponIDs::WEAPON_PROWLER)
-				{
+				if (Features::RCS::Prowler && WeaponID == WeaponIDs::WEAPON_PROWLER) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0.00990, 0.990, 0.761, 1.00f), "Prowler");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedProwler", &Features::RCS::ProwlerPitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the Prowler.");
@@ -4574,8 +4280,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the Prowler.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedProwler", &Features::RCS::ProwlerPitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The Prowler.");
@@ -4585,12 +4290,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::Repeater && WeaponID == WeaponIDs::WEAPON_REPEATER)
-				{
+				if (Features::RCS::Repeater && WeaponID == WeaponIDs::WEAPON_REPEATER) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0.00990, 0.990, 0.761, 1.00f), "Repeater");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedRepeater", &Features::RCS::RepeaterPitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the Repeater.");
@@ -4598,8 +4301,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the Repeater.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedRepeater", &Features::RCS::RepeaterPitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The Repeater.");
@@ -4609,12 +4311,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::Rampage && WeaponID == WeaponIDs::WEAPON_RAMPAGE)
-				{
+				if (Features::RCS::Rampage && WeaponID == WeaponIDs::WEAPON_RAMPAGE) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0.00990, 0.990, 0.761, 1.00f), "Rampage");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedRampage", &Features::RCS::RampagePitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the Rampage.");
@@ -4622,8 +4322,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the Rampage.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedRampage", &Features::RCS::RampagePitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The Rampage.");
@@ -4633,12 +4332,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::CARSMG && WeaponID == WeaponIDs::WEAPON_CAR)
-				{
+				if (Features::RCS::CARSMG && WeaponID == WeaponIDs::WEAPON_CAR) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0.00990, 0.990, 0.761, 1.00f), "CARSMG");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedCARSMG", &Features::RCS::CARSMGPitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the CARSMG.");
@@ -4646,8 +4343,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the CARSMG.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedCARSMG", &Features::RCS::CARSMGPitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The CARSMG.");
@@ -4657,12 +4353,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::Havoc && WeaponID == WeaponIDs::WEAPON_HAVOC)
-				{
+				if (Features::RCS::Havoc && WeaponID == WeaponIDs::WEAPON_HAVOC) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0, 0.99, 0, 1.00f), "Havoc");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedHavoc", &Features::RCS::HavocPitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the Havoc.");
@@ -4670,8 +4364,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the Havoc.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedHavoc", &Features::RCS::HavocPitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The Havoc.");
@@ -4681,12 +4374,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::Devotion && WeaponID == WeaponIDs::WEAPON_DEVOTION)
-				{
+				if (Features::RCS::Devotion && WeaponID == WeaponIDs::WEAPON_DEVOTION) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0, 0.99, 0, 1.00f), "Devotion");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedDevotion", &Features::RCS::DevotionPitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the Devotion.");
@@ -4694,8 +4385,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the Devotion.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedDevotion", &Features::RCS::DevotionPitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The Devotion.");
@@ -4705,12 +4395,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::LSTAR && WeaponID == WeaponIDs::WEAPON_LSTAR)
-				{
+				if (Features::RCS::LSTAR && WeaponID == WeaponIDs::WEAPON_LSTAR) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0, 0.99, 0, 1.00f), "LSTAR");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedLSTAR", &Features::RCS::LSTARPitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the LSTAR.");
@@ -4718,8 +4406,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the LSTAR.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedLSTAR", &Features::RCS::LSTARPitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The LSTAR.");
@@ -4729,12 +4416,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::TripleTake && WeaponID == WeaponIDs::WEAPON_TRIPLETAKE)
-				{
+				if (Features::RCS::TripleTake && WeaponID == WeaponIDs::WEAPON_TRIPLETAKE) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0, 0.99, 0, 1.00f), "TripleTake");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedTripleTake", &Features::RCS::TripleTakePitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the TripleTake.");
@@ -4742,8 +4427,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the TripleTake.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedTripleTake", &Features::RCS::TripleTakePitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The TripleTake.");
@@ -4753,12 +4437,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::Volt && WeaponID == WeaponIDs::WEAPON_VOLT)
-				{
+				if (Features::RCS::Volt && WeaponID == WeaponIDs::WEAPON_VOLT) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0, 0.99, 0, 1.00f), "Volt");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedVolt", &Features::RCS::VoltPitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the Volt.");
@@ -4766,8 +4448,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the Volt.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedVolt", &Features::RCS::VoltPitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The Volt.");
@@ -4777,12 +4458,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::Nemesis && WeaponID == WeaponIDs::WEAPON_NEMESIS)
-				{
+				if (Features::RCS::Nemesis && WeaponID == WeaponIDs::WEAPON_NEMESIS) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0, 0.99, 0, 1.00f), "Nemesis");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedNemesis", &Features::RCS::NemesisPitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the Nemesis.");
@@ -4790,8 +4469,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the Nemesis.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedNemesis", &Features::RCS::NemesisPitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The Nemesis.");
@@ -4801,12 +4479,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::Mozambique && WeaponID == WeaponIDs::WEAPON_MOZAMBIQUE)
-				{
+				if (Features::RCS::Mozambique && WeaponID == WeaponIDs::WEAPON_MOZAMBIQUE) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0.99, 0, 0, 1.00f), "Mozambique");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedMozambique", &Features::RCS::MozambiquePitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the Mozambique.");
@@ -4814,8 +4490,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the Mozambique.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedMozambique", &Features::RCS::MozambiquePitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The Mozambique.");
@@ -4825,12 +4500,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::Peacekeeper && WeaponID == WeaponIDs::WEAPON_PEACEKEEPER)
-				{
+				if (Features::RCS::Peacekeeper && WeaponID == WeaponIDs::WEAPON_PEACEKEEPER) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0.99, 0, 0, 1.00f), "Peacekeeper");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedPeacekeeper", &Features::RCS::PeacekeeperPitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the Peacekeeper.");
@@ -4838,8 +4511,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the Peacekeeper.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedPeacekeeper", &Features::RCS::PeacekeeperPitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The Peacekeeper.");
@@ -4849,12 +4521,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::Mastiff && WeaponID == WeaponIDs::WEAPON_MASTIFF)
-				{
+				if (Features::RCS::Mastiff && WeaponID == WeaponIDs::WEAPON_MASTIFF) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0.99, 0, 0, 1.00f), "Mastiff");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedMastiff", &Features::RCS::MastiffPitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the Mastiff.");
@@ -4862,8 +4532,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the Mastiff.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedMastiff", &Features::RCS::MastiffPitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The Mastiff.");
@@ -4873,12 +4542,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::Longbow && WeaponID == WeaponIDs::WEAPON_LONGBOW)
-				{
+				if (Features::RCS::Longbow && WeaponID == WeaponIDs::WEAPON_LONGBOW) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0.00990, 0.337, 0.990, 1.00f), "Longbow");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedLongbow", &Features::RCS::LongbowPitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the Longbow.");
@@ -4886,8 +4553,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the Longbow.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedLongbow", &Features::RCS::LongbowPitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The Longbow.");
@@ -4897,12 +4563,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::ChargeRifle && WeaponID == WeaponIDs::WEAPON_CHARGE_RIFLE)
-				{
+				if (Features::RCS::ChargeRifle && WeaponID == WeaponIDs::WEAPON_CHARGE_RIFLE) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0.00990, 0.337, 0.990, 1.00f), "ChargeRifle");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedChargeRifle", &Features::RCS::ChargeRiflePitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the ChargeRifle.");
@@ -4910,8 +4574,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the ChargeRifle.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedChargeRifle", &Features::RCS::ChargeRiflePitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The ChargeRifle.");
@@ -4921,12 +4584,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::Sentinel && WeaponID == WeaponIDs::WEAPON_SENTINEL)
-				{
+				if (Features::RCS::Sentinel && WeaponID == WeaponIDs::WEAPON_SENTINEL) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0.00990, 0.337, 0.990, 1.00f), "Sentinel");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedSentinel", &Features::RCS::SentinelPitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the Sentinel.");
@@ -4934,8 +4595,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the Sentinel.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedSentinel", &Features::RCS::SentinelPitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The Sentinel.");
@@ -4945,12 +4605,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::Wingman && WeaponID == WeaponIDs::WEAPON_WINGMAN)
-				{
+				if (Features::RCS::Wingman && WeaponID == WeaponIDs::WEAPON_WINGMAN) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0.99, 0.530, 0.945, 1.00f), "Wingman");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedWingman", &Features::RCS::WingmanPitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the Wingman.");
@@ -4958,8 +4616,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the Wingman.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedWingman", &Features::RCS::WingmanPitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The Wingman.");
@@ -4969,12 +4626,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::EVA8 && WeaponID == WeaponIDs::WEAPON_EVA8)
-				{
+				if (Features::RCS::EVA8 && WeaponID == WeaponIDs::WEAPON_EVA8) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0.99, 0.530, 0.945, 1.00f), "EVA8");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedEVA8", &Features::RCS::EVA8Pitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the EVA8.");
@@ -4982,8 +4637,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the EVA8.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedEVA8", &Features::RCS::EVA8PitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The EVA8.");
@@ -4993,12 +4647,10 @@ struct AdvancedGUI
 					}
 				}
 
-				if (Features::RCS::Kraber && WeaponID == WeaponIDs::WEAPON_KRABER)
-				{
+				if (Features::RCS::Kraber && WeaponID == WeaponIDs::WEAPON_KRABER) {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0.99, 0.530, 0.945, 1.00f), "Kraber");
-					if (Features::RCS::RCSMode == 0)
-					{
+					if (Features::RCS::RCSMode == 0) {
 						ImGui::MainSliderFloat("Pitch##AdvancedKraber", &Features::RCS::KraberPitch, 1, 50, "%.1f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Pitch Power for the Kraber.");
@@ -5006,8 +4658,7 @@ struct AdvancedGUI
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Yaw Power for the Kraber.");
 					}
-					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1)
-					{
+					if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
 						ImGui::MainSliderFloat("Pitch Reduction %##AdvancedKraber", &Features::RCS::KraberPitchReduction, 0, 100, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced For The Kraber.");
@@ -5017,8 +4668,7 @@ struct AdvancedGUI
 					}
 				}
 
-				else
-				{
+				else {
 					ImGui::SameLine();
 					ImGui::TextColored(ImVec4(0.99, 0.99, 0.99, 1.00f), "Unknown");
 				}
@@ -5028,31 +4678,25 @@ struct AdvancedGUI
 		}
 	}
 
-	void AdvancedTriggerbotTab(int WeaponID)
-	{
-		if (!Features::Triggerbot::Enabled)
-		{
+	void AdvancedTriggerbotTab(int WeaponID) {
+		if (!Features::Triggerbot::Enabled) {
 			ImGui::Text("Triggerbot Is Disabled!");
 		}
 
-		if (Features::Triggerbot::Enabled)
-		{
+		if (Features::Triggerbot::Enabled) {
 			ImGui::BeginChildFrame(1, ImVec2(WindowWidth - 220, 136), true);
 			{
 				ImGui::Spacing();
 				ImGui::Text("Advanced Triggerbot");
 				ImGui::Checkbox("Enabled", &Features::Triggerbot::AdvancedTriggerbot);
-				if (Features::Triggerbot::AdvancedTriggerbot)
-				{
-					const char *BindMethodIndex[] = {"Memory", "Keybind"};
+				if (Features::Triggerbot::AdvancedTriggerbot) {
+					const char* BindMethodIndex[] = { "Memory", "Keybind" };
 					ImGui::ComboBox("Bind Method", &Features::Triggerbot::BindMethod, BindMethodIndex, IM_ARRAYSIZE(BindMethodIndex));
-					if (Features::Triggerbot::BindMethod == 0)
-					{
+					if (Features::Triggerbot::BindMethod == 0) {
 						ImGui::Checkbox("On ADS Only?", &Features::Triggerbot::OnADS);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Fire only when ADS");
-						if (Features::Triggerbot::OnADS)
-						{
+						if (Features::Triggerbot::OnADS) {
 							ImGui::SameLine();
 							ImGui::Checkbox("Always On For Shotguns", &Features::Triggerbot::HipfireShotguns);
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -5060,8 +4704,7 @@ struct AdvancedGUI
 						}
 					}
 
-					if (Features::Triggerbot::BindMethod == 1)
-					{
+					if (Features::Triggerbot::BindMethod == 1) {
 						int TriggerBind = static_cast<int>(Features::Triggerbot::TriggerBind);
 						ImGui::ComboBox("Triggerbot Bind", &TriggerBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 						Features::Triggerbot::TriggerBind = static_cast<InputKeyType>(TriggerBind);
@@ -5070,225 +4713,193 @@ struct AdvancedGUI
 				ImGui::EndChildFrame();
 			}
 
-			if (Features::Triggerbot::AdvancedTriggerbot)
-			{
-				ImGui::BeginChildFrame(2, ImVec2({WindowWidth - 220, 96}), true);
+			if (Features::Triggerbot::AdvancedTriggerbot) {
+				ImGui::BeginChildFrame(2, ImVec2({ WindowWidth - 220, 96 }), true);
 				{
 					ImGui::Spacing();
 					ImGui::Text("Current Held Weapon: ");
 
-					if (Features::Triggerbot::P2020 && WeaponID == WeaponIDs::WEAPON_P2020)
-					{
+					if (Features::Triggerbot::P2020 && WeaponID == WeaponIDs::WEAPON_P2020) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0.990, 0.768, 0.039, 1.00f), "P2020");
 						ImGui::MainSliderFloat("Range##P2020Triggerbot", &Features::Triggerbot::P2020Range, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::RE45 && WeaponID == WeaponIDs::WEAPON_RE45)
-					{
+					if (Features::Triggerbot::RE45 && WeaponID == WeaponIDs::WEAPON_RE45) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0.990, 0.768, 0.039, 1.00f), "RE45");
 						ImGui::MainSliderFloat("Range##RE45Triggerbot", &Features::Triggerbot::RE45Range, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::Alternator && WeaponID == WeaponIDs::WEAPON_ALTERNATOR)
-					{
+					if (Features::Triggerbot::Alternator && WeaponID == WeaponIDs::WEAPON_ALTERNATOR) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0.990, 0.768, 0.039, 1.00f), "Alternator");
 						ImGui::MainSliderFloat("Range##AlternatorTriggerbot", &Features::Triggerbot::AlternatorRange, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::R99 && WeaponID == WeaponIDs::WEAPON_R99)
-					{
+					if (Features::Triggerbot::R99 && WeaponID == WeaponIDs::WEAPON_R99) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0.990, 0.768, 0.039, 1.00f), "R99");
 						ImGui::MainSliderFloat("Range##R99Triggerbot", &Features::Triggerbot::R99Range, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::R301 && WeaponID == WeaponIDs::WEAPON_R301)
-					{
+					if (Features::Triggerbot::R301 && WeaponID == WeaponIDs::WEAPON_R301) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0.990, 0.768, 0.039, 1.00f), "R301");
 						ImGui::MainSliderFloat("Range##R301Triggerbot", &Features::Triggerbot::R301Range, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::Spitfire && WeaponID == WeaponIDs::WEAPON_SPITFIRE)
-					{
+					if (Features::Triggerbot::Spitfire && WeaponID == WeaponIDs::WEAPON_SPITFIRE) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0.990, 0.768, 0.039, 1.00f), "Spitfire");
 						ImGui::MainSliderFloat("Range##SpitfireTriggerbot", &Features::Triggerbot::SpitfireRange, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::G7 && WeaponID == WeaponIDs::WEAPON_G7)
-					{
+					if (Features::Triggerbot::G7 && WeaponID == WeaponIDs::WEAPON_G7) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0.990, 0.768, 0.039, 1.00f), "G7");
 						ImGui::MainSliderFloat("Range##G7Triggerbot", &Features::Triggerbot::G7Range, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::Flatline && WeaponID == WeaponIDs::WEAPON_FLATLINE)
-					{
+					if (Features::Triggerbot::Flatline && WeaponID == WeaponIDs::WEAPON_FLATLINE) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0.00990, 0.990, 0.761, 1.00f), "Flatline");
 						ImGui::MainSliderFloat("Range##FlatlineTriggerbot", &Features::Triggerbot::FlatlineRange, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::Prowler && WeaponID == WeaponIDs::WEAPON_PROWLER)
-					{
+					if (Features::Triggerbot::Prowler && WeaponID == WeaponIDs::WEAPON_PROWLER) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0.00990, 0.990, 0.761, 1.00f), "Prowler");
 						ImGui::MainSliderFloat("Range##ProwlerTriggerbot", &Features::Triggerbot::ProwlerRange, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::Hemlock && WeaponID == WeaponIDs::WEAPON_HEMLOCK)
-					{
+					if (Features::Triggerbot::Hemlock && WeaponID == WeaponIDs::WEAPON_HEMLOCK) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0.00990, 0.990, 0.761, 1.00f), "Hemlock");
 						ImGui::MainSliderFloat("Range##HemlockTriggerbot", &Features::Triggerbot::HemlockRange, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::Repeater && WeaponID == WeaponIDs::WEAPON_REPEATER)
-					{
+					if (Features::Triggerbot::Repeater && WeaponID == WeaponIDs::WEAPON_REPEATER) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0.00990, 0.990, 0.761, 1.00f), "Repeater");
 						ImGui::MainSliderFloat("Range##RepeaterTriggerbot", &Features::Triggerbot::RepeaterRange, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::Rampage && WeaponID == WeaponIDs::WEAPON_RAMPAGE)
-					{
+					if (Features::Triggerbot::Rampage && WeaponID == WeaponIDs::WEAPON_RAMPAGE) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0.00990, 0.990, 0.761, 1.00f), "Rampage");
 						ImGui::MainSliderFloat("Range##RampageTriggerbot", &Features::Triggerbot::RampageRange, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::CARSMG && WeaponID == WeaponIDs::WEAPON_CAR)
-					{
+					if (Features::Triggerbot::CARSMG && WeaponID == WeaponIDs::WEAPON_CAR) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0.00990, 0.990, 0.761, 1.00f), "CARSMG");
 						ImGui::MainSliderFloat("Range##CARSMGTriggerbot", &Features::Triggerbot::CARSMGRange, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::Havoc && WeaponID == WeaponIDs::WEAPON_HAVOC)
-					{
+					if (Features::Triggerbot::Havoc && WeaponID == WeaponIDs::WEAPON_HAVOC) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0, 0.99, 0, 1.00f), "Havoc");
 						ImGui::MainSliderFloat("Range##HavocTriggerbot", &Features::Triggerbot::HavocRange, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::Devotion && WeaponID == WeaponIDs::WEAPON_DEVOTION)
-					{
+					if (Features::Triggerbot::Devotion && WeaponID == WeaponIDs::WEAPON_DEVOTION) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0, 0.99, 0, 1.00f), "Devotion");
 						ImGui::MainSliderFloat("Range##DevotionTriggerbot", &Features::Triggerbot::DevotionRange, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::LSTAR && WeaponID == WeaponIDs::WEAPON_LSTAR)
-					{
+					if (Features::Triggerbot::LSTAR && WeaponID == WeaponIDs::WEAPON_LSTAR) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0, 0.99, 0, 1.00f), "LSTAR");
 						ImGui::MainSliderFloat("Range##LSTARTriggerbot", &Features::Triggerbot::LSTARRange, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::TripleTake && WeaponID == WeaponIDs::WEAPON_TRIPLETAKE)
-					{
+					if (Features::Triggerbot::TripleTake && WeaponID == WeaponIDs::WEAPON_TRIPLETAKE) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0, 0.99, 0, 1.00f), "TripleTake");
 						ImGui::MainSliderFloat("Range##TripleTakeTriggerbot", &Features::Triggerbot::TripleTakeRange, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::Volt && WeaponID == WeaponIDs::WEAPON_VOLT)
-					{
+					if (Features::Triggerbot::Volt && WeaponID == WeaponIDs::WEAPON_VOLT) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0, 0.99, 0, 1.00f), "Volt");
 						ImGui::MainSliderFloat("Range##VoltTriggerbot", &Features::Triggerbot::VoltRange, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::Nemesis && WeaponID == WeaponIDs::WEAPON_NEMESIS)
-					{
+					if (Features::Triggerbot::Nemesis && WeaponID == WeaponIDs::WEAPON_NEMESIS) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0, 0.99, 0, 1.00f), "Nemesis");
 						ImGui::MainSliderFloat("Range##NemesisTriggerbot", &Features::Triggerbot::NemesisRange, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::Mozambique && WeaponID == WeaponIDs::WEAPON_MOZAMBIQUE)
-					{
+					if (Features::Triggerbot::Mozambique && WeaponID == WeaponIDs::WEAPON_MOZAMBIQUE) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(1.00f, 0, 0, 1.00f), "Mozambique");
 						ImGui::MainSliderFloat("Range##MozambiqueTriggerbot", &Features::Triggerbot::MozambiqueRange, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::Peacekeeper && WeaponID == WeaponIDs::WEAPON_PEACEKEEPER)
-					{
+					if (Features::Triggerbot::Peacekeeper && WeaponID == WeaponIDs::WEAPON_PEACEKEEPER) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(1.00f, 0, 0, 1.00f), "Peacekeeper");
 						ImGui::MainSliderFloat("Range##PeacekeeperTriggerbot", &Features::Triggerbot::PeacekeeperRange, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::Mastiff && WeaponID == WeaponIDs::WEAPON_MASTIFF)
-					{
+					if (Features::Triggerbot::Mastiff && WeaponID == WeaponIDs::WEAPON_MASTIFF) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(1.00f, 0, 0, 1.00f), "Mastiff");
 						ImGui::MainSliderFloat("Range##MastiffTriggerbot", &Features::Triggerbot::MastiffRange, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::Longbow && WeaponID == WeaponIDs::WEAPON_LONGBOW)
-					{
+					if (Features::Triggerbot::Longbow && WeaponID == WeaponIDs::WEAPON_LONGBOW) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0.00990, 0.337, 0.990, 1.00f), "Longbow");
 						ImGui::MainSliderFloat("Range##LongbowTriggerbot", &Features::Triggerbot::LongbowRange, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::ChargeRifle && WeaponID == WeaponIDs::WEAPON_CHARGE_RIFLE)
-					{
+					if (Features::Triggerbot::ChargeRifle && WeaponID == WeaponIDs::WEAPON_CHARGE_RIFLE) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0.00990, 0.337, 0.990, 1.00f), "ChargeRifle");
 						ImGui::MainSliderFloat("Range##ChargeRifleTriggerbot", &Features::Triggerbot::ChargeRifleRange, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::Sentinel && WeaponID == WeaponIDs::WEAPON_SENTINEL)
-					{
+					if (Features::Triggerbot::Sentinel && WeaponID == WeaponIDs::WEAPON_SENTINEL) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0.00990, 0.337, 0.990, 1.00f), "Sentinel");
 						ImGui::MainSliderFloat("Range##SentinelTriggerbot", &Features::Triggerbot::SentinelRange, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::Wingman && WeaponID == WeaponIDs::WEAPON_WINGMAN)
-					{
+					if (Features::Triggerbot::Wingman && WeaponID == WeaponIDs::WEAPON_WINGMAN) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0.99, 0.530, 0.945, 1.00f), "Wingman");
 						ImGui::MainSliderFloat("Range##WingmanTriggerbot", &Features::Triggerbot::WingmanRange, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::EVA8 && WeaponID == WeaponIDs::WEAPON_EVA8)
-					{
+					if (Features::Triggerbot::EVA8 && WeaponID == WeaponIDs::WEAPON_EVA8) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0.99, 0.530, 0.945, 1.00f), "EVA8");
 						ImGui::MainSliderFloat("Range##EVA8Triggerbot", &Features::Triggerbot::EVA8Range, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::Bocek && WeaponID == WeaponIDs::WEAPON_BOCEK)
-					{
+					if (Features::Triggerbot::Bocek && WeaponID == WeaponIDs::WEAPON_BOCEK) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0.99, 0.530, 0.945, 1.00f), "Bocek");
 						ImGui::MainSliderFloat("Range##BocekTriggerbot", &Features::Triggerbot::BocekRange, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::Kraber && WeaponID == WeaponIDs::WEAPON_KRABER)
-					{
+					if (Features::Triggerbot::Kraber && WeaponID == WeaponIDs::WEAPON_KRABER) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0.99, 0.530, 0.945, 1.00f), "Kraber");
 						ImGui::MainSliderFloat("Range##KraberTriggerbot", &Features::Triggerbot::KraberRange, 0, 1000, "%.0f");
 					}
 
-					if (Features::Triggerbot::Knife && WeaponID == WeaponIDs::WEAPON_KNIFE)
-					{
+					if (Features::Triggerbot::Knife && WeaponID == WeaponIDs::WEAPON_KNIFE) {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0.99, 0.530, 0.945, 1.00f), "ThrowingKnife");
 						ImGui::MainSliderFloat("Range##ThrowingKnifeTriggerbot", &Features::Triggerbot::ThrowingKnifeRange, 0, 1000, "%.0f");
 					}
 
-					else
-					{
+					else {
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(0.99, 0.99, 0.99, 1.00f), "Unknown (Check Your Selected Weapon!)");
 					}
@@ -5297,5 +4908,28 @@ struct AdvancedGUI
 				}
 			}
 		}
+	}
+
+	void TextCentered(std::string text) {
+		auto windowWidth = ImGui::GetWindowSize().x;
+		auto textWidth = ImGui::CalcTextSize(text.c_str()).x;
+
+		ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
+		ImGui::Text(text.c_str());
+	}
+
+	void RenderCombo(std::string title, std::vector<std::string>items, int& index, int comboWidth) {
+		ImGui::PushItemWidth(comboWidth);
+		if (ImGui::BeginCombo(title.c_str(), items.at(index).c_str(), 0)) {
+
+			for (int n = 0; n < items.size(); n++) {
+				const bool is_selected = (index == n);
+				if (ImGui::Selectable(items.at(n).c_str(), is_selected))index = n;
+
+				if (is_selected)ImGui::SetItemDefaultFocus();// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+			}
+			ImGui::EndCombo();
+		}
+		ImGui::PopItemWidth();
 	}
 };

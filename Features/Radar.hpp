@@ -36,15 +36,14 @@
 struct Radar
 {
 
-	XDisplay *X11Display;
-	Camera *GameCamera;
-	Level *m_level;
-	LocalPlayer *Myself;
-	std::vector<Player *> *Players;
+	XDisplay* X11Display;
+	Camera* GameCamera;
+	Level* m_level;
+	LocalPlayer* Myself;
+	std::vector<Player*>* Players;
 	std::chrono::milliseconds LastUpdateTime;
 
-	Radar(XDisplay *X11Display, std::vector<Player *> *Players, Camera *GameCamera, Level *level, LocalPlayer *localplayer)
-	{
+	Radar(XDisplay* X11Display, std::vector<Player*>* Players, Camera* GameCamera, Level* level, LocalPlayer* localplayer) {
 		this->X11Display = X11Display;
 		this->Players = Players;
 		this->GameCamera = GameCamera;
@@ -52,29 +51,27 @@ struct Radar
 		this->Myself = localplayer;
 	}
 
-	void ActivateBigMap()
-	{	
-
+	void ActivateBigMap() {
 		if (!Features::Radar::BigMap)
 			return;
 
-		if (InputManager::isKeyDownOrPress(Features::Radar::BigMapBind))
-		{
+		if (!m_level->IsPlayable) {
+			return;
+		}
+
+		if (InputManager::isKeyDownOrPress(Features::Radar::BigMapBind)) {
 			int localPlayerTeamID = Myself->Team;
-			if (localPlayerTeamID != 1)
-			{
+			if (localPlayerTeamID != 1) {
 				float curTime = Memory::Read<float>(Myself->BasePointer + OFF_TIME_BASE);
 				double continueTime = 0.2;
 				float endTime = curTime + continueTime;
-				while (curTime < endTime)
-				{
+				while (curTime < endTime) {
 					Memory::Write<int>(Myself->BasePointer + OFF_TEAM_NUMBER, 1);
 					curTime = Memory::Read<float>(Myself->BasePointer + OFF_TIME_BASE);
 				}
 				curTime = Memory::Read<float>(Myself->BasePointer + OFF_TIME_BASE);
 				endTime = curTime + continueTime;
-				while (curTime < endTime)
-				{
+				while (curTime < endTime) {
 					Memory::Write<int>(Myself->BasePointer + OFF_TEAM_NUMBER, localPlayerTeamID);
 					curTime = Memory::Read<float>(Myself->BasePointer + OFF_TIME_BASE);
 				}
@@ -82,10 +79,8 @@ struct Radar
 		}
 	}
 
-	bool Save()
-	{
-		try
-		{
+	static bool Save() {
+		try {
 			Config::Radar::MiniMap = Features::Radar::MiniMap;
 			Config::Radar::MiniMapRange = Features::Radar::MiniMapRange;
 			Config::Radar::MiniMapScaleX = Features::Radar::MiniMapScaleX;
@@ -101,31 +96,26 @@ struct Radar
 			Config::Radar::CircleColorA = Features::Radar::CircleColor[0];
 
 			return true;
-		}
-		catch (...)
-		{
+		} catch (...) {
 			return false;
 		}
 	}
 
-	void RenderDrawings(ImDrawList *Canvas, LocalPlayer *Myself, Overlay OverlayWindow)
-	{
+	void RenderDrawings(ImDrawList* Canvas, LocalPlayer* Myself, Overlay OverlayWindow) {
 		int ScreenWidth;
 		int ScreenHeight;
 		OverlayWindow.GetScreenResolution(ScreenWidth, ScreenHeight);
 		if (!m_level->IsPlayable)
 			return;
 
-		if (Features::Radar::MiniMap)
-		{
+		if (Features::Radar::MiniMap) {
 			ImVec2 Center = ImGui::GetMainViewport()->GetCenter();
 			ImGui::SetNextWindowPos(ImVec2(0.0f, Center.y), ImGuiCond_Once, ImVec2(0.02f, 0.5f));
 
-			ImGui::Begin(("Radar"), (bool *)true, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoBringToFrontOnFocus);
+			ImGui::Begin(("Radar"), (bool*)true, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoBringToFrontOnFocus);
 
-			for (auto i = 0; i < Players->size(); i++)
-			{
-				Player *p = Players->at(i);
+			for (auto i = 0; i < Players->size(); i++) {
+				Player* p = Players->at(i);
 				if (!p->IsHostile || !p->IsValid() || Myself->BasePointer == p->BasePointer)
 					continue;
 
@@ -138,8 +128,7 @@ struct Radar
 	}
 
 	// DRAW RADAR POINT mini Map
-	void DrawRadarPointMiniMap(Vector3D EnemyPos, Vector3D LocalPos, float targetY, float enemyDist, int TeamID, int xAxis, int yAxis, int width, int height, ImColor color, float targetyaw)
-	{
+	void DrawRadarPointMiniMap(Vector3D EnemyPos, Vector3D LocalPos, float targetY, float enemyDist, int TeamID, int xAxis, int yAxis, int width, int height, ImColor color, float targetyaw) {
 		bool out = false;
 		Vector3D siz;
 		siz.x = width;
@@ -150,36 +139,31 @@ struct Radar
 		bool ck = false;
 
 		Vector3D single = Renderer::RotatePoint(EnemyPos, LocalPos, pos.x, pos.y, siz.x, siz.y, targetY, 0.3f, &ck);
-		if (enemyDist >= 0.f && enemyDist < Features::Radar::MiniMapRange)
-		{
-			for (int i = 1; i <= 30; i++)
-			{
+		if (enemyDist >= 0.f && enemyDist < Features::Radar::MiniMapRange) {
+			for (int i = 1; i <= 30; i++) {
 				Renderer::TeamMiniMap(single.x, single.y, Features::Radar::MiniMapDotSize, TeamID, targetyaw, Features::Radar::MiniMapDotSize, Features::Radar::MiniMapBlackBGSize, ImColor(Features::Radar::CircleColor[0], Features::Radar::CircleColor[1], Features::Radar::CircleColor[2], Features::Radar::CircleColor[3]));
 			}
 		}
 	}
 
 	// MINI MAP RADAR IMPLEMENTATION
-	void MiniMapRadar(Vector3D EnemyPos, Vector3D LocalPos, float targetY, float eneamyDist, int TeamId, float targetyaw)
-	{
+	void MiniMapRadar(Vector3D EnemyPos, Vector3D LocalPos, float targetY, float eneamyDist, int TeamId, float targetyaw) {
 		/*ImGuiStyle* style = &ImGui::GetStyle();
 		style->WindowRounding = 0.2f;
 		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.13529413f, 0.14705884f, 0.15490198f, 0.82f));*/
 		ImGuiWindowFlags TargetFlags;
 		TargetFlags = ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar;
-		if (Features::Radar::MiniMap)
-		{
+		if (Features::Radar::MiniMap) {
 			// 1920*1080: 215 x 215
 			// 2560*1440: 335 x 335
-			ImGui::SetNextWindowSize({Features::Radar::MiniMapScaleX, Features::Radar::MiniMapScaleY});
+			ImGui::SetNextWindowSize({ Features::Radar::MiniMapScaleX, Features::Radar::MiniMapScaleY });
 			ImGui::Begin(("##Radar"), 0, TargetFlags);
 			{
-				ImDrawList *Draw = ImGui::GetWindowDrawList();
+				ImDrawList* Draw = ImGui::GetWindowDrawList();
 				ImVec2 DrawPos = ImGui::GetCursorScreenPos();
 				ImVec2 DrawSize = ImGui::GetContentRegionAvail();
 				ImVec2 midRadar = ImVec2(DrawPos.x + (DrawSize.x / 2), DrawPos.y + (DrawSize.y / 2));
-				if (Features::Radar::MiniMapGuides)
-				{
+				if (Features::Radar::MiniMapGuides) {
 					ImVec2 startHorizontal(midRadar.x - DrawSize.x / 2.f, midRadar.y);
 					ImVec2 endHorizontal(midRadar.x + DrawSize.x / 2.f, midRadar.y);
 					ImVec2 startVertical(midRadar.x, midRadar.y - DrawSize.y / 2.f);
@@ -193,7 +177,7 @@ struct Radar
 					ImGui::GetWindowDrawList()->AddLine(endVertical, ImVec2(endVertical.x, endVertical.y + extension), IM_COL32(255, 255, 255, 255));
 				}
 
-				DrawRadarPointMiniMap(EnemyPos, LocalPos, targetY, eneamyDist, TeamId, DrawPos.x, DrawPos.y, DrawSize.x, DrawSize.y, {255, 255, 255, 255}, targetyaw);
+				DrawRadarPointMiniMap(EnemyPos, LocalPos, targetY, eneamyDist, TeamId, DrawPos.x, DrawPos.y, DrawSize.x, DrawSize.y, { 255, 255, 255, 255 }, targetyaw);
 			}
 			ImGui::End();
 		}

@@ -29,9 +29,11 @@ namespace Config
 	namespace Settings
 	{
 		bool ESPEnabled = true;
+		bool DeadCheck = false;
 		bool OverlayEnabled = true;
+		bool AntiAliasedLines = true;
 		bool FPSCap = false;
-		int CappedFPS = 60;
+		int CappedFPS = 144;
 	};
 
 	namespace AimbotHitboxes
@@ -1384,10 +1386,11 @@ namespace Config
 	{
 		bool Enabled = false;
 		int BindMethod = 0;
+		int AttackMethod = 1; // 0 = Mouse, 1 = Memory
 		int TriggerBind = 57;
 		bool OnADS = true;
 		bool HipfireShotguns = false;
-		int Delay = 100;
+		int Delay = 40;
 		float Range = 200;
 
 		// Weapon Toggles
@@ -1478,6 +1481,7 @@ namespace Config
 	{
 		// Glow
 		bool NewGlow = false;
+		bool KnockedCheck = false;
 		float GlowMaxDistance = 200;
 
 		int GlowColorMode = 1;
@@ -1496,7 +1500,6 @@ namespace Config
 	namespace ItemGlow
 	{
 		bool ItemGlow = false;
-		int SelectedItemSelection = 0; // 0 = Simple, 1 = Custom
 		bool Common = true;
 		bool Rare = true;
 		bool Epic = true;
@@ -1504,6 +1507,7 @@ namespace Config
 		bool Legendary = true;
 		bool Weapons = false;
 		bool Ammo = false;
+		bool Deathbox = true;
 
 		int ItemGlowThickness = 35;
 
@@ -1521,6 +1525,39 @@ namespace Config
 		float FOVThickness = 1.0;
 		float GameFOV = 120;
 
+		bool DrawTargetLine = false;
+        bool DrawTargetDot = false;
+        bool DrawTargetBox = false;
+        int TargetMode = 0; // 0 = Aimbot Target, 1 = Best Target
+        int TargetBoneMode = 0; // 0 = Aimbot Settings, 1 = Custom
+        int TargetSelectedBone = 0;
+        int TargetBone = 0;
+        int TargetHitbox = 0;
+        int TargetLineThickness = 1;
+        int TargetDotRadius = 1500;
+        int TargetBoxMode = 0;
+        int TargetBoxThickness = 1;
+        int TargetBoxSize = 4;
+
+		bool DrawTargetInfo = false;
+        int TargetInfoDisplayMode = 0;
+        bool DrawTargetInfoName = false;
+        int TargetInfoNamePos = 0;
+        bool DrawTargetInfoLegend = false;
+        int TargetInfoLegendPos = 1;
+        bool DrawTargetInfoTeamID = false;
+        bool DrawTargetInfoDistance = false;
+        bool DrawTargetInfoWeapon = false;
+        int TargetInfoWeaponPos = 2;
+        bool DrawTargetInfoHealth = false;
+        int TargetInfoHealthPos = 3;
+        bool DrawTargetInfoShield = false;
+        int TargetInfoShieldPos = 4;
+        int TargetInfoColorMode = 0; // 0 = Simple, 1 = Custom
+        int TargetInfoPosX = 0;
+        int TargetInfoPosY = 0;
+        int TargetInfoOffset = 15;
+
 		// Other
 		bool DrawCrosshair = true;
 		float CrosshairSize = 7.0;
@@ -1536,6 +1573,7 @@ namespace Config
 		// Settings
 		bool TextOutline = true;
 		bool VisibilityCheck = false;
+		bool KnockedCheck = false;
 		float ESPMaxDistance = 200;
 
 	};
@@ -1545,13 +1583,16 @@ namespace Config
 		bool DrawEnemy = true;
 
 		bool DrawBoxes = true;
+		bool BoxOutline = true;
 		int BoxType = 0;
 		int BoxStyle = 1;
 		float BoxThickness = 1.0;
 
 		bool DrawSkeleton = true;
+		bool SkeletonOutline = false;
 		float SkeletonThickness = 1.0;
 		bool DrawHeadCircle = true;
+		bool HeadCircleOutline = false;
 		float HeadCircleThickness = 1.0;
 
 		bool DrawBars = true;
@@ -1584,13 +1625,16 @@ namespace Config
 	{
 		bool DrawTeam = false;
 		bool DrawBoxes = true;
+		bool BoxOutline = true;
 		int BoxType = 0;
 		int BoxStyle = 0;
 		float BoxThickness = 1.0;
 
 		bool DrawSkeleton = true;
+		bool SkeletonOutline = false;
 		float SkeletonThickness = 1.0;
 		bool DrawHeadCircle = true;
+		bool HeadCircleOutline = false;
 		float HeadCircleThickness = 1.0;
 
 		bool DrawBars = true;
@@ -1652,6 +1696,7 @@ namespace Config
 	namespace Misc
 	{
 		bool SuperGlide = true;
+		int SuperGlideMode = 0;
 		int SuperGlideFPS = 1; // 0 = 75, 1 = 144, 2 = 240
 
 		bool QuickTurn = false;
@@ -1731,6 +1776,41 @@ namespace Config
 	{
 		int WeaponColorMode = 0;
 
+		// Aimbot
+		float TargetLineColorR = 0.99;
+		float TargetLineColorG = 0.99;
+		float TargetLineColorB = 0.99;
+		float TargetLineColorA = 0.99;
+		float TargetLineLockedColorR = 0.99;
+		float TargetLineLockedColorG = 0;
+		float TargetLineLockedColorB = 0;
+		float TargetLineLockedColorA = 0.99;
+		float TargetDotColorR = 0.99;
+		float TargetDotColorG = 0.99;
+		float TargetDotColorB = 0.99;
+		float TargetDotColorA = 0.99;
+		float TargetDotLockedColorR = 0.99;
+		float TargetDotLockedColorG = 0;
+		float TargetDotLockedColorB = 0;
+		float TargetDotLockedColorA = 0.99;
+		float TargetBoxColorR = 0.99;
+		float TargetBoxColorG = 0.99;
+		float TargetBoxColorB = 0.99;
+		float TargetBoxColorA = 0.99;
+		float TargetBoxLockedColorR = 0.99;
+		float TargetBoxLockedColorG = 0;
+		float TargetBoxLockedColorB = 0;
+		float TargetBoxLockedColorA = 0.99;
+		
+		float TargetInfoColorR = 0.99;
+		float TargetInfoColorG = 0.99;
+		float TargetInfoColorB = 0.99;
+		float TargetInfoColorA = 0.99;
+		float TargetInfoLockedColorR = 0.99;
+		float TargetInfoLockedColorB = 0;
+		float TargetInfoLockedColorG = 0;
+		float TargetInfoLockedColorA = 0.99;
+
 		float FOVColorR = 0.99;
 		float FOVColorG = 0.99;
 		float FOVColorB = 0.99;
@@ -1756,6 +1836,12 @@ namespace Config
 		float VisibleWarningColorB = 0;
 		float VisibleWarningColorA = 0.99;
 
+		// Watermark
+		float NameColorR = 0.4;
+		float NameColorG = 0.99;
+		float NameColorB = 0.343;
+		float NameColorA = 0.99;
+
 	};
 
 	namespace EnemyColors
@@ -1769,6 +1855,10 @@ namespace Config
 		float VisibleBoxColorG = 0.99;
 		float VisibleBoxColorB = 0;
 		float VisibleBoxColorA = 0.99;
+		float KnockedBoxColorR = 0.99;
+		float KnockedBoxColorG = 0.67;
+		float KnockedBoxColorB = 0.12;
+		float KnockedBoxColorA = 0.99;
 		
 		float InvisibleFilledBoxColorR = 0.99;
 		float InvisibleFilledBoxColorG = 0;
@@ -1778,6 +1868,10 @@ namespace Config
 		float VisibleFilledBoxColorG = 0.99;
 		float VisibleFilledBoxColorB = 0;
 		float VisibleFilledBoxColorA = 0.99;
+		float KnockedFilledBoxColorR = 0.99;
+		float KnockedFilledBoxColorG = 0.67;
+		float KnockedFilledBoxColorB = 0.12;
+		float KnockedFilledBoxColorA = 0.99;
 
 		float InvisibleTracerColorR = 0.99;
 		float InvisibleTracerColorG = 0;
@@ -1787,6 +1881,10 @@ namespace Config
 		float VisibleTracerColorG = 0.99;
 		float VisibleTracerColorB = 0;
 		float VisibleTracerColorA = 0.99;
+		float KnockedTracerColorR = 0.99;
+		float KnockedTracerColorG = 0.67;
+		float KnockedTracerColorB = 0.12;
+		float KnockedTracerColorA = 0.99;
 
 		float InvisibleSkeletonColorR = 0.99;
 		float InvisibleSkeletonColorG = 0;
@@ -1796,6 +1894,10 @@ namespace Config
 		float VisibleSkeletonColorG = 0.99;
 		float VisibleSkeletonColorB = 0;
 		float VisibleSkeletonColorA = 0.99;
+		float KnockedSkeletonColorR = 0.99;
+		float KnockedSkeletonColorG = 0.67;
+		float KnockedSkeletonColorB = 0.12;
+		float KnockedSkeletonColorA = 0.99;
 
 		float InvisibleHeadCircleColorR = 0.99;
 		float InvisibleHeadCircleColorG = 0;
@@ -1805,6 +1907,10 @@ namespace Config
 		float VisibleHeadCircleColorG = 0.99;
 		float VisibleHeadCircleColorB = 0;
 		float VisibleHeadCircleColorA = 0.99;
+		float KnockedHeadCircleColorR = 0.99;
+		float KnockedHeadCircleColorG = 0.67;
+		float KnockedHeadCircleColorB = 0.12;
+		float KnockedHeadCircleColorA = 0.99;
 
 		float InvisibleNameColorR = 0.99;
 		float InvisibleNameColorG = 0;
@@ -1814,6 +1920,10 @@ namespace Config
 		float VisibleNameColorG = 0.99;
 		float VisibleNameColorB = 0;
 		float VisibleNameColorA = 0.99;
+		float KnockedNameColorR = 0.99;
+		float KnockedNameColorG = 0.67;
+		float KnockedNameColorB = 0.12;
+		float KnockedNameColorA = 0.99;
 
 		float InvisibleDistanceColorR = 0.99;
 		float InvisibleDistanceColorG = 0;
@@ -1823,6 +1933,10 @@ namespace Config
 		float VisibleDistanceColorG = 0.99;
 		float VisibleDistanceColorB = 0;
 		float VisibleDistanceColorA = 0.99;
+		float KnockedDistanceColorR = 0.99;
+		float KnockedDistanceColorG = 0.67;
+		float KnockedDistanceColorB = 0.12;
+		float KnockedDistanceColorA = 0.99;
 
 		float InvisibleLegendColorR = 0.99;
 		float InvisibleLegendColorG = 0;
@@ -1832,6 +1946,10 @@ namespace Config
 		float VisibleLegendColorG = 0.99;
 		float VisibleLegendColorB = 0;
 		float VisibleLegendColorA = 0.99;
+		float KnockedLegendColorR = 0.99;
+		float KnockedLegendColorG = 0.67;
+		float KnockedLegendColorB = 0.12;
+		float KnockedLegendColorA = 0.99;
 
 		// Bar
 		int BarColorMode = 2;
@@ -1844,6 +1962,10 @@ namespace Config
 		float VisibleWeaponColorG = 0.99;
 		float VisibleWeaponColorB = 0;
 		float VisibleWeaponColorA = 0.99;
+		float KnockedWeaponColorR = 0.99;
+		float KnockedWeaponColorG = 0.67;
+		float KnockedWeaponColorB = 0.12;
+		float KnockedWeaponColorA = 0.99;
 		// Multiple
 		float LightWeaponColorR = 0.990;
 		float LightWeaponColorG = 0.768;
@@ -1885,6 +2007,9 @@ namespace Config
 		float VisibleGlowColorR = 0;
 		float VisibleGlowColorG = 1;
 		float VisibleGlowColorB = 0;
+		float KnockedGlowColorR = 0.99;
+		float KnockedGlowColorG = 0.67;
+		float KnockedGlowColorB = 0.12;
 
 		float RedShieldColorR = 1;
 		float RedShieldColorG = 0;
@@ -1898,11 +2023,14 @@ namespace Config
 		float GreyShieldColorR = 0.540;
 		float GreyShieldColorG = 0.545;
 		float GreyShieldColorB = 0.545;
+		float LowGlowColorR = 1;
+		float LowGlowColorG = 1;
+		float LowGlowColorB = 0;
 	};
 
 	namespace TeammateColors
 	{
-
+		// ESP
 		float InvisibleBoxColorR = 0.99;
 		float InvisibleBoxColorG = 0;
 		float InvisibleBoxColorB = 0;
@@ -1911,6 +2039,10 @@ namespace Config
 		float VisibleBoxColorG = 0.99;
 		float VisibleBoxColorB = 0;
 		float VisibleBoxColorA = 0.99;
+		float KnockedBoxColorR = 0.99;
+		float KnockedBoxColorG = 0.67;
+		float KnockedBoxColorB = 0.12;
+		float KnockedBoxColorA = 0.99;
 		
 		float InvisibleFilledBoxColorR = 0.99;
 		float InvisibleFilledBoxColorG = 0;
@@ -1920,6 +2052,10 @@ namespace Config
 		float VisibleFilledBoxColorG = 0.99;
 		float VisibleFilledBoxColorB = 0;
 		float VisibleFilledBoxColorA = 0.99;
+		float KnockedFilledBoxColorR = 0.99;
+		float KnockedFilledBoxColorG = 0.67;
+		float KnockedFilledBoxColorB = 0.12;
+		float KnockedFilledBoxColorA = 0.99;
 
 		float InvisibleTracerColorR = 0.99;
 		float InvisibleTracerColorG = 0;
@@ -1929,6 +2065,10 @@ namespace Config
 		float VisibleTracerColorG = 0.99;
 		float VisibleTracerColorB = 0;
 		float VisibleTracerColorA = 0.99;
+		float KnockedTracerColorR = 0.99;
+		float KnockedTracerColorG = 0.67;
+		float KnockedTracerColorB = 0.12;
+		float KnockedTracerColorA = 0.99;
 
 		float InvisibleSkeletonColorR = 0.99;
 		float InvisibleSkeletonColorG = 0;
@@ -1938,6 +2078,10 @@ namespace Config
 		float VisibleSkeletonColorG = 0.99;
 		float VisibleSkeletonColorB = 0;
 		float VisibleSkeletonColorA = 0.99;
+		float KnockedSkeletonColorR = 0.99;
+		float KnockedSkeletonColorG = 0.67;
+		float KnockedSkeletonColorB = 0.12;
+		float KnockedSkeletonColorA = 0.99;
 
 		float InvisibleHeadCircleColorR = 0.99;
 		float InvisibleHeadCircleColorG = 0;
@@ -1947,6 +2091,10 @@ namespace Config
 		float VisibleHeadCircleColorG = 0.99;
 		float VisibleHeadCircleColorB = 0;
 		float VisibleHeadCircleColorA = 0.99;
+		float KnockedHeadCircleColorR = 0.99;
+		float KnockedHeadCircleColorG = 0.67;
+		float KnockedHeadCircleColorB = 0.12;
+		float KnockedHeadCircleColorA = 0.99;
 
 		float InvisibleNameColorR = 0.99;
 		float InvisibleNameColorG = 0;
@@ -1956,6 +2104,10 @@ namespace Config
 		float VisibleNameColorG = 0.99;
 		float VisibleNameColorB = 0;
 		float VisibleNameColorA = 0.99;
+		float KnockedNameColorR = 0.99;
+		float KnockedNameColorG = 0.67;
+		float KnockedNameColorB = 0.12;
+		float KnockedNameColorA = 0.99;
 
 		float InvisibleDistanceColorR = 0.99;
 		float InvisibleDistanceColorG = 0;
@@ -1965,6 +2117,10 @@ namespace Config
 		float VisibleDistanceColorG = 0.99;
 		float VisibleDistanceColorB = 0;
 		float VisibleDistanceColorA = 0.99;
+		float KnockedDistanceColorR = 0.99;
+		float KnockedDistanceColorG = 0.67;
+		float KnockedDistanceColorB = 0.12;
+		float KnockedDistanceColorA = 0.99;
 
 		float InvisibleLegendColorR = 0.99;
 		float InvisibleLegendColorG = 0;
@@ -1974,7 +2130,14 @@ namespace Config
 		float VisibleLegendColorG = 0.99;
 		float VisibleLegendColorB = 0;
 		float VisibleLegendColorA = 0.99;
+		float KnockedLegendColorR = 0.99;
+		float KnockedLegendColorG = 0.67;
+		float KnockedLegendColorB = 0.12;
+		float KnockedLegendColorA = 0.99;
 
+		// Bar
+		int BarColorMode = 2;
+		// WeaponESP Colors
 		float InvisibleWeaponColorR = 0.99;
 		float InvisibleWeaponColorG = 0;
 		float InvisibleWeaponColorB = 0;
@@ -1983,12 +2146,10 @@ namespace Config
 		float VisibleWeaponColorG = 0.99;
 		float VisibleWeaponColorB = 0;
 		float VisibleWeaponColorA = 0.99;
-
-		// Bar
-		int BarColorMode = 2;
-		// WeaponESP Colors
-		float InvisibleWeaponColor[4] = {0.99, 0, 0, 0.99};
-		float VisibleWeaponColor[4] = {0, 0.99, 0, 0.99};
+		float KnockedWeaponColorR = 0.99;
+		float KnockedWeaponColorG = 0.67;
+		float KnockedWeaponColorB = 0.12;
+		float KnockedWeaponColorA = 0.99;
 		// Multiple
 		float LightWeaponColorR = 0.990;
 		float LightWeaponColorG = 0.768;
@@ -2030,6 +2191,8 @@ namespace Config
 		int WatermarkPosition = 0;
 		bool Name = true;
 		bool ProcessingSpeed = true;
+		bool GameFPS = true;
 		bool Spectators = true;
+
 	};
 };
