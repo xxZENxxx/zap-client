@@ -843,10 +843,6 @@ struct Menu
 				{
 					ImGui::Spacing();
 
-					if (Features::Aimbot::InputMethod == 1 && Features::RCS::RCSMode == 0) {
-						ImGui::Text("Selected Aimbot Input Method Is Incompatible With Standalone RCS! Switch To Combined!");
-					}
-
 					if (Features::RCS::RCSMode == 1 && Features::Aimbot::AimbotMode == 1) {
 						ImGui::Text("Selected Aimbot Mode Is Incompatible With Combined RCS! Switch To Standalone!");
 					}
@@ -870,7 +866,7 @@ struct Menu
 								ImGui::SetTooltip("Yaw Power");
 						}
 
-						if (Features::RCS::RCSMode == 1 && !Features::Aimbot::AimbotMode == 1) {
+						if (Features::RCS::RCSMode == 1 && Features::Aimbot::AimbotMode == 0) {
 							ImGui::MainSliderFloat("Pitch Reduction %", &Features::RCS::PitchReduction, 0, 100, "%.0f");
 							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 								ImGui::SetTooltip("Percentage Of Horizontal Recoil That Will Be Reduced.");
