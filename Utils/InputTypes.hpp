@@ -151,6 +151,7 @@ InputKeyType mapKeyboardKeyType(int keyCode) {
         case KEY_LEFTSHIFT: return InputKeyType::KEYBOARD_LEFT_SHIFT;
         case KEY_LEFTCTRL: return InputKeyType::KEYBOARD_LEFT_CTRL;
         case KEY_LEFTALT: return InputKeyType::KEYBOARD_LEFT_ALT;
+        case KEY_INSERT: return InputKeyType::KEYBOARD_INSERT;
         case KEY_SPACE: return InputKeyType::KEYBOARD_SPACE;
         default: return InputKeyType::INPUT_UNKNOWN;
         none: return InputKeyType::INPUT_NONE;
