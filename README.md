@@ -1,5 +1,5 @@
 # zap-client [Apex External Cheat For Linux]
-**Updated to Game Version v3.0.67.34 (Season 21) (07.05.24)**
+**Updated to Game Version v3.0.68.50 (Season 21) (10.05.24)**
 
 By **Gerosity**
 
@@ -26,6 +26,11 @@ Instructions are down below
 
 <details>
 <summary><b>Changelog</b></summary>
+    
+    10.05.24 - Version 1.1.1
+    Updated offsets to latest version (Game Version v3.0.68.50)
+    Fixed Item Glow Crashes (I think...)
+    Fixed Spectator List (Might get patched sooner or later)
 
     07.05.24 - Version 1.1.0 - Season 21 Update
     Updated offsets to latest version (Game Version v3.0.67.34)
