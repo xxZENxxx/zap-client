@@ -4,7 +4,7 @@
 // GameVersion = v3.0.68.50
 
 // Cheat
-std::string CheatVersion = "Version 1.1.0";
+std::string CheatVersion = "Version 1.1.1";
 std::string GameVersion = "v3.0.68.50";
 
 // Core

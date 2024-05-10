@@ -158,6 +158,18 @@ struct Player {
         localOrigin_prev = FloatVector3D(localOrigin.x, localOrigin.y, localOrigin.z);
     }
 
+    bool IsSpectating() {
+        if (!IsDead)
+            return false;
+        uint64_t SpectatorList = Memory::Read<uint64_t>(OFF_REGION + 0x1EACCE8);
+        int PlayerData = Memory::Read<int>(BasePointer + 0x38);
+        int SpecIndex = Memory::Read<int>(SpectatorList + PlayerData*8 + 0x964);
+        uint64_t SpectatorAddr =  Memory::Read<uint64_t>(OFF_REGION + OFF_ENTITY_LIST + ((SpecIndex & 0xFFFF) << 5));
+        if(SpectatorAddr == Myself->BasePointer)
+            return true;
+        return false;
+    }
+
     float GetViewYaw() {
         if (!IsDummy() || IsPlayer()) {
             return Memory::Read<float>(BasePointer + OFF_YAW);
