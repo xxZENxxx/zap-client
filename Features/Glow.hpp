@@ -535,7 +535,7 @@ struct Glow
         const long HighlightSettingsPointer = Memory::Read<long>(OFF_REGION + OFF_GLOW_HIGHLIGHTS);
         const long HighlightSize = OFF_HIGHLIGHT_TYPE_SIZE;
 
-        ItemGlowSettings(); // Updates Item Glow Settings
+        /*ItemGlowSettings(); // Updates Item Glow Settings
 
         const GlowMode ItemGlowHighlightFunctions = {
             ItemGlowInsideFunction,                  // Inside Glow
@@ -586,7 +586,7 @@ struct Glow
             } else if (!Features::Glow::Item::Deathbox) {
                 SetGlowState(HighlightSettingsPointer, HighlightSize, 70, SetGlowOff);
             }
-        }
+        }*/
 
         /*
         9 = all weapons except legendary
@@ -679,6 +679,68 @@ struct Glow
         }
     }
 
+    void ItemGlow() {
+        /*const long HighlightSettingsPointer = Memory::Read<long>(OFF_REGION + OFF_GLOW_HIGHLIGHTS);
+
+        ItemGlowSettings(); // Updates Item Glow Settings
+
+        const GlowMode ItemGlowHighlightFunctions = {
+            ItemGlowInsideFunction,                  // Inside Glow
+            ItemGlowOutlineFunction,                 // Outline (Border)
+            Features::Glow::Item::ItemGlowThickness, // Outline Thickness
+            127                                      // ItemGlowPostProcessing
+        };
+
+        for (int highlightId = 15; highlightId < 65; highlightId++) {
+            const GlowMode oldGlowMode = Memory::Read<GlowMode>(HighlightSettingsPointer + (OFF_HIGHLIGHT_TYPE_SIZE * highlightId) + 0);
+            if (ItemGlowHighlightFunctions != oldGlowMode)
+                Memory::Write<GlowMode>(HighlightSettingsPointer + (OFF_HIGHLIGHT_TYPE_SIZE * highlightId) + 0, ItemGlowHighlightFunctions);
+        }*/
+
+        const long HighlightSettingsPointer = Memory::Read<long>(OFF_REGION + OFF_GLOW_HIGHLIGHTS);
+        const long HighlightSize = OFF_HIGHLIGHT_TYPE_SIZE;
+
+        ItemGlowSettings(); // Updates Item Glow Settings
+
+        const GlowMode ItemGlowHighlightFunctions = {
+            ItemGlowInsideFunction,                  // Inside Glow
+            ItemGlowOutlineFunction,                 // Outline (Border)
+            Features::Glow::Item::ItemGlowThickness, // Outline Thickness
+            127                                      // ItemGlowPostProcessing
+        };
+
+        // Item Glow //
+        if (Features::Glow::Item::ItemGlow) {
+            if (Features::Glow::Item::Common)
+                SetGlowState(HighlightSettingsPointer, HighlightSize, 63, ItemGlowHighlightFunctions);
+            if (Features::Glow::Item::Rare)
+                SetGlowState(HighlightSettingsPointer, HighlightSize, 52, ItemGlowHighlightFunctions);
+            if (Features::Glow::Item::Epic)
+                SetGlowState(HighlightSettingsPointer, HighlightSize, 45, ItemGlowHighlightFunctions);
+            if (Features::Glow::Item::Gold)
+                SetGlowState(HighlightSettingsPointer, HighlightSize, 15, ItemGlowHighlightFunctions);
+            if (Features::Glow::Item::Legendary)
+                SetGlowState(HighlightSettingsPointer, HighlightSize, 40, ItemGlowHighlightFunctions);
+            if (Features::Glow::Item::Ammo)
+                SetGlowState(HighlightSettingsPointer, HighlightSize, 55, ItemGlowHighlightFunctions);
+            if (Features::Glow::Item::Weapons)
+                SetGlowState(HighlightSettingsPointer, HighlightSize, 9, ItemGlowHighlightFunctions);
+            if (Features::Glow::Item::Deathbox)
+                SetGlowState(HighlightSettingsPointer, HighlightSize, 70, ItemGlowHighlightFunctions);
+        }
+
+        /*
+        9 = all weapons except legendary
+        63 = grey items & attachments (e.g. shield cells)
+        52 = blue items & attachments
+        45 = purple
+        15 = gold
+        40 = red/legendary
+        70 = deathbox
+        55 = ammo
+        */
+    }
+
     void ViewModelGlow() {
         // Viewmodel Glow
         if (Features::Glow::ViewModelGlow) {
@@ -688,20 +750,6 @@ struct Glow
             uint64_t currentWeapon = Memory::Read<uint64_t>(OFF_REGION + OFF_ENTITY_LIST + (actWeaponID << 5));
 
             Memory::Write<uint8_t>(currentWeapon + OFF_GLOW_HIGHLIGHT_ID, ViewmodelGlowID);
-
-            // Arm Glow
-            /*uint64_t armID = Memory::Read<uint64_t>(Myself->BasePointer + OFF_ARM_VIEWMODELS) & 0xFFFF;
-            uint64_t currentArms = Memory::Read<uint64_t>(OFF_REGION + OFF_ENTITY_LIST + (armID << 5));
-
-            Memory::Write<uint8_t>(currentArms + OFF_GLOW_HIGHLIGHT_ID, ViewmodelGlowID);*/
-        }
-
-        if (!Features::Glow::ViewModelGlow) {
-            // Weapon Glow
-            uint64_t actWeaponID = Memory::Read<uint64_t>(Myself->BasePointer + OFF_VIEWMODELS) & 0xFFFF;
-            uint64_t currentWeapon = Memory::Read<uint64_t>(OFF_REGION + OFF_ENTITY_LIST + (actWeaponID << 5));
-
-            Memory::Write<uint8_t>(currentWeapon + OFF_GLOW_HIGHLIGHT_ID, 0);
         }
     }
 

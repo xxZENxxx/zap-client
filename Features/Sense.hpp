@@ -700,32 +700,38 @@ struct Sense
 			ImVec2 Center = ImGui::GetMainViewport()->GetCenter();
 			ImGui::SetNextWindowPos(ImVec2(0.0f, Center.y), ImGuiCond_Once, ImVec2(0.02f, 0.5f));
 			ImGui::SetNextWindowBgAlpha(0.3f);
-			ImGui::Begin("Spectators", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar);
+			ImGui::Begin("Spectators", nullptr, ImGuiWindowFlags_AlwaysAutoResize |
+				ImGuiWindowFlags_NoTitleBar |
+				ImGuiWindowFlags_NoSavedSettings |
+				ImGuiWindowFlags_NoMove |
+				ImGuiWindowFlags_NoInputs |
+				ImGuiWindowFlags_NoCollapse |
+				ImGuiWindowFlags_NoScrollbar);
 
 			std::chrono::milliseconds Now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-			if (Now >= LastSpectatorUpdateTime + std::chrono::milliseconds(1500)) {
+			if (Now >= LastUpdateTime + std::chrono::milliseconds(1000)) {
 				int TempTotalSpectators = 0;
 				std::vector<std::string> TempSpectators;
-				for (auto p : *Players) {
-				if (p->BasePointer == Myself->BasePointer)
-					continue;
-				if (p->GetViewYaw() == Myself->ViewYaw && p->IsDead) {
-					TempTotalSpectators++;
-					TempSpectators.push_back(p->GetPlayerName());
-				}
+
+				for (int i = 0; i < Players->size(); i++) {
+					Player* p = Players->at(i);
+					if (p->IsSpectating()) {
+						TempTotalSpectators++;
+						TempSpectators.push_back(p->GetPlayerName());
+					}
 				}
 
 				TotalSpectators = TempTotalSpectators;
 				Spectators = TempSpectators;
-				LastSpectatorUpdateTime = Now;
+				LastUpdateTime = Now;
 			}
-
 			ImGui::Text("Spectators: ");
-			ImGui::SameLine();
-			ImGui::TextColored(TotalSpectators > 0 ? ImVec4(1, 0.343, 0.475, 1) : ImVec4(0.4, 1, 0.343, 1), "%d", TotalSpectators);
+			ImGui::SameLine(); ImGui::TextColored(TotalSpectators > 0 ? ImVec4(1, 0.343, 0.475, 1) : ImVec4(0.4, 1, 0.343, 1), "%d", TotalSpectators);
 			if (static_cast<int>(Spectators.size()) > 0) {
 				ImGui::Separator();
-				for (const auto & Spectator : Spectators) { ImGui::TextColored(ImVec4(1, 0.343, 0.475, 1), "> %s", Spectator.c_str()); }
+				for (int i = 0; i < static_cast<int>(Spectators.size()); i++) {
+					ImGui::TextColored(ImVec4(1, 0.343, 0.475, 1), "> %s", Spectators.at(i).c_str());
+				}
 			}
 			ImGui::End();
 		}
@@ -1990,7 +1996,7 @@ struct Sense
 				} else if (Features::Aimbot::AimbotMode == 1) {
 					TargetVisualsEnabled = false;
 				}
-				
+
 				// Target Line
 				if (Features::Sense::DrawTargetLine && TargetVisualsEnabled) {
 					ImVec4 TargetLineColor;
