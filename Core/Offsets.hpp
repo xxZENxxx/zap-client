@@ -53,6 +53,7 @@ constexpr long OFF_VIEW_ANGLES = 0x2534 - 0x14; //[DataMap.C_Player]-> m_ammoPoo
 constexpr long OFF_PUNCH_ANGLES = 0x2438;       //[DataMap.C_Player]->m_currentFrameLocalPlayer.m_vecPunchWeapon_Angle
 constexpr long OFF_YAW = 0x223c - 0x8;          //m_currentFramePlayer.m_ammoPoolCount - 0x8
 constexpr long OFF_MODELNAME = 0x0030;          //m_ModelName
+constexpr long OFF_OBSERVER_LIST = 0x1EACCE8;   //observerList: 48 8B 0D ? ? ? ? 48 85 C9 74 ? 48 8B 01 FF ? ? 48 85 C0 74 ? 48 63 4E 38     10.05.24
 
 // Weapon
 constexpr long OFF_WEAPON_HANDLE = 0x1934;            //[RecvTable.DT_Player]->m_latestPrimaryWeapons
