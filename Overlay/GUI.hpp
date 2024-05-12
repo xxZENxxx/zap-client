@@ -1637,12 +1637,12 @@ struct Menu
 				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 					ImGui::SetTooltip("Items Will Glow Through Walls.\nIncludes Deathboxes.");
 				if (Features::Glow::Item::ItemGlow) {
-					const char* ItemGlowBodyStyleIndex[] = { "Clear", "Light", "Solid", "Light To Dark Fade" };
+					/*const char* ItemGlowBodyStyleIndex[] = { "Clear", "Light", "Solid", "Light To Dark Fade" };
 					ImGui::ComboBox("Inside Style", &Features::Glow::Item::SelectedInsideStyle, ItemGlowBodyStyleIndex, IM_ARRAYSIZE(ItemGlowBodyStyleIndex));
 					const char* ItemGlowOutlineIndex[] = { "None", "Light 1", "Light 2", "Solid", "Gold", "Orange", "Pulsing", "Light Red (Visible Only)", "Red", "Fading (Visible Only)", "Soft", "Visible Only" };
 					ImGui::ComboBox("Outline Style", &Features::Glow::Item::SelectedOutlineStyle, ItemGlowOutlineIndex, IM_ARRAYSIZE(ItemGlowOutlineIndex));
 					ImGui::MainSliderInt("Glow Thickness", &Features::Glow::Item::ItemGlowThickness, 0, 250);
-					/*ImGui::Text("Item Glow Toggles");
+					ImGui::Text("Item Glow Toggles");
 
 					ImGui::Checkbox("Common", &Features::Glow::Item::Common);
 					ImGui::Checkbox("Rare", &Features::Glow::Item::Rare);
