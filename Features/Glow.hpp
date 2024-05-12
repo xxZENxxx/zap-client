@@ -617,14 +617,14 @@ struct Glow
         const long HighlightSettingsPointer = Memory::Read<long>(OFF_REGION + OFF_GLOW_HIGHLIGHTS);
         const long HighlightSize = OFF_HIGHLIGHT_TYPE_SIZE;
 
-        ItemGlowSettings(); // Updates Item Glow Settings
+        /*ItemGlowSettings(); // Updates Item Glow Settings
 
         const GlowMode ItemGlowHighlightFunctions = {
             ItemGlowInsideFunction,                  // Inside Glow
             ItemGlowOutlineFunction,                 // Outline (Border)
             Features::Glow::Item::ItemGlowThickness, // Outline Thickness
             127                                      // ItemGlowPostProcessing
-        };
+        };*/
 
         // Item Glow //
         if (Features::Glow::Item::ItemGlow) {
@@ -646,10 +646,10 @@ struct Glow
                 SetGlowState(HighlightSettingsPointer, HighlightSize, 70, ItemGlowHighlightFunctions);*/
 
             for (int highlightId = 15; highlightId < 65; highlightId++) {
-                //const GlowMode newGlowMode = { 137,0,0,127 };
+                const GlowMode newGlowMode = { 137,0,0,127 };
                 const GlowMode oldGlowMode = Memory::Read<GlowMode>(HighlightSettingsPointer + (HighlightSize * highlightId) + 0);
                 if (newGlowMode != oldGlowMode)
-                    Memory::Write<GlowMode>(HighlightSettingsPointer + (HighlightSize * highlightId) + 0, ItemGlowHighlightFunctions);
+                    Memory::Write<GlowMode>(HighlightSettingsPointer + (HighlightSize * highlightId) + 0, newGlowMode);
             }
         }
 
