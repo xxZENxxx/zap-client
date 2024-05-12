@@ -628,7 +628,7 @@ struct Glow
 
         // Item Glow //
         if (Features::Glow::Item::ItemGlow) {
-            if (Features::Glow::Item::Common)
+            /*if (Features::Glow::Item::Common)
                 SetGlowState(HighlightSettingsPointer, HighlightSize, 63, ItemGlowHighlightFunctions);
             if (Features::Glow::Item::Rare)
                 SetGlowState(HighlightSettingsPointer, HighlightSize, 52, ItemGlowHighlightFunctions);
@@ -643,7 +643,14 @@ struct Glow
             if (Features::Glow::Item::Weapons)
                 SetGlowState(HighlightSettingsPointer, HighlightSize, 9, ItemGlowHighlightFunctions);
             if (Features::Glow::Item::Deathbox)
-                SetGlowState(HighlightSettingsPointer, HighlightSize, 70, ItemGlowHighlightFunctions);
+                SetGlowState(HighlightSettingsPointer, HighlightSize, 70, ItemGlowHighlightFunctions);*/
+
+            for (int highlightId = 15; highlightId < 65; highlightId++) {
+                //const GlowMode newGlowMode = { 137,0,0,127 };
+                const GlowMode oldGlowMode = Memory::Read<GlowMode>(HighlightSettingsPointer + (HighlightSize * highlightId) + 0);
+                if (newGlowMode != oldGlowMode)
+                    Memory::Write<GlowMode>(HighlightSettingsPointer + (HighlightSize * highlightId) + 0, ItemGlowHighlightFunctions);
+            }
         }
 
         /*
