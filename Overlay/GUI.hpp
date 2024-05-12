@@ -1642,7 +1642,7 @@ struct Menu
 					const char* ItemGlowOutlineIndex[] = { "None", "Light 1", "Light 2", "Solid", "Gold", "Orange", "Pulsing", "Light Red (Visible Only)", "Red", "Fading (Visible Only)", "Soft", "Visible Only" };
 					ImGui::ComboBox("Outline Style", &Features::Glow::Item::SelectedOutlineStyle, ItemGlowOutlineIndex, IM_ARRAYSIZE(ItemGlowOutlineIndex));
 					ImGui::MainSliderInt("Glow Thickness", &Features::Glow::Item::ItemGlowThickness, 0, 250);
-					ImGui::Text("Item Glow Toggles");
+					/*ImGui::Text("Item Glow Toggles");
 
 					ImGui::Checkbox("Common", &Features::Glow::Item::Common);
 					ImGui::Checkbox("Rare", &Features::Glow::Item::Rare);
@@ -1651,7 +1651,7 @@ struct Menu
 					ImGui::Checkbox("Legendary", &Features::Glow::Item::Legendary);
 					ImGui::Checkbox("Weapons", &Features::Glow::Item::Weapons);
 					ImGui::Checkbox("Ammo", &Features::Glow::Item::Ammo);
-					ImGui::Checkbox("Deathboxes", &Features::Glow::Item::Deathbox);
+					ImGui::Checkbox("Deathboxes", &Features::Glow::Item::Deathbox);*/
 				}
 
 				ImGui::EndChildFrame();
