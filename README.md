@@ -1,5 +1,5 @@
 # zap-client [Apex External Cheat For Linux]
-**Updated to Game Version v3.0.68.50 (Season 21) (10.05.24)**
+**Updated to Game Version v3.0.70.55 (Season 21) (22.05.24)**
 
 By **Gerosity**
 
@@ -26,6 +26,11 @@ Instructions are down below
 
 <details>
 <summary><b>Changelog</b></summary>
+
+    22.05.24 - Version 1.1.2
+    - Updated To The Latest Version - Game Version v3.0.70.55
+    - Going To "Begin" On A Full Rewrite/Brand New Cheat - Hoping For Optimization,
+    Cleaner & Smoother GUI, Item ESP, And A Less Shitty Cheat Overall
     
     10.05.24 - Version 1.1.1
     - Updated offsets to latest version (Game Version v3.0.68.50)
