@@ -2,7 +2,7 @@
 // https://www.unknowncheats.me/forum/apex-legends/319804-apex-legends-reversal-structs-offsets.html
 // GameVersion = v3.0.70.55
 
-constexpr std::string CheatVersion = "Version 1.1.1";
+constexpr std::string CheatVersion = "Version 1.1.2";
 constexpr std::string GameVersion = "v3.0.70.55";
 
 // Core
