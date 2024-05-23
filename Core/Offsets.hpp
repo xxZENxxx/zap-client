@@ -1,9 +1,10 @@
 #pragma once
+#include <string>
 // https://www.unknowncheats.me/forum/apex-legends/319804-apex-legends-reversal-structs-offsets.html
 // GameVersion = v3.0.70.55
 
-constexpr std::string CheatVersion = "Version 1.1.2";
-constexpr std::string GameVersion = "v3.0.70.55";
+std::string CheatVersion = "Version 1.1.2";
+std::string GameVersion = "v3.0.70.55";
 
 // Core
 constexpr long OFF_REGION = 0x140000000;     //[Static]->Region
