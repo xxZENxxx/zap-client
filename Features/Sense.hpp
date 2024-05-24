@@ -559,6 +559,25 @@ struct Sense
 		}
 	}
 
+	void UpdateSpectators() {
+		std::chrono::milliseconds Now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+		if (Now >= LastUpdateTime + std::chrono::milliseconds(500)) {
+			int TempTotalSpectators = 0;
+			std::vector<std::string> TempSpectators;
+
+			for (auto p : *Players) {
+					if (p->IsSpectating()) {
+					TempTotalSpectators++;
+					TempSpectators.push_back(p->GetPlayerName());
+				}
+			}
+
+			TotalSpectators = TempTotalSpectators;
+			Spectators = TempSpectators;
+			LastUpdateTime = Now;
+		}
+	}
+
 	void RenderWatermark(ImDrawList* Canvas, LocalPlayer* Myself, Overlay OverlayWindow) {
 		int ScreenWidth;
 		int ScreenHeight;
@@ -588,23 +607,7 @@ struct Sense
 			}
 
 			if (Features::Watermark::Spectators) {
-				if (const std::chrono::milliseconds now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()); now >= LastSpectatorUpdateTime + std::chrono::milliseconds(750)) {
-					int TempTotalSpectators = 0;
-					std::vector<std::string> TempSpectators;
-
-					for (const auto p : *Players) {
-						if (p->BasePointer == Myself->BasePointer)
-							continue;
-						if (p->GetViewYaw() == Myself->ViewYaw && p->IsDead) {
-							TempTotalSpectators++;
-							TempSpectators.push_back(p->GetPlayerName());
-						}
-					}
-
-					TotalSpectators = TempTotalSpectators;
-					Spectators = TempSpectators;
-					LastSpectatorUpdateTime = now;
-				}
+				UpdateSpectators();
 				ImGui::Text("Spectators: ");
 				ImGui::SameLine();
 				ImGui::TextColored(TotalSpectators > 0 ? ImVec4(1, 0.343, 0.475, 1) : ImVec4(0.4, 1, 0.343, 1), "%d", TotalSpectators);
@@ -691,8 +694,8 @@ struct Sense
 
 		if (!Map->IsPlayable)
 			return;
-		if (!Features::Settings::DeadCheck && Myself->IsDead)
-			return;
+		//if (!Features::Settings::DeadCheck && Myself->IsDead)
+		//	return;
 		if (!Features::Settings::OverlayEnabled)
 			return;
 
@@ -707,24 +710,8 @@ struct Sense
 				ImGuiWindowFlags_NoInputs |
 				ImGuiWindowFlags_NoCollapse |
 				ImGuiWindowFlags_NoScrollbar);
-
-			std::chrono::milliseconds Now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-			if (Now >= LastUpdateTime + std::chrono::milliseconds(1000)) {
-				int TempTotalSpectators = 0;
-				std::vector<std::string> TempSpectators;
-
-				for (int i = 0; i < Players->size(); i++) {
-					Player* p = Players->at(i);
-					if (p->IsSpectating()) {
-						TempTotalSpectators++;
-						TempSpectators.push_back(p->GetPlayerName());
-					}
-				}
-
-				TotalSpectators = TempTotalSpectators;
-				Spectators = TempSpectators;
-				LastUpdateTime = Now;
-			}
+			if (!Features::Watermark::Watermark || !Features::Watermark::Spectators)
+				UpdateSpectators();
 			ImGui::Text("Spectators: ");
 			ImGui::SameLine(); ImGui::TextColored(TotalSpectators > 0 ? ImVec4(1, 0.343, 0.475, 1) : ImVec4(0.4, 1, 0.343, 1), "%d", TotalSpectators);
 			if (static_cast<int>(Spectators.size()) > 0) {
