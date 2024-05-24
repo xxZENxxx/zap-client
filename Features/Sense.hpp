@@ -694,8 +694,8 @@ struct Sense
 
 		if (!Map->IsPlayable)
 			return;
-		//if (!Features::Settings::DeadCheck && Myself->IsDead)
-		//	return;
+		if (!Features::Settings::DeadCheck && Myself->IsDead)
+			return;
 		if (!Features::Settings::OverlayEnabled)
 			return;
 
