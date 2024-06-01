@@ -9,9 +9,11 @@ Instructions are down below
 
 **Never cheat on a main account, its not worth it**
 
+**This Cheat Is Now Being Sold Online. Don't Be Stupid, Don't Get Scammed.**
+
 <details>
-<summary><b>Features</b></summary>
-    
+<summary><b>Feature List (Outdated)</b></summary>
+
     Legitbot - Aimbot, RCS, Visuals
     Ragebot - Aimbot, RCS
     Flickbot
@@ -26,6 +28,39 @@ Instructions are down below
 
 <details>
 <summary><b>Changelog</b></summary>
+    
+    01.06.24 - Version 1.1.3
+    Legitbot:
+        - Added Spectator Check (Disables Aimbot When Being Spectated)
+            - Added Spectator Notifier
+    Glow:
+        - Fixed Item Glow
+    Sense:
+        - Separated Health Bar & Shield Bar
+        - Added Skeleton Detail (Detailed Or Simple)
+        - Optimized And Cleaned Up File - Credits To hir0xygen
+        - Spectator List & Watermark Can be Moved Anywhere Now
+    Radar:
+        - Radar Can Be Moved Anywhere
+        - Added Two Different Identifiers - Circle & Arrowhead
+        - Identifier Colors Are Now Based On Team IDs
+        - Separated Identifiers And View Angle Lines
+        - Radar Settings (Background, Rounding, etc)
+    Misc:
+        - Added Wall Jump - Credits To BoheSama
+        - Added Tap Strafe (?) - Credits To BoheSama/chettoy/apexsky
+    Settings:
+        - Added Custom Menu Bind
+        - Added Keybind Notifier
+        - Added Dev Options (For Experimenting/Development/Updating)
+            - Draw Local Player Weapon IDs (For Updating Weapons.hpp)
+            - Draw Player Weapon IDs (For Updating/Testing Weapons.hpp)
+            - Draw Player Bone IDs (For Finding Bone IDs - HitboxType.hpp)
+    Configs:
+        - Added Default Configs (Loads A Selected Config On Cheat Initialization)
+    Other:
+        - Improved Performance In Firing Range (20+ms -> 15ms)
+        - Optimizations By Adding Read Delays For Info That Isn't Required - Credits To hir0xygen
 
     22.05.24 - Version 1.1.2
     - Updated To The Latest Version - Game Version v3.0.70.55
