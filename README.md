@@ -9,7 +9,7 @@ Instructions are down below
 
 **Never cheat on a main account, its not worth it**
 
-# This Cheat Is Now Being Sold Online. Keep An Eye Out
+# This Cheat Is Now Being Sold Online. Don't Buy It
 
 # Information
 
