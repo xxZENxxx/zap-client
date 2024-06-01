@@ -73,6 +73,8 @@ struct Legitbot
 			Config::Aimbot::OnADS = Features::Aimbot::OnADS;
 			Config::Aimbot::VisCheck = Features::Aimbot::VisCheck;
 			Config::Aimbot::TeamCheck = Features::Aimbot::TeamCheck;
+			Config::Aimbot::SpectatorCheck = Features::Aimbot::SpectatorCheck;
+			Config::Aimbot::SpectatorNotifier = Features::Aimbot::SpectatorNotifier;
 			Config::Aimbot::TargetSwitching = Features::Aimbot::TargetSwitching;
 			Config::Aimbot::Priority = Features::Aimbot::Priority;
 			Config::Aimbot::PredictMovement = Features::Aimbot::PredictMovement;
@@ -1198,46 +1200,46 @@ struct Legitbot
 				Features::Aimbot::AimList.insert(weaponID);
 		};
 		// Light
-		InsertIfEnabled(Features::Aimbot::P2020, WeaponIDs::WEAPON_P2020);
-		InsertIfEnabled(Features::Aimbot::RE45, WeaponIDs::WEAPON_RE45);
-		InsertIfEnabled(Features::Aimbot::Alternator, WeaponIDs::WEAPON_ALTERNATOR);
-		InsertIfEnabled(Features::Aimbot::R99, WeaponIDs::WEAPON_R99);
-		InsertIfEnabled(Features::Aimbot::R301, WeaponIDs::WEAPON_R301);
-		InsertIfEnabled(Features::Aimbot::Spitfire, WeaponIDs::WEAPON_SPITFIRE);
-		InsertIfEnabled(Features::Aimbot::G7, WeaponIDs::WEAPON_G7);
+		InsertIfEnabled(Features::Aimbot::P2020, WeaponIDs::P2020);
+		InsertIfEnabled(Features::Aimbot::RE45, WeaponIDs::RE45);
+		InsertIfEnabled(Features::Aimbot::Alternator, WeaponIDs::ALTERNATOR);
+		InsertIfEnabled(Features::Aimbot::R99, WeaponIDs::R99);
+		InsertIfEnabled(Features::Aimbot::R301, WeaponIDs::R301);
+		InsertIfEnabled(Features::Aimbot::Spitfire, WeaponIDs::SPITFIRE);
+		InsertIfEnabled(Features::Aimbot::G7, WeaponIDs::G7);
 
 		// Heavy
-		InsertIfEnabled(Features::Aimbot::Flatline, WeaponIDs::WEAPON_FLATLINE);
-		InsertIfEnabled(Features::Aimbot::Prowler, WeaponIDs::WEAPON_PROWLER);
-		InsertIfEnabled(Features::Aimbot::Hemlock, WeaponIDs::WEAPON_HEMLOCK);
-		InsertIfEnabled(Features::Aimbot::Repeater, WeaponIDs::WEAPON_REPEATER);
-		InsertIfEnabled(Features::Aimbot::Rampage, WeaponIDs::WEAPON_RAMPAGE);
-		InsertIfEnabled(Features::Aimbot::CARSMG, WeaponIDs::WEAPON_CAR);
+		InsertIfEnabled(Features::Aimbot::Flatline, WeaponIDs::FLATLINE);
+		InsertIfEnabled(Features::Aimbot::Prowler, WeaponIDs::PROWLER);
+		InsertIfEnabled(Features::Aimbot::Hemlock, WeaponIDs::HEMLOCK);
+		InsertIfEnabled(Features::Aimbot::Repeater, WeaponIDs::REPEATER);
+		InsertIfEnabled(Features::Aimbot::Rampage, WeaponIDs::RAMPAGE);
+		InsertIfEnabled(Features::Aimbot::CARSMG, WeaponIDs::CAR);
 
 		// Energy
-		InsertIfEnabled(Features::Aimbot::Havoc, WeaponIDs::WEAPON_HAVOC);
-		InsertIfEnabled(Features::Aimbot::Devotion, WeaponIDs::WEAPON_DEVOTION);
-		InsertIfEnabled(Features::Aimbot::LSTAR, WeaponIDs::WEAPON_LSTAR);
-		InsertIfEnabled(Features::Aimbot::TripleTake, WeaponIDs::WEAPON_TRIPLETAKE);
-		InsertIfEnabled(Features::Aimbot::Volt, WeaponIDs::WEAPON_VOLT);
-		InsertIfEnabled(Features::Aimbot::Nemesis, WeaponIDs::WEAPON_NEMESIS);
+		InsertIfEnabled(Features::Aimbot::Havoc, WeaponIDs::HAVOC);
+		InsertIfEnabled(Features::Aimbot::Devotion, WeaponIDs::DEVOTION);
+		InsertIfEnabled(Features::Aimbot::LSTAR, WeaponIDs::LSTAR);
+		InsertIfEnabled(Features::Aimbot::TripleTake, WeaponIDs::TRIPLETAKE);
+		InsertIfEnabled(Features::Aimbot::Volt, WeaponIDs::VOLT);
+		InsertIfEnabled(Features::Aimbot::Nemesis, WeaponIDs::NEMESIS);
 
 		// Shotguns
-		InsertIfEnabled(Features::Aimbot::Mozambique, WeaponIDs::WEAPON_MOZAMBIQUE);
-		InsertIfEnabled(Features::Aimbot::Peacekeeper, WeaponIDs::WEAPON_PEACEKEEPER);
-		InsertIfEnabled(Features::Aimbot::Mastiff, WeaponIDs::WEAPON_MASTIFF);
+		InsertIfEnabled(Features::Aimbot::Mozambique, WeaponIDs::MOZAMBIQUE);
+		InsertIfEnabled(Features::Aimbot::Peacekeeper, WeaponIDs::PEACEKEEPER);
+		InsertIfEnabled(Features::Aimbot::Mastiff, WeaponIDs::MASTIFF);
 
 		// Snipers
-		InsertIfEnabled(Features::Aimbot::Longbow, WeaponIDs::WEAPON_LONGBOW);
-		InsertIfEnabled(Features::Aimbot::ChargeRifle, WeaponIDs::WEAPON_CHARGE_RIFLE);
-		InsertIfEnabled(Features::Aimbot::Sentinel, WeaponIDs::WEAPON_SENTINEL);
+		InsertIfEnabled(Features::Aimbot::Longbow, WeaponIDs::LONGBOW);
+		InsertIfEnabled(Features::Aimbot::ChargeRifle, WeaponIDs::CHARGE_RIFLE);
+		InsertIfEnabled(Features::Aimbot::Sentinel, WeaponIDs::SENTINEL);
 
 		// Legendary
-		InsertIfEnabled(Features::Aimbot::Wingman, WeaponIDs::WEAPON_WINGMAN);
-		InsertIfEnabled(Features::Aimbot::EVA8, WeaponIDs::WEAPON_EVA8);
-		InsertIfEnabled(Features::Aimbot::Bocek, WeaponIDs::WEAPON_BOCEK);
-		InsertIfEnabled(Features::Aimbot::Kraber, WeaponIDs::WEAPON_KRABER);
-		InsertIfEnabled(Features::Aimbot::Knife, WeaponIDs::WEAPON_KNIFE);
+		InsertIfEnabled(Features::Aimbot::Wingman, WeaponIDs::WINGMAN);
+		InsertIfEnabled(Features::Aimbot::EVA8, WeaponIDs::EVA8);
+		InsertIfEnabled(Features::Aimbot::Bocek, WeaponIDs::BOCEK);
+		InsertIfEnabled(Features::Aimbot::Kraber, WeaponIDs::KRABER);
+		InsertIfEnabled(Features::Aimbot::Knife, WeaponIDs::KNIFE);
 	}
 
 	void UpdateRCSList() {
@@ -1248,44 +1250,44 @@ struct Legitbot
 				Features::RCS::RCSList.insert(weaponID);
 		};
 		// Light
-		InsertIfEnabled(Features::RCS::P2020, WeaponIDs::WEAPON_P2020);
-		InsertIfEnabled(Features::RCS::RE45, WeaponIDs::WEAPON_RE45);
-		InsertIfEnabled(Features::RCS::Alternator, WeaponIDs::WEAPON_ALTERNATOR);
-		InsertIfEnabled(Features::RCS::R99, WeaponIDs::WEAPON_R99);
-		InsertIfEnabled(Features::RCS::R301, WeaponIDs::WEAPON_R301);
-		InsertIfEnabled(Features::RCS::Spitfire, WeaponIDs::WEAPON_SPITFIRE);
-		InsertIfEnabled(Features::RCS::G7, WeaponIDs::WEAPON_G7);
+		InsertIfEnabled(Features::RCS::P2020, WeaponIDs::P2020);
+		InsertIfEnabled(Features::RCS::RE45, WeaponIDs::RE45);
+		InsertIfEnabled(Features::RCS::Alternator, WeaponIDs::ALTERNATOR);
+		InsertIfEnabled(Features::RCS::R99, WeaponIDs::R99);
+		InsertIfEnabled(Features::RCS::R301, WeaponIDs::R301);
+		InsertIfEnabled(Features::RCS::Spitfire, WeaponIDs::SPITFIRE);
+		InsertIfEnabled(Features::RCS::G7, WeaponIDs::G7);
 
 		// Heavy
-		InsertIfEnabled(Features::RCS::Flatline, WeaponIDs::WEAPON_FLATLINE);
-		InsertIfEnabled(Features::RCS::Prowler, WeaponIDs::WEAPON_PROWLER);
-		InsertIfEnabled(Features::RCS::Hemlock, WeaponIDs::WEAPON_HEMLOCK);
-		InsertIfEnabled(Features::RCS::Repeater, WeaponIDs::WEAPON_REPEATER);
-		InsertIfEnabled(Features::RCS::Rampage, WeaponIDs::WEAPON_RAMPAGE);
-		InsertIfEnabled(Features::RCS::CARSMG, WeaponIDs::WEAPON_CAR);
+		InsertIfEnabled(Features::RCS::Flatline, WeaponIDs::FLATLINE);
+		InsertIfEnabled(Features::RCS::Prowler, WeaponIDs::PROWLER);
+		InsertIfEnabled(Features::RCS::Hemlock, WeaponIDs::HEMLOCK);
+		InsertIfEnabled(Features::RCS::Repeater, WeaponIDs::REPEATER);
+		InsertIfEnabled(Features::RCS::Rampage, WeaponIDs::RAMPAGE);
+		InsertIfEnabled(Features::RCS::CARSMG, WeaponIDs::CAR);
 
 		// Energy
-		InsertIfEnabled(Features::RCS::Havoc, WeaponIDs::WEAPON_HAVOC);
-		InsertIfEnabled(Features::RCS::Devotion, WeaponIDs::WEAPON_DEVOTION);
-		InsertIfEnabled(Features::RCS::LSTAR, WeaponIDs::WEAPON_LSTAR);
-		InsertIfEnabled(Features::RCS::TripleTake, WeaponIDs::WEAPON_TRIPLETAKE);
-		InsertIfEnabled(Features::RCS::Volt, WeaponIDs::WEAPON_VOLT);
-		InsertIfEnabled(Features::RCS::Nemesis, WeaponIDs::WEAPON_NEMESIS);
+		InsertIfEnabled(Features::RCS::Havoc, WeaponIDs::HAVOC);
+		InsertIfEnabled(Features::RCS::Devotion, WeaponIDs::DEVOTION);
+		InsertIfEnabled(Features::RCS::LSTAR, WeaponIDs::LSTAR);
+		InsertIfEnabled(Features::RCS::TripleTake, WeaponIDs::TRIPLETAKE);
+		InsertIfEnabled(Features::RCS::Volt, WeaponIDs::VOLT);
+		InsertIfEnabled(Features::RCS::Nemesis, WeaponIDs::NEMESIS);
 
 		// Shotguns
-		InsertIfEnabled(Features::RCS::Mozambique, WeaponIDs::WEAPON_MOZAMBIQUE);
-		InsertIfEnabled(Features::RCS::Peacekeeper, WeaponIDs::WEAPON_PEACEKEEPER);
-		InsertIfEnabled(Features::RCS::Mastiff, WeaponIDs::WEAPON_MASTIFF);
+		InsertIfEnabled(Features::RCS::Mozambique, WeaponIDs::MOZAMBIQUE);
+		InsertIfEnabled(Features::RCS::Peacekeeper, WeaponIDs::PEACEKEEPER);
+		InsertIfEnabled(Features::RCS::Mastiff, WeaponIDs::MASTIFF);
 
 		// Snipers
-		InsertIfEnabled(Features::RCS::Longbow, WeaponIDs::WEAPON_LONGBOW);
-		InsertIfEnabled(Features::RCS::ChargeRifle, WeaponIDs::WEAPON_CHARGE_RIFLE);
-		InsertIfEnabled(Features::RCS::Sentinel, WeaponIDs::WEAPON_SENTINEL);
+		InsertIfEnabled(Features::RCS::Longbow, WeaponIDs::LONGBOW);
+		InsertIfEnabled(Features::RCS::ChargeRifle, WeaponIDs::CHARGE_RIFLE);
+		InsertIfEnabled(Features::RCS::Sentinel, WeaponIDs::SENTINEL);
 
 		// Legendary
-		InsertIfEnabled(Features::RCS::Wingman, WeaponIDs::WEAPON_WINGMAN);
-		InsertIfEnabled(Features::RCS::EVA8, WeaponIDs::WEAPON_EVA8);
-		InsertIfEnabled(Features::RCS::Kraber, WeaponIDs::WEAPON_KRABER);
+		InsertIfEnabled(Features::RCS::Wingman, WeaponIDs::WINGMAN);
+		InsertIfEnabled(Features::RCS::EVA8, WeaponIDs::EVA8);
+		InsertIfEnabled(Features::RCS::Kraber, WeaponIDs::KRABER);
 	}
 
 	void UpdateAimbot() {
@@ -1303,6 +1305,9 @@ struct Legitbot
 		if (Features::Aimbot::AimbotEnabled) {
 			if (Features::Home::IsMenuOpened)
 				return; // Dont aimbot whilst menu is open
+
+			if (Features::Aimbot::SpectatorCheck && Features::TotalSpectators >= 1)
+				return; // Disables Aimbot If Being Spectated
 
 			UpdateAimList();
 			if (Features::Aimbot::AdvancedAim) {
@@ -2060,7 +2065,7 @@ struct Legitbot
 		int weaponHeld = Myself->WeaponIndex;
 		// Keybinds && Deadzone
 		if (Features::Aimbot::AdvancedAim) {
-			if (weaponHeld == WeaponIDs::WEAPON_P2020) { // P2020
+			if (weaponHeld == WeaponIDs::P2020) { // P2020
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::P2020AimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::P2020ExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::P2020Fire;
@@ -2089,7 +2094,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMinDistance1 = Features::Aimbot::P2020MinDistance1;
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::P2020MaxDistance1;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_RE45) { // RE45
+			if (weaponHeld == WeaponIDs::RE45) { // RE45
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::RE45AimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::RE45ExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::RE45Fire;
@@ -2118,7 +2123,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMinDistance1 = Features::Aimbot::RE45MinDistance1;
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::RE45MaxDistance1;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_ALTERNATOR) { // Alternator
+			if (weaponHeld == WeaponIDs::ALTERNATOR) { // Alternator
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::AlternatorAimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::AlternatorExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::AlternatorFire;
@@ -2147,7 +2152,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMinDistance1 = Features::Aimbot::AlternatorMinDistance1;
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::AlternatorMaxDistance1;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_R99) { // R99
+			if (weaponHeld == WeaponIDs::R99) { // R99
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::R99AimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::R99ExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::R99Fire;
@@ -2176,7 +2181,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMinDistance1 = Features::Aimbot::R99MinDistance1;
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::R99MaxDistance1;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_R301) { // R301
+			if (weaponHeld == WeaponIDs::R301) { // R301
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::R301AimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::R301ExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::R301Fire;
@@ -2205,7 +2210,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMinDistance1 = Features::Aimbot::R301MinDistance1;
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::R301MaxDistance1;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_SPITFIRE) { // Spitfire
+			if (weaponHeld == WeaponIDs::SPITFIRE) { // Spitfire
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::SpitfireAimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::SpitfireExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::SpitfireFire;
@@ -2234,7 +2239,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMinDistance1 = Features::Aimbot::SpitfireMinDistance1;
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::SpitfireMaxDistance1;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_G7) { // G7
+			if (weaponHeld == WeaponIDs::G7) { // G7
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::G7AimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::G7ExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::G7Fire;
@@ -2264,7 +2269,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::G7MaxDistance1;
 			}
 			// Heavy Weapons
-			if (weaponHeld == WeaponIDs::WEAPON_CAR) { // CARSMG
+			if (weaponHeld == WeaponIDs::CAR) { // CARSMG
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::CARSMGAimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::CARSMGExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::CARSMGFire;
@@ -2293,7 +2298,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMinDistance1 = Features::Aimbot::CARSMGMinDistance1;
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::CARSMGMaxDistance1;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_RAMPAGE) { // Rampage
+			if (weaponHeld == WeaponIDs::RAMPAGE) { // Rampage
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::RampageAimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::RampageExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::RampageFire;
@@ -2322,7 +2327,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMinDistance1 = Features::Aimbot::RampageMinDistance1;
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::RampageMaxDistance1;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_REPEATER) { // Repeater
+			if (weaponHeld == WeaponIDs::REPEATER) { // Repeater
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::RepeaterAimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::RepeaterExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::RepeaterFire;
@@ -2351,7 +2356,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMinDistance1 = Features::Aimbot::RepeaterMinDistance1;
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::RepeaterMaxDistance1;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_PROWLER) { // Prowler
+			if (weaponHeld == WeaponIDs::PROWLER) { // Prowler
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::ProwlerAimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::ProwlerExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::ProwlerFire;
@@ -2380,7 +2385,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMinDistance1 = Features::Aimbot::ProwlerMinDistance1;
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::ProwlerMaxDistance1;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_HEMLOCK) { // Hemlock
+			if (weaponHeld == WeaponIDs::HEMLOCK) { // Hemlock
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::HemlockAimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::HemlockExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::HemlockFire;
@@ -2409,7 +2414,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMinDistance1 = Features::Aimbot::HemlockMinDistance1;
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::HemlockMaxDistance1;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_FLATLINE) { // Flatline
+			if (weaponHeld == WeaponIDs::FLATLINE) { // Flatline
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::FlatlineAimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::FlatlineExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::FlatlineFire;
@@ -2439,7 +2444,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::FlatlineMaxDistance1;
 			}
 			// Energy Weapons
-			if (weaponHeld == WeaponIDs::WEAPON_NEMESIS) { // Nemesis
+			if (weaponHeld == WeaponIDs::NEMESIS) { // Nemesis
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::NemesisAimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::NemesisExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::NemesisFire;
@@ -2468,7 +2473,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMinDistance1 = Features::Aimbot::NemesisMinDistance1;
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::NemesisMaxDistance1;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_VOLT) { // Volt
+			if (weaponHeld == WeaponIDs::VOLT) { // Volt
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::VoltAimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::VoltExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::VoltFire;
@@ -2497,7 +2502,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMinDistance1 = Features::Aimbot::VoltMinDistance1;
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::VoltMaxDistance1;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_TRIPLETAKE) { // TripleTake
+			if (weaponHeld == WeaponIDs::TRIPLETAKE) { // TripleTake
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::TripleTakeAimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::TripleTakeExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::TripleTakeFire;
@@ -2526,7 +2531,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMinDistance1 = Features::Aimbot::TripleTakeMinDistance1;
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::TripleTakeMaxDistance1;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_LSTAR) { // LSTAR
+			if (weaponHeld == WeaponIDs::LSTAR) { // LSTAR
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::LSTARAimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::LSTARExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::LSTARFire;
@@ -2555,7 +2560,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMinDistance1 = Features::Aimbot::LSTARMinDistance1;
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::LSTARMaxDistance1;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_DEVOTION) { // Devotion
+			if (weaponHeld == WeaponIDs::DEVOTION) { // Devotion
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::DevotionAimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::DevotionExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::DevotionFire;
@@ -2584,7 +2589,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMinDistance1 = Features::Aimbot::DevotionMinDistance1;
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::DevotionMaxDistance1;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_HAVOC) { // Havoc
+			if (weaponHeld == WeaponIDs::HAVOC) { // Havoc
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::HavocAimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::HavocExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::HavocFire;
@@ -2614,7 +2619,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::HavocMaxDistance1;
 			}
 			// Shotguns
-			if (weaponHeld == WeaponIDs::WEAPON_MOZAMBIQUE) { // Mozambique
+			if (weaponHeld == WeaponIDs::MOZAMBIQUE) { // Mozambique
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::MozambiqueAimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::MozambiqueExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::MozambiqueFire;
@@ -2643,7 +2648,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMinDistance1 = Features::Aimbot::MozambiqueMinDistance1;
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::MozambiqueMaxDistance1;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_PEACEKEEPER) { // Peacekeeper
+			if (weaponHeld == WeaponIDs::PEACEKEEPER) { // Peacekeeper
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::PeacekeeperAimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::PeacekeeperExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::PeacekeeperFire;
@@ -2672,7 +2677,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMinDistance1 = Features::Aimbot::PeacekeeperMinDistance1;
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::PeacekeeperMaxDistance1;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_MASTIFF) { // Mastiff
+			if (weaponHeld == WeaponIDs::MASTIFF) { // Mastiff
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::MastiffAimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::MastiffExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::MastiffFire;
@@ -2702,7 +2707,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::MastiffMaxDistance1;
 			}
 			// Snipers
-			if (weaponHeld == WeaponIDs::WEAPON_SENTINEL) { // Sentinel
+			if (weaponHeld == WeaponIDs::SENTINEL) { // Sentinel
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::SentinelAimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::SentinelExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::SentinelFire;
@@ -2731,7 +2736,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMinDistance1 = Features::Aimbot::SentinelMinDistance1;
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::SentinelMaxDistance1;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_CHARGE_RIFLE) { // ChargeRifle
+			if (weaponHeld == WeaponIDs::CHARGE_RIFLE) { // ChargeRifle
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::ChargeRifleAimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::ChargeRifleExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::ChargeRifleFire;
@@ -2760,7 +2765,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMinDistance1 = Features::Aimbot::ChargeRifleMinDistance1;
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::ChargeRifleMaxDistance1;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_LONGBOW) { // Longbow
+			if (weaponHeld == WeaponIDs::LONGBOW) { // Longbow
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::LongbowAimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::LongbowExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::LongbowFire;
@@ -2790,7 +2795,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::LongbowMaxDistance1;
 			}
 			// Legendary Weapons
-			if (weaponHeld == WeaponIDs::WEAPON_WINGMAN) { // Wingman
+			if (weaponHeld == WeaponIDs::WINGMAN) { // Wingman
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::WingmanAimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::WingmanExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::WingmanFire;
@@ -2819,7 +2824,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMinDistance1 = Features::Aimbot::WingmanMinDistance1;
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::WingmanMaxDistance1;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_EVA8) { // EVA8
+			if (weaponHeld == WeaponIDs::EVA8) { // EVA8
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::EVA8AimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::EVA8ExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::EVA8Fire;
@@ -2848,7 +2853,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMinDistance1 = Features::Aimbot::EVA8MinDistance1;
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::EVA8MaxDistance1;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_BOCEK) { // Bocek
+			if (weaponHeld == WeaponIDs::BOCEK) { // Bocek
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::BocekAimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::BocekExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::BocekFire;
@@ -2877,7 +2882,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMinDistance1 = Features::Aimbot::BocekMinDistance1;
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::BocekMaxDistance1;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_KRABER) { // Kraber
+			if (weaponHeld == WeaponIDs::KRABER) { // Kraber
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::KraberAimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::KraberExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::KraberFire;
@@ -2906,7 +2911,7 @@ struct Legitbot
 				Features::Aimbot::AdvancedMinDistance1 = Features::Aimbot::KraberMinDistance1;
 				Features::Aimbot::AdvancedMaxDistance1 = Features::Aimbot::KraberMaxDistance1;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_KNIFE) { // ThrowingKnife
+			if (weaponHeld == WeaponIDs::KNIFE) { // ThrowingKnife
 				Features::AimbotBinds::AimBind = Features::AimbotBinds::ThrowingKnifeAimBind;
 				Features::AimbotBinds::ExtraBind = Features::AimbotBinds::ThrowingKnifeExtraBind;
 				Features::Aimbot::OnFire = Features::Aimbot::ThrowingKnifeFire;
@@ -2946,174 +2951,174 @@ struct Legitbot
 		int weaponHeld = Myself->WeaponIndex;
 
 		if (Features::RCS::AdvancedRCS) {
-			if (weaponHeld == WeaponIDs::WEAPON_P2020) { // P2020
+			if (weaponHeld == WeaponIDs::P2020) { // P2020
 				Features::RCS::AdvancedPitchPower = Features::RCS::P2020Pitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::P2020Yaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::P2020PitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::P2020YawReduction;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_RE45) { // RE-45
+			if (weaponHeld == WeaponIDs::RE45) { // RE-45
 				Features::RCS::AdvancedPitchPower = Features::RCS::RE45Pitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::RE45Yaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::RE45PitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::RE45YawReduction;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_ALTERNATOR) { // Alternator
+			if (weaponHeld == WeaponIDs::ALTERNATOR) { // Alternator
 				Features::RCS::AdvancedPitchPower = Features::RCS::AlternatorPitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::AlternatorYaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::AlternatorPitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::AlternatorYawReduction;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_R99) { // R-99
+			if (weaponHeld == WeaponIDs::R99) { // R-99
 				Features::RCS::AdvancedPitchPower = Features::RCS::R99Pitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::R99Yaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::R99PitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::R99YawReduction;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_R301) { // R-301
+			if (weaponHeld == WeaponIDs::R301) { // R-301
 				Features::RCS::AdvancedPitchPower = Features::RCS::R301Pitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::R301Yaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::R301PitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::R301YawReduction;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_SPITFIRE) { // Spitfire
+			if (weaponHeld == WeaponIDs::SPITFIRE) { // Spitfire
 				Features::RCS::AdvancedPitchPower = Features::RCS::SpitfirePitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::SpitfireYaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::SpitfirePitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::SpitfireYawReduction;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_G7) { // G7
+			if (weaponHeld == WeaponIDs::G7) { // G7
 				Features::RCS::AdvancedPitchPower = Features::RCS::G7Pitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::G7Yaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::G7PitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::G7YawReduction;
 			}
 			// Heavy Weapons
-			if (weaponHeld == WeaponIDs::WEAPON_CAR) { // CARSMG
+			if (weaponHeld == WeaponIDs::CAR) { // CARSMG
 				Features::RCS::AdvancedPitchPower = Features::RCS::CARSMGPitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::CARSMGYaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::CARSMGPitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::CARSMGYawReduction;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_RAMPAGE) { // Rampage
+			if (weaponHeld == WeaponIDs::RAMPAGE) { // Rampage
 				Features::RCS::AdvancedPitchPower = Features::RCS::RampagePitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::RampageYaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::RampagePitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::RampageYawReduction;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_REPEATER) { // Repeater
+			if (weaponHeld == WeaponIDs::REPEATER) { // Repeater
 				Features::RCS::AdvancedPitchPower = Features::RCS::RepeaterPitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::RepeaterYaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::RepeaterPitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::RepeaterYawReduction;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_HEMLOCK) { // Hemlock
+			if (weaponHeld == WeaponIDs::HEMLOCK) { // Hemlock
 				Features::RCS::AdvancedPitchPower = Features::RCS::HemlockPitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::HemlockYaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::HemlockPitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::HemlockYawReduction;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_FLATLINE) { // Flatline
+			if (weaponHeld == WeaponIDs::FLATLINE) { // Flatline
 				Features::RCS::AdvancedPitchPower = Features::RCS::FlatlinePitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::FlatlineYaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::FlatlinePitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::FlatlineYawReduction;
 			}
 			// Energy Weapons
-			if (weaponHeld == WeaponIDs::WEAPON_NEMESIS) { // Nemesis
+			if (weaponHeld == WeaponIDs::NEMESIS) { // Nemesis
 				Features::RCS::AdvancedPitchPower = Features::RCS::NemesisPitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::NemesisYaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::NemesisPitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::NemesisYawReduction;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_VOLT) { // Volt
+			if (weaponHeld == WeaponIDs::VOLT) { // Volt
 				Features::RCS::AdvancedPitchPower = Features::RCS::VoltPitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::VoltYaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::VoltPitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::VoltYawReduction;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_TRIPLETAKE) { // TripleTake
+			if (weaponHeld == WeaponIDs::TRIPLETAKE) { // TripleTake
 				Features::RCS::AdvancedPitchPower = Features::RCS::TripleTakePitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::TripleTakeYaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::TripleTakePitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::TripleTakeYawReduction;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_LSTAR) { // LSTAR
+			if (weaponHeld == WeaponIDs::LSTAR) { // LSTAR
 				Features::RCS::AdvancedPitchPower = Features::RCS::LSTARPitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::LSTARYaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::LSTARPitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::LSTARYawReduction;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_DEVOTION) { // Devotion
+			if (weaponHeld == WeaponIDs::DEVOTION) { // Devotion
 				Features::RCS::AdvancedPitchPower = Features::RCS::DevotionPitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::DevotionYaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::DevotionPitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::DevotionYawReduction;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_HAVOC) { // Havoc
+			if (weaponHeld == WeaponIDs::HAVOC) { // Havoc
 				Features::RCS::AdvancedPitchPower = Features::RCS::HavocPitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::HavocYaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::HavocPitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::HavocYawReduction;
 			}
 			// Shotguns
-			if (weaponHeld == WeaponIDs::WEAPON_MOZAMBIQUE) { // Mozambique
+			if (weaponHeld == WeaponIDs::MOZAMBIQUE) { // Mozambique
 				Features::RCS::AdvancedPitchPower = Features::RCS::MozambiquePitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::MozambiqueYaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::MozambiquePitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::MozambiqueYawReduction;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_EVA8) { // EVA8
+			if (weaponHeld == WeaponIDs::EVA8) { // EVA8
 				Features::RCS::AdvancedPitchPower = Features::RCS::EVA8Pitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::EVA8Yaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::EVA8PitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::EVA8YawReduction;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_PEACEKEEPER) { // Peacekeeper
+			if (weaponHeld == WeaponIDs::PEACEKEEPER) { // Peacekeeper
 				Features::RCS::AdvancedPitchPower = Features::RCS::PeacekeeperPitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::PeacekeeperYaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::PeacekeeperPitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::PeacekeeperYawReduction;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_MASTIFF) { // Mastiff
+			if (weaponHeld == WeaponIDs::MASTIFF) { // Mastiff
 				Features::RCS::AdvancedPitchPower = Features::RCS::MastiffPitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::MastiffYaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::MastiffPitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::MastiffYawReduction;
 			}
 			// Snipers
-			if (weaponHeld == WeaponIDs::WEAPON_SENTINEL) { // Sentinel
+			if (weaponHeld == WeaponIDs::SENTINEL) { // Sentinel
 				Features::RCS::AdvancedPitchPower = Features::RCS::SentinelPitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::SentinelYaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::SentinelPitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::SentinelYawReduction;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_CHARGE_RIFLE) { // ChargeRifle
+			if (weaponHeld == WeaponIDs::CHARGE_RIFLE) { // ChargeRifle
 				Features::RCS::AdvancedPitchPower = Features::RCS::ChargeRiflePitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::ChargeRifleYaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::ChargeRiflePitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::ChargeRifleYawReduction;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_LONGBOW) { // Longbow
+			if (weaponHeld == WeaponIDs::LONGBOW) { // Longbow
 				Features::RCS::AdvancedPitchPower = Features::RCS::LongbowPitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::LongbowYaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::LongbowPitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::LongbowYawReduction;
 			}
 			// Legendary Weapons
-			if (weaponHeld == WeaponIDs::WEAPON_WINGMAN) { // Wingman
+			if (weaponHeld == WeaponIDs::WINGMAN) { // Wingman
 				Features::RCS::AdvancedPitchPower = Features::RCS::WingmanPitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::WingmanYaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::WingmanPitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::WingmanYawReduction;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_PROWLER) { // Prowler
+			if (weaponHeld == WeaponIDs::PROWLER) { // Prowler
 				Features::RCS::AdvancedPitchPower = Features::RCS::ProwlerPitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::ProwlerYaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::ProwlerPitchReduction;
 				Features::RCS::AdvancedYawReduction = Features::RCS::ProwlerYawReduction;
 			}
-			if (weaponHeld == WeaponIDs::WEAPON_KRABER) { // Kraber
+			if (weaponHeld == WeaponIDs::KRABER) { // Kraber
 				Features::RCS::AdvancedPitchPower = Features::RCS::KraberPitch;
 				Features::RCS::AdvancedYawPower = Features::RCS::KraberYaw;
 				Features::RCS::AdvancedPitchReduction = Features::RCS::KraberPitchReduction;

@@ -3,7 +3,7 @@
 // https://www.unknowncheats.me/forum/apex-legends/319804-apex-legends-reversal-structs-offsets.html
 // GameVersion = v3.0.70.55
 
-std::string CheatVersion = "Version 1.1.2";
+std::string CheatVersion = "Version 1.1.3";
 std::string GameVersion = "v3.0.70.55";
 
 // Core
@@ -26,6 +26,7 @@ constexpr long OFF_INATTACK = 0x74de2a0;         //[Buttons]->in_attack
 constexpr long OFF_IN_JUMP = 0x74de3a0;          //[Buttons]->in_jump
 constexpr long OFF_IN_DUCK = 0x74de4a0;          //[Buttons]->in_duck
 constexpr long OFF_IN_FORWARD = 0x74de1f0;       //[Buttons]->in_forward
+constexpr long OFF_IN_BACKWARD = 0x074de218;    //[Buttons]->in_backward
 constexpr long OFF_TRAVERSAL_START_TIME = 0x2af0; //[RecvTable.DT_LocalPlayerExclusive]->m_traversalStartTime
 constexpr long OFF_TRAVERSAL_PROGRESS = 0x2aec;   //[RecvTable.DT_LocalPlayerExclusive]->m_traversalProgress
 constexpr long OFF_WALL_RUN_START_TIME = 0x3594;  //[RecvTable.DT_LocalPlayerExclusive]->m_wallRunStartTime
@@ -53,6 +54,9 @@ constexpr long OFF_PUNCH_ANGLES = 0x2438;       //[DataMap.C_Player]->m_currentF
 constexpr long OFF_YAW = 0x223c - 0x8;          //m_currentFramePlayer.m_ammoPoolCount - 0x8
 constexpr long OFF_MODELNAME = 0x0030;          //m_ModelName
 constexpr long OFF_OBSERVER_LIST = 0x1EADD28;   //observerList: 48 8B 0D ? ? ? ? 48 85 C9 74 ? 48 8B 01 FF ? ? 48 85 C0 74 ? 48 63 4E 38     22.05.24
+constexpr long OFF_SKY_DIVE_STATUS = 0x469c;   //m_skydiveState
+constexpr long OFF_DUCK_STATUS = 0x29e0;   // m_duckState=0x29e0
+constexpr long OFF_CENTITY_FLAGS = 0x00c8;   //m_fFlags
 
 // Weapon
 constexpr long OFF_WEAPON_HANDLE = 0x1934;            //[RecvTable.DT_Player]->m_latestPrimaryWeapons

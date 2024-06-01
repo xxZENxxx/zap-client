@@ -28,12 +28,18 @@ namespace Config
 {
 	namespace Settings
 	{
+		int MenuBind = 53;
 		bool ESPEnabled = true;
 		bool DeadCheck = false;
 		bool OverlayEnabled = true;
 		bool AntiAliasedLines = true;
 		bool FPSCap = false;
 		int CappedFPS = 144;
+		bool ShowKeybinds = false;
+		float KeybindColorR = 0.99;
+		float KeybindColorG = 0;
+		float KeybindColorB = 0;
+		float KeybindColorA = 0.99;
 	};
 
 	namespace AimbotHitboxes
@@ -154,6 +160,9 @@ namespace Config
         int InputMethod = 0; // MoveMouse or Controller (Write To ViewAngles)
 
         bool ClosestHitbox = false;
+
+		bool SpectatorCheck = false;
+        bool SpectatorNotifier = true;
 
         bool OnFire = true;
         bool OnADS = true;
@@ -1590,6 +1599,7 @@ namespace Config
 
 		bool DrawSkeleton = true;
 		bool SkeletonOutline = false;
+		int SkeletonDetail = 0; // 0 = Detailed, 1 = Simple
 		float SkeletonThickness = 1.0;
 		bool DrawHeadCircle = true;
 		bool HeadCircleOutline = false;
@@ -1632,6 +1642,7 @@ namespace Config
 
 		bool DrawSkeleton = true;
 		bool SkeletonOutline = false;
+		int SkeletonDetail = 0; // 0 = Detailed, 1 = Simple
 		float SkeletonThickness = 1.0;
 		bool DrawHeadCircle = true;
 		bool HeadCircleOutline = false;
@@ -1677,20 +1688,29 @@ namespace Config
 	namespace Radar
 	{
 		bool MiniMap = false;
-		float MiniMapRange = 100;
-		int MiniMapScaleX = 215;
-		int MiniMapScaleY = 215;
-		int MiniMapDotSize = 5;
-		int MiniMapBlackBGSize = 0;
-		bool MiniMapGuides = false;
+        float MiniMapRange = 200;
+        int MiniMapScaleX = 215;
+        int MiniMapScaleY = 215;
+        bool MiniMapGuides = true;
 
-		bool BigMap = false;
+        int IdentifierSize = 7;
+        int MiniMapBlackBGSize = 0;
+        int EnemyIdentifier = 1;
+        bool EnemyViewAngles = true;
+        float EnemyViewAnglesLength = 5.0f;
+		float RadarRounding = 15.0f;
+        
+        bool BigMap = false;
 		int BigMapBind = 21;
 		
 		float CircleColorR = 0.99;
 		float CircleColorG = 0;
 		float CircleColorB = 0;
 		float CircleColorA = 0.99;
+		float BackgroundColorR = 0;
+		float BackgroundColorG = 0;
+		float BackgroundColorB = 0;
+		float BackgroundColorA = 0.1;
 	};
 
 	namespace Misc
@@ -1706,6 +1726,11 @@ namespace Config
 		bool BHop = false;
 		int BHopDelay = 25;
 		int BHopBind = 34;
+
+		bool WallJump = false;
+		int WallJumpBind = 34;
+
+		bool AutoTapStrafe = false;
 
 		bool RapidFire = false;
 		int RapidFireDelay = 75;

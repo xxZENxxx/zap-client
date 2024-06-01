@@ -154,6 +154,8 @@ struct Glow
     int ItemGlowInsideFunction = 0;    // Leave
     int ItemGlowOutlineFunction = 138; // Leave
 
+    const std::vector<uint8_t> ItemHighlightID = { 15, 40, 45, 52, 63, 9, 55 }; // Gold, Red, Purple, Blue, Grey, Weapons, Ammo
+
     const GlowMode SetGlowOff = { 0, 0, 0, 0 };
 
     std::chrono::milliseconds LastLoopTime;
@@ -265,17 +267,6 @@ struct Glow
         const Color oldColor = Memory::Read<Color>(HighlightSettingsPointer + (HighlightSize * HighlightID) + 4);
         if (oldColor != NewColor)
             Memory::Write<Color>(HighlightSettingsPointer + (HighlightSize * HighlightID) + 4, NewColor);
-    }
-
-    void SetGlow(Player* Target, int GlowEnabled, int GlowThroughWall, int HighlightID) {
-        if (Target->GlowEnable != GlowEnabled)
-            Memory::Write<int>(Target->BasePointer + OFF_GLOW_ENABLE, GlowEnabled);
-        if (Target->GlowThroughWall != GlowThroughWall) {
-            Memory::Write<int>(Target->BasePointer + OFF_GLOW_THROUGH_WALL, GlowThroughWall);
-            Memory::Write<int>(Target->BasePointer + OFF_GLOW_FIX, 1);
-        }
-        if (Target->HighlightID != HighlightID)
-            Memory::Write<int>(Target->BasePointer + OFF_GLOW_HIGHLIGHT_ID + 1, HighlightID);
     }
 
     // New Glow
@@ -533,6 +524,21 @@ struct Glow
         if (!Map->IsPlayable)
             return;
 
+        const long HighlightSettingsPointer = Memory::Read<long>(OFF_REGION + OFF_GLOW_HIGHLIGHTS);
+        const long HighlightSize = OFF_HIGHLIGHT_TYPE_SIZE;
+        const GlowMode NewGlowMode = {
+            ItemGlowInsideFunction,                  // Inside Glow
+            ItemGlowOutlineFunction,                 // Outline (Border)
+            Features::Glow::Item::ItemGlowThickness, // Outline Thickness
+            127                                      // ItemGlowPostProcessing
+        };
+
+        if (Features::Glow::Item::ItemGlow) {
+            for(int i : ItemHighlightID) {
+                SetGlowState(HighlightSettingsPointer, HighlightSize, i, NewGlowMode);
+            }
+        }
+
         for (int i = 0; i < Players->size(); i++) {
             Player* Target = Players->at(i);
             if (!Target->IsValid())
@@ -611,58 +617,6 @@ struct Glow
                 }
             }
         }
-    }
-
-    void ItemGlow() {
-        const long HighlightSettingsPointer = Memory::Read<long>(OFF_REGION + OFF_GLOW_HIGHLIGHTS);
-        const long HighlightSize = OFF_HIGHLIGHT_TYPE_SIZE;
-
-        /*ItemGlowSettings(); // Updates Item Glow Settings
-
-        const GlowMode ItemGlowHighlightFunctions = {
-            ItemGlowInsideFunction,                  // Inside Glow
-            ItemGlowOutlineFunction,                 // Outline (Border)
-            Features::Glow::Item::ItemGlowThickness, // Outline Thickness
-            127                                      // ItemGlowPostProcessing
-        };*/
-
-        // Item Glow //
-        if (Features::Glow::Item::ItemGlow) {
-            /*if (Features::Glow::Item::Common)
-                SetGlowState(HighlightSettingsPointer, HighlightSize, 63, ItemGlowHighlightFunctions);
-            if (Features::Glow::Item::Rare)
-                SetGlowState(HighlightSettingsPointer, HighlightSize, 52, ItemGlowHighlightFunctions);
-            if (Features::Glow::Item::Epic)
-                SetGlowState(HighlightSettingsPointer, HighlightSize, 45, ItemGlowHighlightFunctions);
-            if (Features::Glow::Item::Gold)
-                SetGlowState(HighlightSettingsPointer, HighlightSize, 15, ItemGlowHighlightFunctions);
-            if (Features::Glow::Item::Legendary)
-                SetGlowState(HighlightSettingsPointer, HighlightSize, 40, ItemGlowHighlightFunctions);
-            if (Features::Glow::Item::Ammo)
-                SetGlowState(HighlightSettingsPointer, HighlightSize, 55, ItemGlowHighlightFunctions);
-            if (Features::Glow::Item::Weapons)
-                SetGlowState(HighlightSettingsPointer, HighlightSize, 9, ItemGlowHighlightFunctions);
-            if (Features::Glow::Item::Deathbox)
-                SetGlowState(HighlightSettingsPointer, HighlightSize, 70, ItemGlowHighlightFunctions);*/
-
-            for (int highlightId = 15; highlightId < 65; highlightId++) {
-                const GlowMode newGlowMode = { 137,0,0,127 };
-                const GlowMode oldGlowMode = Memory::Read<GlowMode>(HighlightSettingsPointer + (HighlightSize * highlightId) + 0);
-                if (newGlowMode != oldGlowMode)
-                    Memory::Write<GlowMode>(HighlightSettingsPointer + (HighlightSize * highlightId) + 0, newGlowMode);
-            }
-        }
-
-        /*
-        9 = all weapons except legendary
-        63 = grey items & attachments (e.g. shield cells)
-        52 = blue items & attachments
-        45 = purple
-        15 = gold
-        40 = red/legendary
-        70 = deathbox
-        55 = ammo
-        */
     }
 
     void ViewModelGlow() {

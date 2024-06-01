@@ -29,14 +29,11 @@ struct Player {
     std::string Name;
     int Team;
 
-    int GlowEnable;
-    int GlowThroughWall;
-    int HighlightID;
-
     bool IsDead;
     bool IsKnocked;
 
     Vector2D ViewAngles;
+    float ViewYaw;
     Vector3D LocalOrigin;
     Vector3D AbsoluteVelocity;
 
@@ -66,9 +63,7 @@ struct Player {
     float DistanceToLocalPlayer;
     float Distance2DToLocalPlayer;
 
-    float ViewYaw;
-
-    bool IsLockedOn = false;
+    bool IsLockedOn;
 
     // For AimbotMode Grinder
     int ducking;
@@ -83,9 +78,67 @@ struct Player {
     float aimbotScore;
     FloatVector2D aimbotDesiredAnglesSmoothedNoRecoil;
 
+    std::chrono::milliseconds LastRead;
+
     Player(int PlayerIndex, LocalPlayer* Me) {
         this->Index = PlayerIndex;
         this->Myself = Me;
+    }
+
+    void Reset() {
+        // Reset All Variables
+        Index = 0;
+        BasePointer = 0;
+
+        std::string Name = "";
+        Team = 0;
+
+        IsDead = 0;
+        IsKnocked = 0;
+
+        ViewAngles = {};
+        ViewYaw = 0;
+        LocalOrigin = {};
+        AbsoluteVelocity = {};
+
+        Health = 0;
+        MaxHealth = 0;
+        Shield = 0;
+        MaxShield = 0;
+
+        LastTimeAimedAt = 0;
+        LastTimeAimedAtPrevious = 0;
+        IsAimedAt = 0;
+
+        LastVisibleTime = 0;
+        LastTimeVisiblePrevious = 0;
+        IsVisible = 0;
+
+        IsLocal = 0;
+        IsAlly = 0;
+        IsHostile = 0;
+        nonBR = 0;
+        friendly = 0;
+
+        WeaponIndex = 0;
+        IsHoldingGrenade = 0;
+        WeaponEntity = 0;
+
+        DistanceToLocalPlayer = 0;
+        Distance2DToLocalPlayer = 0;
+
+        IsLockedOn = 0;
+
+        ducking = 0;
+        localOrigin_prev = {};
+        localOrigin = {};
+        absoluteVelocity = {};
+        localOrigin_predicted = {};
+        aimbotDesiredAngles = {};
+        aimbotDesiredAnglesIncrement = {};
+        aimbotDesiredAnglesSmoothed = {};
+        aimbotScore = 0;
+        aimbotDesiredAnglesSmoothedNoRecoil = {};
     }
 
     void Read() {
@@ -96,48 +149,24 @@ struct Player {
         Name = Memory::ReadString(BasePointer + OFF_NAME);
         Team = Memory::Read<int>(BasePointer + OFF_TEAM_NUMBER);
 
-        if (!IsPlayer() && !IsDummy()) {
-            BasePointer = 0;
-            return;
-        }
+        if (!IsPlayer() && !IsDummy()) { BasePointer = 0; return; }
+
         IsDead = (IsDummy()) ? false : Memory::Read<short>(BasePointer + OFF_LIFE_STATE) > 0;
         IsKnocked = (IsDummy()) ? false : Memory::Read<short>(BasePointer + OFF_BLEEDOUT_STATE) > 0;
 
         LocalOrigin = Memory::Read<Vector3D>(BasePointer + OFF_LOCAL_ORIGIN);
-        AbsoluteVelocity = Memory::Read<Vector3D>(BasePointer + OFF_ABSVELOCITY);
-        ViewAngles = Memory::Read<Vector2D>(BasePointer + OFF_VIEW_ANGLES);
-        ViewYaw = Memory::Read<float>(BasePointer + OFF_YAW);
-
-        GlowEnable = Memory::Read<int>(BasePointer + OFF_GLOW_ENABLE);
-        GlowThroughWall = Memory::Read<int>(BasePointer + OFF_GLOW_THROUGH_WALL);
-        HighlightID = Memory::Read<int>(BasePointer + OFF_GLOW_HIGHLIGHT_ID + 1);
 
         LastTimeAimedAt = Memory::Read<int>(BasePointer + OFF_LAST_AIMEDAT_TIME);
         IsAimedAt = LastTimeAimedAtPrevious < LastTimeAimedAt;
         LastTimeAimedAtPrevious = LastTimeAimedAt;
-
         float WorldTime = Memory::Read<float>(Myself->BasePointer + OFF_TIME_BASE);
-        float Time1;
-        Time1 = Memory::Read<float>(BasePointer + OFF_LAST_VISIBLE_TIME);
+        float Time1 = Memory::Read<float>(BasePointer + OFF_LAST_VISIBLE_TIME);
         IsVisible = (Time1 + 0.2) >= WorldTime || IsAimedAt;
 
         Health = Memory::Read<int>(BasePointer + OFF_HEALTH);
         MaxHealth = Memory::Read<int>(BasePointer + OFF_MAXHEALTH);
         Shield = Memory::Read<int>(BasePointer + OFF_SHIELD);
         MaxShield = Memory::Read<int>(BasePointer + OFF_MAXSHIELD);
-
-        if (Myself->IsValid()) {
-            IsLocal = Myself->BasePointer == BasePointer;
-            IsAlly = IsTeammate();
-            IsHostile = !IsAlly;
-            DistanceToLocalPlayer = Myself->LocalOrigin.Distance(LocalOrigin);
-            Distance2DToLocalPlayer = Myself->LocalOrigin.To2D().Distance(LocalOrigin.To2D());
-            if (IsVisible) { // For AimbotMode Grinder
-                aimbotDesiredAngles = calcDesiredAngles();
-                aimbotDesiredAnglesIncrement = calcDesiredAnglesIncrement();
-                aimbotScore = calcAimbotScore();
-            }
-        }
 
         if (!IsDead && !IsKnocked && IsHostile) {
             long WeaponHandle = Memory::Read<long>(BasePointer + OFF_WEAPON_HANDLE);
@@ -150,12 +179,37 @@ struct Player {
             WeaponIndex = Memory::Read<int>(WeaponEntity + OFF_WEAPON_INDEX);
         }
 
-        // For AimbotMode Grinder
-        localOrigin = Memory::Read<FloatVector3D>(BasePointer + OFF_LOCAL_ORIGIN);
-        absoluteVelocity = Memory::Read<FloatVector3D>(BasePointer + OFF_ABSVELOCITY);
-        FloatVector3D localOrigin_diff = localOrigin.subtract(localOrigin_prev).normalize().multiply(20);
-        localOrigin_predicted = localOrigin.add(localOrigin_diff);
-        localOrigin_prev = FloatVector3D(localOrigin.x, localOrigin.y, localOrigin.z);
+        if (Myself->IsValid()) {
+            IsLocal = Myself->BasePointer == BasePointer;
+            IsAlly = IsTeammate();
+            IsHostile = !IsAlly;
+            DistanceToLocalPlayer = Myself->LocalOrigin.Distance(LocalOrigin);
+            Distance2DToLocalPlayer = Myself->LocalOrigin.To2D().Distance(LocalOrigin.To2D());
+        }
+
+        // Update Once Per Tick - hir0xygen
+        // Reading Most Of The Info Above Every Tick Caused Errors Such As Wrong Weapon IDs And ESP To Be Drawn Wrong
+        // If You Only Use Glow (And Maybe Aimbot, Haven't Tested), You May Be Able To Move Info Above To Below To Increase Performance
+        if (const auto Now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()); Now >= LastRead + std::chrono::milliseconds(50)) {
+            LastRead = Now;
+            AbsoluteVelocity = Memory::Read<Vector3D>(BasePointer + OFF_ABSVELOCITY);
+            ViewAngles = Memory::Read<Vector2D>(BasePointer + OFF_VIEW_ANGLES);
+            ViewYaw = Memory::Read<float>(BasePointer + OFF_YAW);
+            if (Myself->IsValid()) {
+                if (IsVisible) { // For AimbotMode Grinder
+                    aimbotDesiredAngles = calcDesiredAngles();
+                    aimbotDesiredAnglesIncrement = calcDesiredAnglesIncrement();
+                    aimbotScore = calcAimbotScore();
+                }
+            }
+
+            // For AimbotMode Grinder
+            localOrigin = Memory::Read<FloatVector3D>(BasePointer + OFF_LOCAL_ORIGIN);
+            absoluteVelocity = Memory::Read<FloatVector3D>(BasePointer + OFF_ABSVELOCITY);
+            FloatVector3D localOrigin_diff = localOrigin.subtract(localOrigin_prev).normalize().multiply(20);
+            localOrigin_predicted = localOrigin.add(localOrigin_diff);
+            localOrigin_prev = FloatVector3D(localOrigin.x, localOrigin.y, localOrigin.z);
+        }
     }
 
     bool IsSpectating() {
@@ -163,9 +217,9 @@ struct Player {
             return false;
         uint64_t SpectatorList = Memory::Read<uint64_t>(OFF_REGION + OFF_OBSERVER_LIST);
         int PlayerData = Memory::Read<int>(BasePointer + 0x38);
-        int SpecIndex = Memory::Read<int>(SpectatorList + PlayerData*8 + 0x964);
-        uint64_t SpectatorAddr =  Memory::Read<uint64_t>(OFF_REGION + OFF_ENTITY_LIST + ((SpecIndex & 0xFFFF) << 5));
-        if(SpectatorAddr == Myself->BasePointer)
+        int SpecIndex = Memory::Read<int>(SpectatorList + PlayerData * 8 + 0x964);
+        uint64_t SpectatorAddr = Memory::Read<uint64_t>(OFF_REGION + OFF_ENTITY_LIST + ((SpecIndex & 0xFFFF) << 5));
+        if (SpectatorAddr == Myself->BasePointer)
             return true;
         return false;
     }
@@ -204,7 +258,8 @@ struct Player {
     bool IsTeammate() {
         if (LvMap::m_mixtape && Myself->Squad == -1) {
             return (Team & 1) == (Myself->Team & 1);
-        } else {
+        }
+        else {
             return Team == Myself->Team;
         }
     }
@@ -220,12 +275,12 @@ struct Player {
             return -1;
 
         auto HitboxCache = Memory::Read<uint16_t>(StudioHDR + 0x34);
-        auto HitboxArray = StudioHDR + ((uint16_t)(HitboxCache & 0xFFFE) << (4 * (HitboxCache & 1)));
+        auto HitboxArray = StudioHDR + ((uint16_t) (HitboxCache & 0xFFFE) << (4 * (HitboxCache & 1)));
         if (!Memory::IsValidPointer(HitboxArray + 0x4))
             return -1;
 
         auto IndexCache = Memory::Read<uint16_t>(HitboxArray + 0x4);
-        auto HitboxIndex = ((uint16_t)(IndexCache & 0xFFFE) << (4 * (IndexCache & 1)));
+        auto HitboxIndex = ((uint16_t) (IndexCache & 0xFFFE) << (4 * (IndexCache & 1)));
         auto BonePointer = HitboxIndex + HitboxArray + (static_cast<int>(HitBox) * 0x20);
         if (!Memory::IsValidPointer(BonePointer))
             return -1;
@@ -316,7 +371,8 @@ struct Player {
     std::string GetPlayerName() {
         if (IsDummy()) {
             return "Dummie";
-        } else {
+        }
+        else {
             uintptr_t NameIndex = Memory::Read<uintptr_t>(BasePointer + OFF_NAME_INDEX);
             uintptr_t NameOffset = Memory::Read<uintptr_t>(OFF_REGION + OFF_NAME_LIST + ((NameIndex - 1) * 24));
             std::string PlayerName = Memory::ReadStringSize(NameOffset, 64);
@@ -343,36 +399,35 @@ struct Player {
 
     std::string GetWeaponHeldName() {
         // Variables
-        int WeaponID = WeaponIndex;
         // Check if Holding Grenade
-        if (IsHoldingGrenade) {
+        /*if (IsHoldingGrenade) {
             std::string WeaponName = "Throwable";
             return WeaponName;
-        } else {
-            static std::unordered_map<int, std::string> WeaponMap = { {WeaponIDs::WEAPON_P2020, "P2020"}, {WeaponIDs::WEAPON_RE45, "RE-45"}, {WeaponIDs::WEAPON_ALTERNATOR, "Alternator"}, {WeaponIDs::WEAPON_R301, "R-301"}, {WeaponIDs::WEAPON_R99, "R-99"}, {WeaponIDs::WEAPON_SPITFIRE, "Spitfire"}, {WeaponIDs::WEAPON_G7, "G7 Scout"}, {WeaponIDs::WEAPON_FLATLINE, "Flatline"}, {WeaponIDs::WEAPON_PROWLER, "Prowler"}, {WeaponIDs::WEAPON_HEMLOCK, "Hemlock"}, {WeaponIDs::WEAPON_REPEATER, "30-30 Repeater"}, {WeaponIDs::WEAPON_RAMPAGE, "Rampage"}, {WeaponIDs::WEAPON_CAR, "CAR-SMG"}, {WeaponIDs::WEAPON_HAVOC, "Havoc"}, {WeaponIDs::WEAPON_DEVOTION, "Devotion"}, {WeaponIDs::WEAPON_LSTAR, "L-STAR"}, {WeaponIDs::WEAPON_TRIPLETAKE, "Triple Take"}, {WeaponIDs::WEAPON_VOLT, "Volt"}, {WeaponIDs::WEAPON_NEMESIS, "Nemesis"}, {WeaponIDs::WEAPON_MOZAMBIQUE, "Mozambique"}, {WeaponIDs::WEAPON_PEACEKEEPER, "Peacekeeper"}, {WeaponIDs::WEAPON_MASTIFF, "Mastiff"}, {WeaponIDs::WEAPON_SENTINEL, "Sentinel"}, {WeaponIDs::WEAPON_CHARGE_RIFLE, "Charge Rifle"}, {WeaponIDs::WEAPON_LONGBOW, "Longbow"}, {WeaponIDs::WEAPON_WINGMAN, "Wingman"}, {WeaponIDs::WEAPON_EVA8, "EVA-8 Auto"}, {WeaponIDs::WEAPON_BOCEK, "Bocek"}, {WeaponIDs::WEAPON_KRABER, "Kraber"}, {WeaponIDs::WEAPON_KNIFE, "Throwing Knife"}, {WeaponIDs::WEAPON_HANDS, "Melee"}, };
+        }
+        else {*/
+        static std::unordered_map<int, std::string> WeaponMap = { {WeaponIDs::P2020, "P2020"}, {WeaponIDs::RE45, "RE-45"}, {WeaponIDs::ALTERNATOR, "Alternator"}, {WeaponIDs::R301, "R-301"}, {WeaponIDs::R99, "R-99"}, {WeaponIDs::SPITFIRE, "Spitfire"}, {WeaponIDs::G7, "G7 Scout"}, {WeaponIDs::FLATLINE, "Flatline"}, {WeaponIDs::PROWLER, "Prowler"}, {WeaponIDs::HEMLOCK, "Hemlock"}, {WeaponIDs::REPEATER, "30-30 Repeater"}, {WeaponIDs::RAMPAGE, "Rampage"}, {WeaponIDs::CAR, "CAR-SMG"}, {WeaponIDs::HAVOC, "Havoc"}, {WeaponIDs::DEVOTION, "Devotion"}, {WeaponIDs::LSTAR, "L-STAR"}, {WeaponIDs::TRIPLETAKE, "Triple Take"}, {WeaponIDs::VOLT, "Volt"}, {WeaponIDs::NEMESIS, "Nemesis"}, {WeaponIDs::MOZAMBIQUE, "Mozambique"}, {WeaponIDs::PEACEKEEPER, "Peacekeeper"}, {WeaponIDs::MASTIFF, "Mastiff"}, {WeaponIDs::SENTINEL, "Sentinel"}, {WeaponIDs::CHARGE_RIFLE, "Charge Rifle"}, {WeaponIDs::LONGBOW, "Longbow"}, {WeaponIDs::WINGMAN, "Wingman"}, {WeaponIDs::EVA8, "EVA-8 Auto"}, {WeaponIDs::BOCEK, "Bocek"}, {WeaponIDs::KRABER, "Kraber"}, {WeaponIDs::KNIFE, "Throwing Knife"}, {WeaponIDs::HANDS, "Melee"}, };
 
-            auto it = WeaponMap.find(WeaponID);
-            if (it != WeaponMap.end()) {
-                return it->second;
-            } else {
-                return "Unknown";
-            }
+        if (auto it = WeaponMap.find(WeaponIndex); it != WeaponMap.end()) {
+            return it->second;
+        }
+        else {
+            return "Hands";
         }
     }
 
     ImColor GetWeaponHeldColor() {
-        // Variables
-        int WeaponID = WeaponIndex;
         ImColor LightCol, HeavyCol, EnergyCol, ShotgunCol, SniperCol, LegendaryCol, MeleeCol, ThrowableCol;
         if (IsHoldingGrenade) {
             if (IsHostile) {
                 ThrowableCol = ImColor(Features::Colors::Enemy::ThrowableWeaponColor[0], Features::Colors::Enemy::ThrowableWeaponColor[1], Features::Colors::Enemy::ThrowableWeaponColor[2], Features::Colors::Enemy::ThrowableWeaponColor[3]);
                 return ThrowableCol;
-            } else if (!IsHostile) {
+            }
+            else if (!IsHostile) {
                 ThrowableCol = ImColor(Features::Colors::Teammate::ThrowableWeaponColor[0], Features::Colors::Teammate::ThrowableWeaponColor[1], Features::Colors::Teammate::ThrowableWeaponColor[2], Features::Colors::Teammate::ThrowableWeaponColor[3]);
                 return ThrowableCol;
             }
-        } else {
+        }
+        else {
             if (IsHostile) {
                 LightCol = ImColor(Features::Colors::Enemy::LightWeaponColor[0], Features::Colors::Enemy::LightWeaponColor[1], Features::Colors::Enemy::LightWeaponColor[2], Features::Colors::Enemy::LightWeaponColor[3]);
                 HeavyCol = ImColor(Features::Colors::Enemy::HeavyWeaponColor[0], Features::Colors::Enemy::HeavyWeaponColor[1], Features::Colors::Enemy::HeavyWeaponColor[2], Features::Colors::Enemy::HeavyWeaponColor[3]);
@@ -382,7 +437,8 @@ struct Player {
                 LegendaryCol = ImColor(Features::Colors::Enemy::LegendaryWeaponColor[0], Features::Colors::Enemy::LegendaryWeaponColor[1], Features::Colors::Enemy::LegendaryWeaponColor[2], Features::Colors::Enemy::LegendaryWeaponColor[3]);
                 MeleeCol = ImColor(Features::Colors::Enemy::MeleeWeaponColor[0], Features::Colors::Enemy::MeleeWeaponColor[1], Features::Colors::Enemy::MeleeWeaponColor[2], Features::Colors::Enemy::MeleeWeaponColor[3]);
                 ThrowableCol = ImColor(Features::Colors::Enemy::ThrowableWeaponColor[0], Features::Colors::Enemy::ThrowableWeaponColor[1], Features::Colors::Enemy::ThrowableWeaponColor[2], Features::Colors::Enemy::ThrowableWeaponColor[3]);
-            } else if (!IsHostile) {
+            }
+            else if (!IsHostile) {
                 LightCol = ImColor(Features::Colors::Teammate::LightWeaponColor[0], Features::Colors::Teammate::LightWeaponColor[1], Features::Colors::Teammate::LightWeaponColor[2], Features::Colors::Teammate::LightWeaponColor[3]);
                 HeavyCol = ImColor(Features::Colors::Teammate::HeavyWeaponColor[0], Features::Colors::Teammate::HeavyWeaponColor[1], Features::Colors::Teammate::HeavyWeaponColor[2], Features::Colors::Teammate::HeavyWeaponColor[3]);
                 EnergyCol = ImColor(Features::Colors::Teammate::EnergyWeaponColor[0], Features::Colors::Teammate::EnergyWeaponColor[1], Features::Colors::Teammate::EnergyWeaponColor[2], Features::Colors::Teammate::EnergyWeaponColor[3]);
@@ -393,15 +449,15 @@ struct Player {
                 ThrowableCol = ImColor(Features::Colors::Teammate::ThrowableWeaponColor[0], Features::Colors::Teammate::ThrowableWeaponColor[1], Features::Colors::Teammate::ThrowableWeaponColor[2], Features::Colors::Teammate::ThrowableWeaponColor[3]);
             }
 
-            static std::unordered_map<int, ImColor> WeaponMap = { {WeaponIDs::WEAPON_P2020, LightCol}, {WeaponIDs::WEAPON_RE45, LightCol}, {WeaponIDs::WEAPON_ALTERNATOR, LightCol}, {WeaponIDs::WEAPON_R301, LightCol}, {WeaponIDs::WEAPON_R99, LightCol}, {WeaponIDs::WEAPON_SPITFIRE, LightCol}, {WeaponIDs::WEAPON_G7, LightCol}, {WeaponIDs::WEAPON_FLATLINE, HeavyCol}, {WeaponIDs::WEAPON_PROWLER, HeavyCol}, {WeaponIDs::WEAPON_HEMLOCK, HeavyCol}, {WeaponIDs::WEAPON_REPEATER, HeavyCol}, {WeaponIDs::WEAPON_RAMPAGE, HeavyCol}, {WeaponIDs::WEAPON_CAR, HeavyCol}, {WeaponIDs::WEAPON_HAVOC, EnergyCol}, {WeaponIDs::WEAPON_DEVOTION, EnergyCol}, {WeaponIDs::WEAPON_LSTAR, EnergyCol}, {WeaponIDs::WEAPON_TRIPLETAKE, EnergyCol}, {WeaponIDs::WEAPON_VOLT, EnergyCol}, {WeaponIDs::WEAPON_NEMESIS, EnergyCol}, {WeaponIDs::WEAPON_MOZAMBIQUE, ShotgunCol}, {WeaponIDs::WEAPON_PEACEKEEPER, ShotgunCol}, {WeaponIDs::WEAPON_MASTIFF, ShotgunCol}, {WeaponIDs::WEAPON_SENTINEL, SniperCol}, {WeaponIDs::WEAPON_CHARGE_RIFLE, SniperCol}, {WeaponIDs::WEAPON_LONGBOW, SniperCol}, {WeaponIDs::WEAPON_WINGMAN, LegendaryCol}, {WeaponIDs::WEAPON_EVA8, LegendaryCol}, {WeaponIDs::WEAPON_BOCEK, LegendaryCol}, {WeaponIDs::WEAPON_KRABER, LegendaryCol}, {WeaponIDs::WEAPON_KNIFE, LegendaryCol}, {WeaponIDs::WEAPON_HANDS, MeleeCol}, };
-            
-            auto it = WeaponMap.find(WeaponID);
+            static std::unordered_map<int, ImColor> WeaponMap = { {WeaponIDs::P2020, LightCol}, {WeaponIDs::RE45, LightCol}, {WeaponIDs::ALTERNATOR, LightCol}, {WeaponIDs::R301, LightCol}, {WeaponIDs::R99, LightCol}, {WeaponIDs::SPITFIRE, LightCol}, {WeaponIDs::G7, LightCol}, {WeaponIDs::FLATLINE, HeavyCol}, {WeaponIDs::PROWLER, HeavyCol}, {WeaponIDs::HEMLOCK, HeavyCol}, {WeaponIDs::REPEATER, HeavyCol}, {WeaponIDs::RAMPAGE, HeavyCol}, {WeaponIDs::CAR, HeavyCol}, {WeaponIDs::HAVOC, EnergyCol}, {WeaponIDs::DEVOTION, EnergyCol}, {WeaponIDs::LSTAR, EnergyCol}, {WeaponIDs::TRIPLETAKE, EnergyCol}, {WeaponIDs::VOLT, EnergyCol}, {WeaponIDs::NEMESIS, EnergyCol}, {WeaponIDs::MOZAMBIQUE, ShotgunCol}, {WeaponIDs::PEACEKEEPER, ShotgunCol}, {WeaponIDs::MASTIFF, ShotgunCol}, {WeaponIDs::SENTINEL, SniperCol}, {WeaponIDs::CHARGE_RIFLE, SniperCol}, {WeaponIDs::LONGBOW, SniperCol}, {WeaponIDs::WINGMAN, LegendaryCol}, {WeaponIDs::EVA8, LegendaryCol}, {WeaponIDs::BOCEK, LegendaryCol}, {WeaponIDs::KRABER, LegendaryCol}, {WeaponIDs::KNIFE, LegendaryCol}, {WeaponIDs::HANDS, MeleeCol}, };
+
+            auto it = WeaponMap.find(WeaponIndex);
             if (it != WeaponMap.end()) {
                 return it->second;
-            } else {
+            }
+            else {
                 return ImColor(255, 255, 255);
             }
-        
         }
     }
 
@@ -410,15 +466,66 @@ struct Player {
         ImColor ShieldColor;
         if (MaxShield == 50) { // white
             ShieldColor = ImColor(247, 247, 247);
-        } else if (MaxShield == 75) { // blue
+        }
+        else if (MaxShield == 75) { // blue
             ShieldColor = ImColor(39, 178, 255);
-        } else if (MaxShield == 100) { // purple
+        }
+        else if (MaxShield == 100) { // purple
             ShieldColor = ImColor(206, 59, 255);
-        } else if (MaxShield == 125) { // red
+        }
+        else if (MaxShield == 125) { // red
             ShieldColor = ImColor(219, 2, 2);
-        } else {
+        }
+        else {
             ShieldColor = ImColor(247, 247, 247);
         }
         return ShieldColor;
+    }
+
+    // DEBUG
+    // Bones //
+    int GetBoneFromHitboxID(int HitBox) const {
+        long ModelPointer = Memory::Read<long>(BasePointer + OFF_STUDIOHDR);
+        if (!Memory::IsValidPointer(ModelPointer))
+            return -1;
+
+        long StudioHDR = Memory::Read<long>(ModelPointer + 0x8);
+        if (!Memory::IsValidPointer(StudioHDR + 0x34))
+            return -1;
+
+        auto HitboxCache = Memory::Read<uint16_t>(StudioHDR + 0x34);
+        auto HitboxArray = StudioHDR + ((uint16_t) (HitboxCache & 0xFFFE) << (4 * (HitboxCache & 1)));
+        if (!Memory::IsValidPointer(HitboxArray + 0x4))
+            return -1;
+
+        auto IndexCache = Memory::Read<uint16_t>(HitboxArray + 0x4);
+        auto HitboxIndex = ((uint16_t) (IndexCache & 0xFFFE) << (4 * (IndexCache & 1)));
+        auto BonePointer = HitboxIndex + HitboxArray + (HitBox * 0x20);
+        if (!Memory::IsValidPointer(BonePointer))
+            return -1;
+
+        return Memory::Read<uint16_t>(BonePointer);
+    }
+
+    Vector3D GetBonePositionID(int HitBox) const {
+        Vector3D Offset = Vector3D(0.0f, 0.0f, 0.0f);
+
+        int Bone = GetBoneFromHitboxID(HitBox);
+        if (Bone < 0 || Bone > 255)
+            return LocalOrigin.Add(Offset);
+
+        long BonePtr = Memory::Read<long>(BasePointer + OFF_BONES);
+        BonePtr += (Bone * sizeof(Matrix3x4));
+        if (!Memory::IsValidPointer(BonePtr))
+            return LocalOrigin.Add(Offset);
+
+        Matrix3x4 BoneMatrix = Memory::Read<Matrix3x4>(BonePtr);
+        Vector3D BonePosition = BoneMatrix.GetPosition();
+
+        if (!BonePosition.IsValid())
+            return LocalOrigin.Add(Vector3D(0, 0, 0));
+
+        BonePosition += LocalOrigin;
+        return BonePosition;
     }
 };

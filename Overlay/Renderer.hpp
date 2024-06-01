@@ -208,8 +208,89 @@ public:
         canvas->AddRect(ImVec2(x - 1, y - 1), ImVec2(x + w + 1, y - h + 1), ImColor(0, 0, 0), 0, 1);
     }
 
+    static void Draw2DBarTest(ImDrawList* canvas, bool DrawHealth, bool DrawShield, int BarStyle, int ColorMode, Vector2D& Foot, Vector2D& Head, int health, int maxHealth, int shield, int maxShield, float thickness, float thickness2, float BarWidth, float BarHeight) {
+        // Shield Color
+        ImColor shieldBarColor;
+        if (ColorMode == 0) { // MaxShield
+            if (maxShield == 50) { // white
+                shieldBarColor = ImColor(168, 168, 168, 255);
+            } else if (maxShield == 75) { // blue
+                shieldBarColor = ImColor(39, 178, 255, 255);
+            } else if (maxShield == 100) { // purple
+                shieldBarColor = ImColor(206, 59, 255, 255);
+            } else if (maxShield == 125) { // red
+                shieldBarColor = ImColor(219, 2, 2, 255);
+            }
+        }
+
+        if (ColorMode == 1) { // Current Shield
+            if (shield <= 50) { // white
+                shieldBarColor = ImColor(168, 168, 168, 255);
+            } else if (shield <= 75) { // blue
+                shieldBarColor = ImColor(39, 178, 255, 255);
+            } else if (shield <= 100) { // purple
+                shieldBarColor = ImColor(206, 59, 255, 255);
+            } else if (shield <= 125) { // red
+                shieldBarColor = ImColor(219, 2, 2, 255);
+            }
+        }
+
+        if (BarStyle == 0) { // Sides
+            float height = Head.y - Foot.y;
+            float width = height / 2.f;
+            float width2 = width / 10;
+            if (width2 < 2.f)
+                width2 = 2.;
+            if (width2 > 3)
+                width2 = 3.;
+
+            float entityHeight = Foot.y - Head.y;
+            float boxLeft = Foot.x - entityHeight / 3;
+            float boxRight = Head.x + entityHeight / 3;
+            float barPercentWidth = thickness2;
+            float barPixelWidth = barPercentWidth * (boxRight - boxLeft);
+            float barHeight = entityHeight * (health / 100.0f);
+            Vector2D barTop = Vector2D(boxLeft - barPixelWidth, Foot.y - barHeight);
+            Vector2D barBottom = Vector2D(boxLeft, Foot.y);
+
+            if (DrawHealth)
+                Renderer::DrawProgressBar(canvas, barBottom.x - 3.5f, barBottom.y, width2, barBottom.y - Head.y + (entityHeight * 0.2), health, 100, ImColor(0, 255, 0));
+            if (DrawShield)
+                Renderer::DrawProgressBar(canvas, barBottom.x - 7.0f, barBottom.y, width2, barBottom.y - Head.y + (entityHeight * 0.2), shield, maxShield, shieldBarColor);
+        }
+        if (BarStyle == 1) { // Top
+            float height = BarHeight; // 8.0f
+            float entityHeight = Foot.y - Head.y;
+            float width = BarWidth;   // 80.0f
+            Vector2D rectPosition = Vector2D(Foot.x - width / 2, Head.y - (entityHeight * 0.2) - 20.0f);
+            Vector2D size = Vector2D(width, height);
+
+            if (DrawHealth) {
+                // HealthBar
+                float fill = (float)health / (float)maxHealth;
+                Renderer::drawBorderedFillRectangle(rectPosition, size, Color::lerp(Color(1.0, 0.0, 0.0), Color(0.0, 1.0, 0.0), fill), Color(), thickness, fill);
+            }
+            if (DrawShield) {
+                // ShieldBar
+                float fillAP = (float)shield / (float)maxShield;
+                if (maxShield == 125) { // Red Shield
+                    Renderer::drawBorderedFillRectangle(Vector2D(rectPosition.x, rectPosition.y - (height + 3)), size, Color::lerp(Color(1.0, 0.0, 0.0), Color(1.0, 0.0, 0.0), fillAP), Color(), thickness, fillAP);
+                }
+                if (maxShield == 100) { // Purple Shield
+                    Renderer::drawBorderedFillRectangle(Vector2D(rectPosition.x, rectPosition.y - (height + 3)), size, Color::lerp(Color(0.501, 0.00, 0.970), Color(0.501, 0.00, 0.970), fillAP), Color(), thickness, fillAP);
+                }
+                if (maxShield == 75) { // Blue Shield
+                    Renderer::drawBorderedFillRectangle(Vector2D(rectPosition.x, rectPosition.y - (height + 3)), size, Color::lerp(Color(0.0297, 0.734, 0.990), Color(0.0297, 0.734, 0.990), fillAP), Color(), thickness, fillAP);
+                }
+                if (maxShield == 50) { // Grey Shield
+                    Renderer::drawBorderedFillRectangle(Vector2D(rectPosition.x, rectPosition.y - (height + 3)), size, Color::lerp(Color(0.707, 0.702, 0.700), Color(0.707, 0.702, 0.700), fillAP), Color(), thickness, fillAP);
+                }
+            }
+        }
+    }
+
     // Draw 2D Bars
-    static void Draw2DBar(ImDrawList* canvas, int BarMode, int BarStyle, int ColorMode, Vector2D& Foot, Vector2D& Head, Vector2D& AboveHead, int health, int maxHealth, int shield, int maxShield, float thickness, float thickness2, float BarWidth, float BarHeight) {
+    static void Draw2DBar(ImDrawList* canvas, int BarMode, int BarStyle, int ColorMode, Vector2D& Foot, Vector2D& Head, /*Vector2D& AboveHead, */int health, int maxHealth, int shield, int maxShield, float thickness, float thickness2, float BarWidth, float BarHeight) {
         // Pre-Stuff
         // Shield Color
         ImColor shieldBarColor;
@@ -240,18 +321,6 @@ public:
         // Bars
         if (BarMode == 0) { // Health Only
             if (BarStyle == 0) { // Side Bar
-                // Old Side Bar
-                /*float entityHeight = Foot.y - Head.y;
-                float boxLeft = Foot.x - entityHeight / 3;
-                float boxRight = Head.x + entityHeight / 3;
-                float barPercentWidth = thickness2;
-                float barPixelWidth = barPercentWidth * (boxRight - boxLeft);
-                float barHeight = entityHeight * (health / 100.0f);
-                Vector2D barTop = Vector2D(boxLeft - barPixelWidth, Foot.y - barHeight);
-                Vector2D barBottom = Vector2D(boxLeft, Foot.y);
-
-                canvas->AddRectFilled(ImVec2(barTop.x, barTop.y - (entityHeight * 0.2)), ImVec2(barBottom.x, barBottom.y), ImColor(0, 255, 0));*/
-                // Old + New Side Bar - Credits: wafflesgaming (UnknownCheats)
                 float height = Head.y - Foot.y;
                 float width = height / 2.f;
                 float width2 = width / 10;
@@ -271,38 +340,19 @@ public:
 
                 Renderer::DrawProgressBar(canvas, barBottom.x - 3.5f /* + (width / 2) - width2*/, barBottom.y, width2, barBottom.y - Head.y + (entityHeight * 0.2), health, 100, ImColor(0, 255, 0));
             }
-            if (BarStyle == 1) {                             // Top Bar
-                float height = BarHeight; // 8.0f
+            if (BarStyle == 1) { // Top Bar
+                /*float height = BarHeight; // 8.0f
                 float width = BarWidth;   // 80.0f
                 Vector2D rectPosition = Vector2D(Foot.x - width / 2, AboveHead.y - 10.0f);
                 Vector2D size = Vector2D(width, height);
 
                 // HealthBar
                 float fill = (float)health / (float)maxHealth;
-                Renderer::drawBorderedFillRectangle(rectPosition, size, Color::lerp(Color(1.0, 0.0, 0.0), Color(0.0, 1.0, 0.0), fill), Color(), thickness, fill);
+                Renderer::drawBorderedFillRectangle(rectPosition, size, Color::lerp(Color(1.0, 0.0, 0.0), Color(0.0, 1.0, 0.0), fill), Color(), thickness, fill);*/
             }
         }
         if (BarMode == 1) { // Shield Only
             if (BarStyle == 0) { // Side Bar
-                // Old Bar
-                /*float entityHeight = Foot.y - Head.y;
-                float boxLeft = Foot.x - entityHeight / 3;
-                float boxRight = Head.x + entityHeight / 3;
-                float barPercentWidth = thickness2;
-                float barPixelWidth = barPercentWidth * (boxRight - boxLeft);
-                float maxS; //maxShield
-                float s = shield; //shield
-
-                if (s == 0) {
-                shieldBarColor = ImColor(0, 0, 0, 0);
-                }
-
-                float barHeight = entityHeight * (s / maxS);
-                Vector2D barTop = Vector2D(boxLeft - barPixelWidth, Foot.y - barHeight);
-                Vector2D barBottom = Vector2D(boxLeft, Foot.y);
-
-                canvas->AddRectFilled(ImVec2(barTop.x, barTop.y - (entityHeight * 0.2)), ImVec2(barBottom.x, barBottom.y), ImColor(shieldBarColor));*/
-                // Old + New Side Bar - Credits: wafflesgaming (UnknownCheats)
                 float height = Head.y - Foot.y;
                 float width = height / 2.f;
                 float width2 = width / 10;
@@ -322,8 +372,8 @@ public:
 
                 Renderer::DrawProgressBar(canvas, barBottom.x - 3.5f /* + (width / 2) - width2*/, barBottom.y, width2, barBottom.y - Head.y + (entityHeight * 0.2), shield, maxShield, shieldBarColor);
             }
-            if (BarStyle == 1) {                             // Top Bar
-                float height = BarHeight; // 8.0f
+            if (BarStyle == 1) { // Top Bar
+                /*float height = BarHeight; // 8.0f
                 float width = BarWidth;   // 80.0f
                 Vector2D rectPosition = Vector2D(Foot.x - width / 2, AboveHead.y - 10.0f);
                 Vector2D size = Vector2D(width, height);
@@ -341,51 +391,12 @@ public:
                 }
                 if (maxShield == 50) { // Grey Shield
                     Renderer::drawBorderedFillRectangle(Vector2D(rectPosition.x, rectPosition.y - (height + 3)), size, Color::lerp(Color(0.707, 0.702, 0.700), Color(0.707, 0.702, 0.700), fill), Color(), thickness, fill);
-                }
+                }*/
             }
         }
 
         if (BarMode == 2) { // Health & Shield
             if (BarStyle == 0) { // Side Bar
-                // Old Side Bar
-                /*float entityHeight = Foot.y - Head.y;
-                float boxLeft = Foot.x - entityHeight / 3;
-                float boxRight = Head.x + entityHeight / 3;
-                float barPercentWidth = thickness2;
-                float barPixelWidth = barPercentWidth * (boxRight - boxLeft);
-                float barHeight = entityHeight * (health / 100.0f);
-                Vector2D barTop = Vector2D(boxLeft - barPixelWidth, Foot.y - barHeight);
-                Vector2D barBottom = Vector2D(boxLeft, Foot.y);
-
-                canvas->AddRectFilled(ImVec2(barTop.x, barTop.y - (entityHeight * 0.2)), ImVec2(barBottom.x, barBottom.y), ImColor(0, 255, 0));
-
-                //Shield Bar
-                float maxS; //maxShield
-                float s = shield; //shield
-                if (maxShield == 125) {
-                    maxS = 125.0f;
-                }
-                else if (maxShield == 100) {
-                    maxS = 100.0f;
-                }
-                else if (maxShield == 75) {
-                    maxS = 75.0f;
-                }
-                else if (maxShield == 50) {
-                    maxS = 50.0f;
-                }
-
-                if (s == 0) {
-                    shieldBarColor = ImColor(0, 0, 0, 0);
-                }
-
-                float barHeightAP = entityHeight * (s / maxS);
-                Vector2D barTopAP = Vector2D(boxLeft - barPixelWidth, Foot.y - barHeightAP);
-                Vector2D barBottomAP = Vector2D(boxLeft, Foot.y);
-
-                canvas->AddRectFilled(ImVec2(barTopAP.x, barTopAP.y - (entityHeight * 0.2)), ImVec2(barBottomAP.x, barBottomAP.y), ImColor(shieldBarColor));*/
-
-                // Old + New Side Bar - Credits: wafflesgaming (UnknownCheats)
                 float height = Head.y - Foot.y;
                 float width = height / 2.f;
                 float width2 = width / 10;
@@ -407,8 +418,8 @@ public:
                 Renderer::DrawProgressBar(canvas, barBottom.x - 8.5f /* + (width / 2) - width2*/, barBottom.y, width2, barBottom.y - Head.y + (entityHeight * 0.2), shield, maxShield, shieldBarColor);
             }
 
-            if (BarStyle == 1) {                             // Top Bar
-                float height = BarHeight; // 8.0f
+            if (BarStyle == 1) { // Top Bar
+                /*float height = BarHeight; // 8.0f
                 float width = BarWidth;   // 80.0f
                 Vector2D rectPosition = Vector2D(Foot.x - width / 2, Head.y - 10.0f);
                 Vector2D size = Vector2D(width, height);
@@ -430,7 +441,7 @@ public:
                 }
                 if (maxShield == 50) { // Grey Shield
                     Renderer::drawBorderedFillRectangle(Vector2D(rectPosition.x, rectPosition.y - (height + 3)), size, Color::lerp(Color(0.707, 0.702, 0.700), Color(0.707, 0.702, 0.700), fillAP), Color(), thickness, fillAP);
-                }
+                }*/
             }
         }
     }
@@ -722,20 +733,169 @@ public:
         return Vector3D(x_1, y_1, 0);
     }
 
-    static void TeamMiniMap(int x, int y, int radius, int teamID, float targetyaw, int dotSize, int outlineSize, const ImColor& circleColor) {
+    static void TeamMiniMap_Circle(int x, int y, int radius, int teamID, float targetyaw, int dotSize, int outlineSize) {
+        ImColor teamColors[60] = {
+            ImColor(255, 182, 193, 242), // Light Pink
+            ImColor(255, 105, 180, 242), // Hot Pink
+            ImColor(255, 192, 203, 242), // Pink
+            ImColor(255, 20, 147, 242),  // Deep Pink
+            ImColor(255, 160, 122, 242), // Light Salmon
+            ImColor(255, 127, 80, 242),  // Coral
+            ImColor(255, 99, 71, 242),   // Tomato
+            ImColor(255, 69, 0, 242),    // Orange Red
+            ImColor(255, 140, 0, 242),   // Dark Orange
+            ImColor(255, 165, 0, 242),   // Orange
+            ImColor(255, 215, 0, 242),   // Gold
+            ImColor(255, 255, 0, 242),   // Yellow
+            ImColor(240, 230, 140, 242), // Khaki
+            ImColor(238, 232, 170, 242), // Pale Goldenrod
+            ImColor(189, 183, 107, 242), // Dark Khaki
+            ImColor(173, 255, 47, 242),  // Green Yellow
+            ImColor(127, 255, 0, 242),   // Chartreuse
+            ImColor(124, 252, 0, 242),   // Lawn Green
+            ImColor(0, 255, 0, 242),     // Lime
+            ImColor(50, 205, 50, 242),   // Lime Green
+            ImColor(144, 238, 144, 242), // Light Green
+            ImColor(152, 251, 152, 242), // Pale Green
+            ImColor(0, 255, 127, 242),   // Spring Green
+            ImColor(60, 179, 113, 242),  // Medium Sea Green
+            ImColor(32, 178, 170, 242),  // Light Sea Green
+            ImColor(0, 255, 255, 242),   // Cyan
+            ImColor(0, 206, 209, 242),   // Dark Turquoise
+            ImColor(64, 224, 208, 242),  // Turquoise
+            ImColor(72, 209, 204, 242),  // Medium Turquoise
+            ImColor(175, 238, 238, 242), // Pale Turquoise
+            ImColor(127, 255, 212, 242), // Aquamarine
+            ImColor(176, 224, 230, 242), // Powder Blue
+            ImColor(173, 216, 230, 242), // Light Blue
+            ImColor(135, 206, 235, 242), // Sky Blue
+            ImColor(135, 206, 250, 242), // Light Sky Blue
+            ImColor(0, 191, 255, 242),   // Deep Sky Blue
+            ImColor(30, 144, 255, 242),  // Dodger Blue
+            ImColor(70, 130, 180, 242),  // Steel Blue
+            ImColor(100, 149, 237, 242), // Cornflower Blue
+            ImColor(65, 105, 225, 242),  // Royal Blue
+            ImColor(138, 43, 226, 242),  // Blue Violet
+            ImColor(75, 0, 130, 242),    // Indigo
+            ImColor(153, 50, 204, 242),  // Dark Orchid
+            ImColor(186, 85, 211, 242),  // Medium Orchid
+            ImColor(221, 160, 221, 242), // Plum
+            ImColor(238, 130, 238, 242), // Violet
+            ImColor(218, 112, 214, 242), // Orchid
+            ImColor(255, 0, 255, 242),   // Magenta
+            ImColor(255, 20, 147, 242),  // Deep Pink
+            ImColor(219, 112, 147, 242), // Pale Violet Red
+            ImColor(255, 105, 180, 242), // Hot Pink
+            ImColor(255, 182, 193, 242), // Light Pink
+            ImColor(250, 128, 114, 242), // Salmon
+            ImColor(233, 150, 122, 242), // Dark Salmon
+            ImColor(240, 128, 128, 242)  // Light Coral
+        };
         auto colOutline = ImGui::ColorConvertFloat4ToU32(ImVec4(0.0, 0.0, 0.0, 1.0));
         ImVec2 center(x, y);
         // ImGui::GetWindowDrawList()->AddCircleFilled(center, radius, ImGui::ColorConvertFloat4ToU32(ImVec4(0.99, 0, 0, 0.99)));
         // ImGui::GetWindowDrawList()->AddCircle(center, radius, colOutline, 12, radius);
-        ImGui::GetWindowDrawList()->AddCircleFilled(center, radius, circleColor);
+        if (teamID == 97)
+            ImGui::GetWindowDrawList()->AddCircleFilled(center, radius, ImColor(255, 55, 0));
+        else
+            ImGui::GetWindowDrawList()->AddCircleFilled(center, radius, teamColors[teamID]);
         ImGui::GetWindowDrawList()->AddCircle(center, outlineSize, colOutline, 12, radius);
 
         // Draw a line pointing in the direction of each player's aim
-        const int numPlayers = 3;
+        /*const int numPlayers = 3;
         for (int i = 0; i < numPlayers; i++) {
             float angle = (360.0 - targetyaw) * (M_PI / 180.0); // Replace this with the actual yaw of the player, then convert it to radians.
             ImVec2 endpoint(center.x + radius * cos(angle), center.y + radius * sin(angle));
             ImGui::GetWindowDrawList()->AddLine(center, endpoint, colOutline);
+        }*/
+    }
+
+    static void TeamMiniMap_ViewAngles(int x, int y, int radius, float targetyaw, float lineLength, const ImColor& lineColor) {
+        // Draw a line pointing in the direction of each player's aim
+        ImVec2 center(x, y);
+        const int numPlayers = 3;
+        for (int i = 0; i < numPlayers; i++) {
+            float angle = (360.0 - targetyaw) * (M_PI / 180.0); // Replace this with the actual yaw of the player, then convert it to radians.
+            ImVec2 endpoint(center.x + radius * cos(angle) + lineLength, center.y + radius * sin(angle) + lineLength);
+            ImGui::GetWindowDrawList()->AddLine(center, endpoint, lineColor);
         }
+    }
+
+    static void TeamMiniMap_Arrow(int x, int y, int size, int teamID, float targetyaw) {
+        ImColor teamColors[60] = {
+            ImColor(255, 182, 193, 242), // Light Pink
+            ImColor(255, 105, 180, 242), // Hot Pink
+            ImColor(255, 192, 203, 242), // Pink
+            ImColor(255, 20, 147, 242),  // Deep Pink
+            ImColor(255, 160, 122, 242), // Light Salmon
+            ImColor(255, 127, 80, 242),  // Coral
+            ImColor(255, 99, 71, 242),   // Tomato
+            ImColor(255, 69, 0, 242),    // Orange Red
+            ImColor(255, 140, 0, 242),   // Dark Orange
+            ImColor(255, 165, 0, 242),   // Orange
+            ImColor(255, 215, 0, 242),   // Gold
+            ImColor(255, 255, 0, 242),   // Yellow
+            ImColor(240, 230, 140, 242), // Khaki
+            ImColor(238, 232, 170, 242), // Pale Goldenrod
+            ImColor(189, 183, 107, 242), // Dark Khaki
+            ImColor(173, 255, 47, 242),  // Green Yellow
+            ImColor(127, 255, 0, 242),   // Chartreuse
+            ImColor(124, 252, 0, 242),   // Lawn Green
+            ImColor(0, 255, 0, 242),     // Lime
+            ImColor(50, 205, 50, 242),   // Lime Green
+            ImColor(144, 238, 144, 242), // Light Green
+            ImColor(152, 251, 152, 242), // Pale Green
+            ImColor(0, 255, 127, 242),   // Spring Green
+            ImColor(60, 179, 113, 242),  // Medium Sea Green
+            ImColor(32, 178, 170, 242),  // Light Sea Green
+            ImColor(0, 255, 255, 242),   // Cyan
+            ImColor(0, 206, 209, 242),   // Dark Turquoise
+            ImColor(64, 224, 208, 242),  // Turquoise
+            ImColor(72, 209, 204, 242),  // Medium Turquoise
+            ImColor(175, 238, 238, 242), // Pale Turquoise
+            ImColor(127, 255, 212, 242), // Aquamarine
+            ImColor(176, 224, 230, 242), // Powder Blue
+            ImColor(173, 216, 230, 242), // Light Blue
+            ImColor(135, 206, 235, 242), // Sky Blue
+            ImColor(135, 206, 250, 242), // Light Sky Blue
+            ImColor(0, 191, 255, 242),   // Deep Sky Blue
+            ImColor(30, 144, 255, 242),  // Dodger Blue
+            ImColor(70, 130, 180, 242),  // Steel Blue
+            ImColor(100, 149, 237, 242), // Cornflower Blue
+            ImColor(65, 105, 225, 242),  // Royal Blue
+            ImColor(138, 43, 226, 242),  // Blue Violet
+            ImColor(75, 0, 130, 242),    // Indigo
+            ImColor(153, 50, 204, 242),  // Dark Orchid
+            ImColor(186, 85, 211, 242),  // Medium Orchid
+            ImColor(221, 160, 221, 242), // Plum
+            ImColor(238, 130, 238, 242), // Violet
+            ImColor(218, 112, 214, 242), // Orchid
+            ImColor(255, 0, 255, 242),   // Magenta
+            ImColor(255, 20, 147, 242),  // Deep Pink
+            ImColor(219, 112, 147, 242), // Pale Violet Red
+            ImColor(255, 105, 180, 242), // Hot Pink
+            ImColor(255, 182, 193, 242), // Light Pink
+            ImColor(250, 128, 114, 242), // Salmon
+            ImColor(233, 150, 122, 242), // Dark Salmon
+            ImColor(240, 128, 128, 242)  // Light Coral
+        };
+
+        ImVec2 center(x, y);
+        ImVec2 points[4];
+
+        float angle0 = ((360.0 - targetyaw)) * (M_PI / 180.0);
+        float angle1 = ((360.0 - targetyaw + 135)) * (M_PI / 180.0);
+        float angle2 = ((360.0 - targetyaw + 180)) * (M_PI / 180.0); // special point
+        float angle3 = ((360.0 - targetyaw - 135)) * (M_PI / 180.0);
+
+        points[0] = ImVec2(center.x + size * cos(angle0), center.y + size * sin(angle0));
+        points[1] = ImVec2(center.x + size * cos(angle1), center.y + size * sin(angle1));
+        points[2] = ImVec2(center.x + size / 4 * cos(angle2), center.y + size / 4 * sin(angle2));
+        points[3] = ImVec2(center.x + size * cos(angle3), center.y + size * sin(angle3));
+        if (teamID == 97) // Dummy
+            ImGui::GetWindowDrawList()->AddConvexPolyFilled(points, 4, ImColor(255, 55, 0));
+        else
+            ImGui::GetWindowDrawList()->AddConvexPolyFilled(points, 4, teamColors[teamID]);
+        //ImGui::GetWindowDrawList()->AddPolyline(points, 4, ImColor(0, 0, 0, 242), true, 1.0f);
     }
 };

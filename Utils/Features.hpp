@@ -11,17 +11,30 @@
 
 namespace Features {
 
+    int TotalSpectators = 0;
+
     namespace Home {
         bool IsMenuOpened = true;
     };
 
     namespace Settings {
+        InputKeyType MenuBind = InputKeyType::KEYBOARD_INSERT;
         bool ESPEnabled = true;
         bool DeadCheck = false;
         bool OverlayEnabled = true;
         bool AntiAliasedLines = true;
         bool FPSCap = false;
         int CappedFPS = 144;
+        bool ShowKeybinds = false;
+        float KeybindColor[4] = { 0.99, 0, 0, 0.99 };
+    };
+
+    namespace Dev {
+        bool Enabled = false;
+        bool LocalWeapon = false;
+        bool EnemyWeapon = false;
+        bool SkeletonIDs = false;
+        int BoneRange = 20;
     };
     
     namespace AimbotHitboxes {
@@ -139,6 +152,9 @@ namespace Features {
         int InputMethod = 0; // MoveMouse or Controller (Write To ViewAngles)
 
         bool ClosestHitbox = false;
+
+        bool SpectatorCheck = false;
+        bool SpectatorNotifier = true;
 
         bool OnFire = true;
         bool OnADS = true;
@@ -1513,6 +1529,7 @@ namespace Features {
 
             bool DrawSkeleton = true;
             bool SkeletonOutline = false;
+            int SkeletonDetail = 0; // 0 = Detailed, 1 = Simple
             float SkeletonThickness = 1.0;
             bool DrawHeadCircle = true;
             bool HeadCircleOutline = false;
@@ -1555,6 +1572,7 @@ namespace Features {
 
             bool DrawSkeleton = true;
             bool SkeletonOutline = false;
+            int SkeletonDetail = 0; // 0 = Detailed, 1 = Simple
             float SkeletonThickness = 1.0;
             bool DrawHeadCircle = true;
             bool HeadCircleOutline = false;
@@ -1563,7 +1581,7 @@ namespace Features {
             bool DrawBars = true;
             bool HealthBar = true;
             bool ShieldBar = true;
-            int BarMode = 0;
+            int BarMode = 2;
             int BarStyle = 0;
             float BarThickness = 1.0f;
             float BarThickness2 = 0.05f;
@@ -1661,16 +1679,23 @@ namespace Features {
 
     namespace Radar {
         bool MiniMap = false;
-        float MiniMapRange = 100;
+        float MiniMapRange = 200;
         int MiniMapScaleX = 215;
         int MiniMapScaleY = 215;
-        int MiniMapDotSize = 5;
+        bool MiniMapGuides = true;
+
+        int IdentifierSize = 7;
         int MiniMapBlackBGSize = 0;
-        bool MiniMapGuides = false;
+        int EnemyIdentifier = 1;
+        bool EnemyViewAngles = true;
+        float EnemyViewAnglesLength = 15.0f;
+        float EnemyViewAnglesColor[4] = { 0, 0, 0, 0.999 };
+        float RadarRounding = 15.0f;
         
         bool BigMap = false;
         InputKeyType BigMapBind = InputKeyType::KEYBOARD_K;
         float CircleColor[4] = { 0.999, 0, 0, 0.999 };
+        float BackgroundColor[4] = { 0, 0, 0, 0.1 };
     };
     
     namespace Misc {
@@ -1681,6 +1706,11 @@ namespace Features {
         bool BHop = false;
         int BHopDelay = 25;
         InputKeyType BHopBind = InputKeyType::KEYBOARD_X;
+
+        bool WallJump = false;
+        InputKeyType WallJumpBind = InputKeyType::KEYBOARD_X;
+
+        bool AutoTapStrafe = false;
 
         bool QuickTurn = false;
         int QuickTurnAngle = 180;

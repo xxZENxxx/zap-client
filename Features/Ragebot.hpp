@@ -142,46 +142,46 @@ struct Ragebot
 			Features::Ragebot::RageList.insert(weaponID);
 		};
 		// Light
-		InsertIfEnabled(Features::Ragebot::P2020, WeaponIDs::WEAPON_P2020);
-		InsertIfEnabled(Features::Ragebot::RE45, WeaponIDs::WEAPON_RE45);
-		InsertIfEnabled(Features::Ragebot::Alternator, WeaponIDs::WEAPON_ALTERNATOR);
-		InsertIfEnabled(Features::Ragebot::R99, WeaponIDs::WEAPON_R99);
-		InsertIfEnabled(Features::Ragebot::R301, WeaponIDs::WEAPON_R301);
-		InsertIfEnabled(Features::Ragebot::Spitfire, WeaponIDs::WEAPON_SPITFIRE);
-		InsertIfEnabled(Features::Ragebot::G7, WeaponIDs::WEAPON_G7);
+		InsertIfEnabled(Features::Ragebot::P2020, WeaponIDs::P2020);
+		InsertIfEnabled(Features::Ragebot::RE45, WeaponIDs::RE45);
+		InsertIfEnabled(Features::Ragebot::Alternator, WeaponIDs::ALTERNATOR);
+		InsertIfEnabled(Features::Ragebot::R99, WeaponIDs::R99);
+		InsertIfEnabled(Features::Ragebot::R301, WeaponIDs::R301);
+		InsertIfEnabled(Features::Ragebot::Spitfire, WeaponIDs::SPITFIRE);
+		InsertIfEnabled(Features::Ragebot::G7, WeaponIDs::G7);
 
 		// Heavy
-		InsertIfEnabled(Features::Ragebot::Flatline, WeaponIDs::WEAPON_FLATLINE);
-		InsertIfEnabled(Features::Ragebot::Prowler, WeaponIDs::WEAPON_PROWLER);
-		InsertIfEnabled(Features::Ragebot::Hemlock, WeaponIDs::WEAPON_HEMLOCK);
-		InsertIfEnabled(Features::Ragebot::Repeater, WeaponIDs::WEAPON_REPEATER);
-		InsertIfEnabled(Features::Ragebot::Rampage, WeaponIDs::WEAPON_RAMPAGE);
-		InsertIfEnabled(Features::Ragebot::CARSMG, WeaponIDs::WEAPON_CAR);
+		InsertIfEnabled(Features::Ragebot::Flatline, WeaponIDs::FLATLINE);
+		InsertIfEnabled(Features::Ragebot::Prowler, WeaponIDs::PROWLER);
+		InsertIfEnabled(Features::Ragebot::Hemlock, WeaponIDs::HEMLOCK);
+		InsertIfEnabled(Features::Ragebot::Repeater, WeaponIDs::REPEATER);
+		InsertIfEnabled(Features::Ragebot::Rampage, WeaponIDs::RAMPAGE);
+		InsertIfEnabled(Features::Ragebot::CARSMG, WeaponIDs::CAR);
 
 		// Energy
-		InsertIfEnabled(Features::Ragebot::Havoc, WeaponIDs::WEAPON_HAVOC);
-		InsertIfEnabled(Features::Ragebot::Devotion, WeaponIDs::WEAPON_DEVOTION);
-		InsertIfEnabled(Features::Ragebot::LSTAR, WeaponIDs::WEAPON_LSTAR);
-		InsertIfEnabled(Features::Ragebot::TripleTake, WeaponIDs::WEAPON_TRIPLETAKE);
-		InsertIfEnabled(Features::Ragebot::Volt, WeaponIDs::WEAPON_VOLT);
-		InsertIfEnabled(Features::Ragebot::Nemesis, WeaponIDs::WEAPON_NEMESIS);
+		InsertIfEnabled(Features::Ragebot::Havoc, WeaponIDs::HAVOC);
+		InsertIfEnabled(Features::Ragebot::Devotion, WeaponIDs::DEVOTION);
+		InsertIfEnabled(Features::Ragebot::LSTAR, WeaponIDs::LSTAR);
+		InsertIfEnabled(Features::Ragebot::TripleTake, WeaponIDs::TRIPLETAKE);
+		InsertIfEnabled(Features::Ragebot::Volt, WeaponIDs::VOLT);
+		InsertIfEnabled(Features::Ragebot::Nemesis, WeaponIDs::NEMESIS);
 
 		// Shotguns
-		InsertIfEnabled(Features::Ragebot::Mozambique, WeaponIDs::WEAPON_MOZAMBIQUE);
-		InsertIfEnabled(Features::Ragebot::Peacekeeper, WeaponIDs::WEAPON_PEACEKEEPER);
-		InsertIfEnabled(Features::Ragebot::Mastiff, WeaponIDs::WEAPON_MASTIFF);
+		InsertIfEnabled(Features::Ragebot::Mozambique, WeaponIDs::MOZAMBIQUE);
+		InsertIfEnabled(Features::Ragebot::Peacekeeper, WeaponIDs::PEACEKEEPER);
+		InsertIfEnabled(Features::Ragebot::Mastiff, WeaponIDs::MASTIFF);
 
 		// Snipers
-		InsertIfEnabled(Features::Ragebot::Longbow, WeaponIDs::WEAPON_LONGBOW);
-		InsertIfEnabled(Features::Ragebot::ChargeRifle, WeaponIDs::WEAPON_CHARGE_RIFLE);
-		InsertIfEnabled(Features::Ragebot::Sentinel, WeaponIDs::WEAPON_SENTINEL);
+		InsertIfEnabled(Features::Ragebot::Longbow, WeaponIDs::LONGBOW);
+		InsertIfEnabled(Features::Ragebot::ChargeRifle, WeaponIDs::CHARGE_RIFLE);
+		InsertIfEnabled(Features::Ragebot::Sentinel, WeaponIDs::SENTINEL);
 
 		// Legendary
-		InsertIfEnabled(Features::Ragebot::Wingman, WeaponIDs::WEAPON_WINGMAN);
-		InsertIfEnabled(Features::Ragebot::EVA8, WeaponIDs::WEAPON_EVA8);
-		InsertIfEnabled(Features::Ragebot::Bocek, WeaponIDs::WEAPON_BOCEK);
-		InsertIfEnabled(Features::Ragebot::Kraber, WeaponIDs::WEAPON_KRABER);
-		InsertIfEnabled(Features::Ragebot::Knife, WeaponIDs::WEAPON_KNIFE);
+		InsertIfEnabled(Features::Ragebot::Wingman, WeaponIDs::WINGMAN);
+		InsertIfEnabled(Features::Ragebot::EVA8, WeaponIDs::EVA8);
+		InsertIfEnabled(Features::Ragebot::Bocek, WeaponIDs::BOCEK);
+		InsertIfEnabled(Features::Ragebot::Kraber, WeaponIDs::KRABER);
+		InsertIfEnabled(Features::Ragebot::Knife, WeaponIDs::KNIFE);
 	}
 
 	void Update() {

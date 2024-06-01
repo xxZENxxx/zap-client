@@ -9,15 +9,14 @@ enum class HitboxType {
     Hip = 5,
     Leftshoulder = 6,
     Leftelbow = 7,
-    LeftHand = 8,
+    Lefthand = 8,
     Rightshoulder = 9,
     RightelbowBone = 10,
-    RightHand = 11,
+    Righthand = 11,
     LeftThighs = 12,
     Leftknees = 13,
     Leftleg = 14,
     RightThighs = 16,
     Rightknees = 17,
     Rightleg = 18,
-    
 };

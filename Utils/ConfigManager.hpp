@@ -1,11 +1,21 @@
 #pragma once
-#include <iostream>
+#include <fstream>
 #include <string>
 #include <unistd.h>
 #include <atomic>
 #include <vector>
 #include <chrono>
 #include <thread>
+#include <sstream>
+#include <sys/uio.h>
+#include <math.h>
+#include <cmath>
+#include <cstring>
+#include <unordered_map>
+#include <random>
+#include <sys/stat.h>
+#include <algorithm>
+#include <cctype>
 #include <GLFW/glfw3.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -75,6 +85,34 @@ struct ConfigManager
 		this->MiscTab = MiscTab;
 	}
 
+	void SetDefaultConfig() {
+		std::ofstream Default;
+		Default.open("settings.txt");
+		Default << configName;
+		Default.close();
+		std::cout << "Set " << configName << " As The Default Config!" << std::endl;
+	}
+
+	std::string ReadDefaultConfig() {
+		std::ifstream Default;
+		Default.open("settings.txt");
+		std::string DefaultConfigName;
+		getline(Default, DefaultConfigName);
+		Default.close();
+		return DefaultConfigName;
+	}
+
+	void LoadDefaultConfig() {
+		std::ifstream Default;
+		Default.open("settings.txt");
+		std::string DefaultConfigName;
+		getline(Default, DefaultConfigName);
+		Default.close();
+
+		strcpy(configName, DefaultConfigName.c_str());
+		LoadConfig();
+	}
+
 	void RenderConfigs() {
 		ImGui::InputText("Config", configName, 64);
 
@@ -109,6 +147,13 @@ struct ConfigManager
 			ImGui::EndListBox();
 		}
 
+		if (ImGui::Button("Set Default Config")) {
+			SetDefaultConfig();
+		}
+		ImGui::SameLine();
+		std::string Current = "Current Default Config: " + ReadDefaultConfig();
+		ImGui::Text(Current.c_str());
+
 		ImGui::Spacing();
 		ImGui::Text("Note: The Pre-made Configs Are Examples Of Legit Configs, They Have NOT Been Fully Tested!");
 		ImGui::Text("They Should Be Used As A Starting Point For Creating Your Own Legit Config! Fine-Tune Them To Your Liking!");
@@ -136,6 +181,9 @@ struct ConfigManager
 			WritePair(Aimbot, InputMethod); // MoveMouse or Controller (Write To ViewAngles)
 
 			WritePair(Aimbot, ClosestHitbox);
+
+			WritePair(Aimbot, SpectatorCheck);
+			WritePair(Aimbot, SpectatorNotifier);
 
 			WritePair(Aimbot, OnFire);
 			WritePair(Aimbot, OnADS);
@@ -1643,6 +1691,7 @@ struct ConfigManager
 			WritePair(SenseEnemy, BoxThickness);
 			WritePair(SenseEnemy, DrawSkeleton);
 			WritePair(SenseEnemy, SkeletonOutline);
+			WritePair(SenseEnemy, SkeletonDetail);
 			WritePair(SenseEnemy, SkeletonThickness);
 			WritePair(SenseEnemy, DrawHeadCircle);
 			WritePair(SenseEnemy, HeadCircleOutline);
@@ -1680,6 +1729,7 @@ struct ConfigManager
 			WritePair(SenseTeammate, BoxStyle);
 			WritePair(SenseTeammate, BoxThickness);
 			WritePair(SenseTeammate, DrawSkeleton);
+			WritePair(SenseTeammate, SkeletonDetail);
 			WritePair(SenseTeammate, SkeletonThickness);
 			WritePair(SenseTeammate, DrawHeadCircle);
 			WritePair(SenseTeammate, HeadCircleThickness);
@@ -1725,9 +1775,18 @@ struct ConfigManager
 			WritePair(Radar, MiniMapRange);
 			WritePair(Radar, MiniMapScaleX);
 			WritePair(Radar, MiniMapScaleY);
-			WritePair(Radar, MiniMapDotSize);
-			WritePair(Radar, MiniMapBlackBGSize);
 			WritePair(Radar, MiniMapGuides);
+			WritePair(Radar, IdentifierSize);
+			WritePair(Radar, MiniMapBlackBGSize);
+			WritePair(Radar, EnemyIdentifier);
+			WritePair(Radar, EnemyViewAngles);
+			WritePair(Radar, EnemyViewAnglesLength);
+			WritePair(Radar, RadarRounding);
+			WritePair(Radar, BackgroundColorR);
+			WritePair(Radar, BackgroundColorG);
+			WritePair(Radar, BackgroundColorB);
+			WritePair(Radar, BackgroundColorA);
+			
 			WritePair(Radar, BigMap);
 			WritePair(Radar, BigMapBind);
 			WritePair(Radar, CircleColorR);
@@ -1746,6 +1805,10 @@ struct ConfigManager
 			WritePair(Misc, QuickTurn);
 			WritePair(Misc, QuickTurnAngle);
 			WritePair(Misc, QuickTurnBind);
+
+			WritePair(Misc, WallJump);
+			WritePair(Misc, WallJumpBind);
+			WritePair(Misc, AutoTapStrafe);
 
 			WritePair(Misc, BHop);
 			WritePair(Misc, BHopDelay);
@@ -2220,12 +2283,18 @@ struct ConfigManager
 
 			WriteSection(Settings);
 
+			WritePair(Settings, MenuBind);
 			WritePair(Settings, ESPEnabled);
 			WritePair(Settings, DeadCheck);
 			WritePair(Settings, OverlayEnabled);
 			WritePair(Settings, AntiAliasedLines);
 			WritePair(Settings, FPSCap);
 			WritePair(Settings, CappedFPS);
+			WritePair(Settings, ShowKeybinds);
+			WritePair(Settings, KeybindColorR);
+			WritePair(Settings, KeybindColorG);
+			WritePair(Settings, KeybindColorB);
+			WritePair(Settings, KeybindColorA);
 
 			WriteSectionEnd();
 
@@ -2257,12 +2326,18 @@ struct ConfigManager
 
 	bool SaveOtherSettings() {
 		try {
+			Config::Settings::MenuBind = static_cast<int>(Features::Settings::MenuBind);
 			Config::Settings::ESPEnabled = Features::Settings::ESPEnabled;
 			Config::Settings::DeadCheck = Features::Settings::DeadCheck;
 			Config::Settings::OverlayEnabled = Features::Settings::OverlayEnabled;
 			Config::Settings::AntiAliasedLines = Features::Settings::AntiAliasedLines;
 			Config::Settings::FPSCap = Features::Settings::FPSCap;
 			Config::Settings::CappedFPS = Features::Settings::CappedFPS;
+			Config::Settings::ShowKeybinds = Features::Settings::ShowKeybinds;
+			Config::Settings::KeybindColorR = Features::Settings::KeybindColor[0];
+			Config::Settings::KeybindColorG = Features::Settings::KeybindColor[1];
+			Config::Settings::KeybindColorB = Features::Settings::KeybindColor[2];
+			Config::Settings::KeybindColorA = Features::Settings::KeybindColor[3];
 
 			Config::Watermark::Watermark = Features::Watermark::Watermark;
 			Config::Watermark::WatermarkPosition = Features::Watermark::WatermarkPosition;
@@ -2298,6 +2373,8 @@ struct ConfigManager
 		Features::Aimbot::OnADS = Config::Aimbot::OnADS;
 		Features::Aimbot::VisCheck = Config::Aimbot::VisCheck;
 		Features::Aimbot::TeamCheck = Config::Aimbot::TeamCheck;
+		Features::Aimbot::SpectatorCheck = Config::Aimbot::SpectatorCheck;
+		Features::Aimbot::SpectatorNotifier = Config::Aimbot::SpectatorNotifier;
 		Features::Aimbot::TargetSwitching = Config::Aimbot::TargetSwitching;
 		Features::Aimbot::Priority = Config::Aimbot::Priority;
 		Features::Aimbot::PredictMovement = Config::Aimbot::PredictMovement;
@@ -3703,6 +3780,7 @@ struct ConfigManager
 		Features::Sense::Enemy::BoxStyle = Config::SenseEnemy::BoxStyle;
 		Features::Sense::Enemy::BoxThickness = Config::SenseEnemy::BoxThickness;
 		Features::Sense::Enemy::DrawSkeleton = Config::SenseEnemy::DrawSkeleton;
+		Features::Sense::Enemy::SkeletonDetail = Config::SenseEnemy::SkeletonDetail;
 		Features::Sense::Enemy::SkeletonOutline = Config::SenseEnemy::SkeletonOutline;
 		Features::Sense::Enemy::SkeletonThickness = Config::SenseEnemy::SkeletonThickness;
 		Features::Sense::Enemy::DrawHeadCircle = Config::SenseEnemy::DrawHeadCircle;
@@ -3739,6 +3817,7 @@ struct ConfigManager
 		Features::Sense::Teammate::BoxThickness = Config::SenseTeammate::BoxThickness;
 		Features::Sense::Teammate::DrawSkeleton = Config::SenseTeammate::DrawSkeleton;
 		Features::Sense::Teammate::SkeletonOutline = Config::SenseTeammate::SkeletonOutline;
+		Features::Sense::Teammate::SkeletonDetail = Config::SenseTeammate::SkeletonDetail;
 		Features::Sense::Teammate::SkeletonThickness = Config::SenseTeammate::SkeletonThickness;
 		Features::Sense::Teammate::DrawHeadCircle = Config::SenseTeammate::DrawHeadCircle;
 		Features::Sense::Teammate::HeadCircleOutline = Config::SenseTeammate::HeadCircleOutline;
@@ -3776,9 +3855,18 @@ struct ConfigManager
 		Features::Radar::MiniMapRange = Config::Radar::MiniMapRange;
 		Features::Radar::MiniMapScaleX = Config::Radar::MiniMapScaleX;
 		Features::Radar::MiniMapScaleY = Config::Radar::MiniMapScaleY;
-		Features::Radar::MiniMapDotSize = Config::Radar::MiniMapDotSize;
-		Features::Radar::MiniMapBlackBGSize = Config::Radar::MiniMapBlackBGSize;
 		Features::Radar::MiniMapGuides = Config::Radar::MiniMapGuides;
+		Features::Radar::IdentifierSize = Config::Radar::IdentifierSize;
+		Features::Radar::MiniMapBlackBGSize = Config::Radar::MiniMapBlackBGSize;
+		Features::Radar::EnemyIdentifier = Config::Radar::EnemyIdentifier;
+		Features::Radar::EnemyViewAngles = Config::Radar::EnemyViewAngles;
+		Features::Radar::EnemyViewAnglesLength = Config::Radar::EnemyViewAnglesLength;
+		Features::Radar::RadarRounding = Config::Radar::RadarRounding;
+		Features::Radar::BackgroundColor[0] = Config::Radar::BackgroundColorR;
+		Features::Radar::BackgroundColor[1] = Config::Radar::BackgroundColorG;
+		Features::Radar::BackgroundColor[2] = Config::Radar::BackgroundColorB;
+		Features::Radar::BackgroundColor[3] = Config::Radar::BackgroundColorA;
+
 		Features::Radar::BigMap = Config::Radar::BigMap;
 		Features::Radar::BigMapBind = static_cast<InputKeyType>(Config::Radar::BigMapBind);
 		Features::Radar::CircleColor[0] = Config::Radar::CircleColorR;
@@ -3795,6 +3883,9 @@ struct ConfigManager
 		Features::Misc::BHop = Config::Misc::BHop;
 		Features::Misc::BHopDelay = Config::Misc::BHopDelay;
 		Features::Misc::BHopBind = static_cast<InputKeyType>(Config::Misc::BHopBind);
+		Features::Misc::WallJump = Config::Misc::WallJump;
+		Features::Misc::WallJumpBind = static_cast<InputKeyType>(Config::Misc::WallJumpBind);
+		Features::Misc::AutoTapStrafe = Config::Misc::AutoTapStrafe;
 		Features::Misc::RapidFire = Config::Misc::RapidFire;
 		Features::Misc::RapidFireDelay = Config::Misc::RapidFireDelay;
 		Features::Misc::RapidFireBind = static_cast<InputKeyType>(Config::Misc::RapidFireBind);
@@ -4217,12 +4308,18 @@ struct ConfigManager
 		Features::Watermark::GameFPS = Config::Watermark::GameFPS;
 		Features::Watermark::Spectators = Config::Watermark::Spectators;
 
+		Features::Settings::MenuBind = static_cast<InputKeyType>(Config::Settings::MenuBind);
 		Features::Settings::ESPEnabled = Config::Settings::ESPEnabled;
 		Features::Settings::DeadCheck = Config::Settings::DeadCheck;
 		Features::Settings::OverlayEnabled = Config::Settings::OverlayEnabled;
 		Features::Settings::AntiAliasedLines = Config::Settings::AntiAliasedLines;
 		Features::Settings::FPSCap = Config::Settings::FPSCap;
 		Features::Settings::CappedFPS = Config::Settings::CappedFPS;
+		Features::Settings::ShowKeybinds = Config::Settings::ShowKeybinds;
+		Features::Settings::KeybindColor[0] = Config::Settings::KeybindColorR;
+		Features::Settings::KeybindColor[1] = Config::Settings::KeybindColorG;
+		Features::Settings::KeybindColor[2] = Config::Settings::KeybindColorB;
+		Features::Settings::KeybindColor[3] = Config::Settings::KeybindColorA;
 	}
 
 	bool ReadConfig() {
@@ -4239,6 +4336,9 @@ struct ConfigManager
 		ReadInt(Aimbot, InputMethod); // MoveMouse or Controller (Write To ViewAngles)
 
 		ReadBool(Aimbot, ClosestHitbox);
+
+		ReadBool(Aimbot, SpectatorCheck);
+		ReadBool(Aimbot, SpectatorNotifier);
 
 		ReadBool(Aimbot, OnFire);
 		ReadBool(Aimbot, OnADS);
@@ -5708,6 +5808,7 @@ struct ConfigManager
 		ReadFloat(SenseEnemy, BoxThickness);
 		ReadBool(SenseEnemy, DrawSkeleton);
 		ReadBool(SenseEnemy, SkeletonOutline);
+		ReadInt(SenseEnemy, SkeletonDetail);
 		ReadFloat(SenseEnemy, SkeletonThickness);
 		ReadBool(SenseEnemy, DrawHeadCircle);
 		ReadBool(SenseEnemy, HeadCircleOutline);
@@ -5743,6 +5844,7 @@ struct ConfigManager
 		ReadFloat(SenseTeammate, BoxThickness);
 		ReadBool(SenseTeammate, DrawSkeleton);
 		ReadBool(SenseTeammate, SkeletonOutline);
+		ReadInt(SenseTeammate, SkeletonDetail);
 		ReadFloat(SenseTeammate, SkeletonThickness);
 		ReadBool(SenseTeammate, DrawHeadCircle);
 		ReadBool(SenseTeammate, HeadCircleOutline);
@@ -5781,9 +5883,18 @@ struct ConfigManager
 		ReadFloat(Radar, MiniMapRange);
 		ReadInt(Radar, MiniMapScaleX);
 		ReadInt(Radar, MiniMapScaleY);
-		ReadInt(Radar, MiniMapDotSize);
-		ReadInt(Radar, MiniMapBlackBGSize);
 		ReadBool(Radar, MiniMapGuides);
+		ReadInt(Radar, IdentifierSize);
+		ReadInt(Radar, MiniMapBlackBGSize);
+		ReadInt(Radar, EnemyIdentifier);
+		ReadBool(Radar, EnemyViewAngles);
+		ReadFloat(Radar, EnemyViewAnglesLength);
+		ReadFloat(Radar, RadarRounding);
+		ReadFloat(Radar, BackgroundColorR);
+		ReadFloat(Radar, BackgroundColorG);
+		ReadFloat(Radar, BackgroundColorB);
+		ReadFloat(Radar, BackgroundColorA);
+
 		ReadBool(Radar, BigMap);
 		ReadInt(Radar, BigMapBind);
 		ReadFloat(Radar, CircleColorR);
@@ -5800,6 +5911,9 @@ struct ConfigManager
 		ReadBool(Misc, BHop);
 		ReadInt(Misc, BHopDelay);
 		ReadInt(Misc, BHopBind);
+		ReadBool(Misc, WallJump);
+		ReadInt(Misc, WallJumpBind);
+		ReadBool(Misc, AutoTapStrafe);
 		ReadBool(Misc, RapidFire);
 		ReadInt(Misc, RapidFireDelay);
 		ReadInt(Misc, RapidFireBind);
@@ -6238,12 +6352,18 @@ struct ConfigManager
 		ReadBool(Watermark, GameFPS);
 		ReadBool(Watermark, Spectators);
 
+		ReadInt(Settings, MenuBind);
 		ReadBool(Settings, ESPEnabled);
 		ReadBool(Settings, DeadCheck);
 		ReadBool(Settings, OverlayEnabled);
 		ReadBool(Settings, AntiAliasedLines);
 		ReadBool(Settings, FPSCap);
 		ReadInt(Settings, CappedFPS);
+		ReadBool(Settings, ShowKeybinds);
+		ReadFloat(Settings, KeybindColorR);
+		ReadFloat(Settings, KeybindColorG);
+		ReadFloat(Settings, KeybindColorB);
+		ReadFloat(Settings, KeybindColorA);
 
 		UpdateConfig();
 		return true;

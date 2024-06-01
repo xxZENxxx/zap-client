@@ -85,9 +85,18 @@ struct Radar
 			Config::Radar::MiniMapRange = Features::Radar::MiniMapRange;
 			Config::Radar::MiniMapScaleX = Features::Radar::MiniMapScaleX;
 			Config::Radar::MiniMapScaleY = Features::Radar::MiniMapScaleY;
-			Config::Radar::MiniMapDotSize = Features::Radar::MiniMapDotSize;
-			Config::Radar::MiniMapBlackBGSize = Features::Radar::MiniMapBlackBGSize;
 			Config::Radar::MiniMapGuides = Features::Radar::MiniMapGuides;
+			Config::Radar::IdentifierSize = Features::Radar::IdentifierSize;
+			Config::Radar::MiniMapBlackBGSize = Features::Radar::MiniMapBlackBGSize;
+			Config::Radar::EnemyIdentifier = Features::Radar::EnemyIdentifier;
+			Config::Radar::EnemyViewAngles = Features::Radar::EnemyViewAngles;
+			Config::Radar::EnemyViewAnglesLength = Features::Radar::EnemyViewAnglesLength;
+			Config::Radar::RadarRounding = Features::Radar::RadarRounding;
+			Config::Radar::BackgroundColorR = Features::Radar::BackgroundColor[0];
+			Config::Radar::BackgroundColorG = Features::Radar::BackgroundColor[0];
+			Config::Radar::BackgroundColorB = Features::Radar::BackgroundColor[0];
+			Config::Radar::BackgroundColorA = Features::Radar::BackgroundColor[0];
+
 			Config::Radar::BigMap = Features::Radar::BigMap;
 			Config::Radar::BigMapBind = static_cast<int>(Features::Radar::BigMapBind);
 			Config::Radar::CircleColorR = Features::Radar::CircleColor[0];
@@ -129,7 +138,6 @@ struct Radar
 
 	// DRAW RADAR POINT mini Map
 	void DrawRadarPointMiniMap(Vector3D EnemyPos, Vector3D LocalPos, float targetY, float enemyDist, int TeamID, int xAxis, int yAxis, int width, int height, ImColor color, float targetyaw) {
-		bool out = false;
 		Vector3D siz;
 		siz.x = width;
 		siz.y = height;
@@ -141,18 +149,23 @@ struct Radar
 		Vector3D single = Renderer::RotatePoint(EnemyPos, LocalPos, pos.x, pos.y, siz.x, siz.y, targetY, 0.3f, &ck);
 		if (enemyDist >= 0.f && enemyDist < Features::Radar::MiniMapRange) {
 			for (int i = 1; i <= 30; i++) {
-				Renderer::TeamMiniMap(single.x, single.y, Features::Radar::MiniMapDotSize, TeamID, targetyaw, Features::Radar::MiniMapDotSize, Features::Radar::MiniMapBlackBGSize, ImColor(Features::Radar::CircleColor[0], Features::Radar::CircleColor[1], Features::Radar::CircleColor[2], Features::Radar::CircleColor[3]));
+				if (Features::Radar::EnemyIdentifier == 0)
+					Renderer::TeamMiniMap_Arrow(single.x, single.y, Features::Radar::IdentifierSize, TeamID, targetyaw);
+				if (Features::Radar::EnemyIdentifier == 1)
+					Renderer::TeamMiniMap_Circle(single.x, single.y, Features::Radar::IdentifierSize, TeamID, targetyaw, Features::Radar::IdentifierSize, Features::Radar::MiniMapBlackBGSize);
+				if (Features::Radar::EnemyViewAngles)
+					Renderer::TeamMiniMap_ViewAngles(single.x, single.y, Features::Radar::IdentifierSize, targetyaw, Features::Radar::EnemyViewAnglesLength, ImColor(Features::Radar::EnemyViewAnglesColor[0], Features::Radar::EnemyViewAnglesColor[1], Features::Radar::EnemyViewAnglesColor[2], Features::Radar::EnemyViewAnglesColor[3]));
 			}
 		}
 	}
 
 	// MINI MAP RADAR IMPLEMENTATION
 	void MiniMapRadar(Vector3D EnemyPos, Vector3D LocalPos, float targetY, float eneamyDist, int TeamId, float targetyaw) {
-		/*ImGuiStyle* style = &ImGui::GetStyle();
-		style->WindowRounding = 0.2f;
-		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.13529413f, 0.14705884f, 0.15490198f, 0.82f));*/
+		ImGuiStyle* style = &ImGui::GetStyle();
+		style->WindowRounding = Features::Radar::RadarRounding;
+		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(Features::Radar::BackgroundColor[0], Features::Radar::BackgroundColor[1], Features::Radar::BackgroundColor[2], Features::Radar::BackgroundColor[3]));
 		ImGuiWindowFlags TargetFlags;
-		TargetFlags = ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar;
+		TargetFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
 		if (Features::Radar::MiniMap) {
 			// 1920*1080: 215 x 215
 			// 2560*1440: 335 x 335
@@ -181,5 +194,6 @@ struct Radar
 			}
 			ImGui::End();
 		}
+		ImGui::PopStyleColor();
 	}
 };

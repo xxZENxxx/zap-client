@@ -132,46 +132,46 @@ struct Flickbot
 			Features::Flickbot::FlickList.insert(weaponID);
 		};
 		// Light
-		InsertIfEnabled(Features::Flickbot::P2020, WeaponIDs::WEAPON_P2020);
-		InsertIfEnabled(Features::Flickbot::RE45, WeaponIDs::WEAPON_RE45);
-		InsertIfEnabled(Features::Flickbot::Alternator, WeaponIDs::WEAPON_ALTERNATOR);
-		InsertIfEnabled(Features::Flickbot::R99, WeaponIDs::WEAPON_R99);
-		InsertIfEnabled(Features::Flickbot::R301, WeaponIDs::WEAPON_R301);
-		InsertIfEnabled(Features::Flickbot::Spitfire, WeaponIDs::WEAPON_SPITFIRE);
-		InsertIfEnabled(Features::Flickbot::G7, WeaponIDs::WEAPON_G7);
+		InsertIfEnabled(Features::Flickbot::P2020, WeaponIDs::P2020);
+		InsertIfEnabled(Features::Flickbot::RE45, WeaponIDs::RE45);
+		InsertIfEnabled(Features::Flickbot::Alternator, WeaponIDs::ALTERNATOR);
+		InsertIfEnabled(Features::Flickbot::R99, WeaponIDs::R99);
+		InsertIfEnabled(Features::Flickbot::R301, WeaponIDs::R301);
+		InsertIfEnabled(Features::Flickbot::Spitfire, WeaponIDs::SPITFIRE);
+		InsertIfEnabled(Features::Flickbot::G7, WeaponIDs::G7);
 
 		// Heavy
-		InsertIfEnabled(Features::Flickbot::Flatline, WeaponIDs::WEAPON_FLATLINE);
-		InsertIfEnabled(Features::Flickbot::Prowler, WeaponIDs::WEAPON_PROWLER);
-		InsertIfEnabled(Features::Flickbot::Hemlock, WeaponIDs::WEAPON_HEMLOCK);
-		InsertIfEnabled(Features::Flickbot::Repeater, WeaponIDs::WEAPON_REPEATER);
-		InsertIfEnabled(Features::Flickbot::Rampage, WeaponIDs::WEAPON_RAMPAGE);
-		InsertIfEnabled(Features::Flickbot::CARSMG, WeaponIDs::WEAPON_CAR);
+		InsertIfEnabled(Features::Flickbot::Flatline, WeaponIDs::FLATLINE);
+		InsertIfEnabled(Features::Flickbot::Prowler, WeaponIDs::PROWLER);
+		InsertIfEnabled(Features::Flickbot::Hemlock, WeaponIDs::HEMLOCK);
+		InsertIfEnabled(Features::Flickbot::Repeater, WeaponIDs::REPEATER);
+		InsertIfEnabled(Features::Flickbot::Rampage, WeaponIDs::RAMPAGE);
+		InsertIfEnabled(Features::Flickbot::CARSMG, WeaponIDs::CAR);
 
 		// Energy
-		InsertIfEnabled(Features::Flickbot::Havoc, WeaponIDs::WEAPON_HAVOC);
-		InsertIfEnabled(Features::Flickbot::Devotion, WeaponIDs::WEAPON_DEVOTION);
-		InsertIfEnabled(Features::Flickbot::LSTAR, WeaponIDs::WEAPON_LSTAR);
-		InsertIfEnabled(Features::Flickbot::TripleTake, WeaponIDs::WEAPON_TRIPLETAKE);
-		InsertIfEnabled(Features::Flickbot::Volt, WeaponIDs::WEAPON_VOLT);
-		InsertIfEnabled(Features::Flickbot::Nemesis, WeaponIDs::WEAPON_NEMESIS);
+		InsertIfEnabled(Features::Flickbot::Havoc, WeaponIDs::HAVOC);
+		InsertIfEnabled(Features::Flickbot::Devotion, WeaponIDs::DEVOTION);
+		InsertIfEnabled(Features::Flickbot::LSTAR, WeaponIDs::LSTAR);
+		InsertIfEnabled(Features::Flickbot::TripleTake, WeaponIDs::TRIPLETAKE);
+		InsertIfEnabled(Features::Flickbot::Volt, WeaponIDs::VOLT);
+		InsertIfEnabled(Features::Flickbot::Nemesis, WeaponIDs::NEMESIS);
 
 		// Shotguns
-		InsertIfEnabled(Features::Flickbot::Mozambique, WeaponIDs::WEAPON_MOZAMBIQUE);
-		InsertIfEnabled(Features::Flickbot::Peacekeeper, WeaponIDs::WEAPON_PEACEKEEPER);
-		InsertIfEnabled(Features::Flickbot::Mastiff, WeaponIDs::WEAPON_MASTIFF);
+		InsertIfEnabled(Features::Flickbot::Mozambique, WeaponIDs::MOZAMBIQUE);
+		InsertIfEnabled(Features::Flickbot::Peacekeeper, WeaponIDs::PEACEKEEPER);
+		InsertIfEnabled(Features::Flickbot::Mastiff, WeaponIDs::MASTIFF);
 
 		// Snipers
-		InsertIfEnabled(Features::Flickbot::Longbow, WeaponIDs::WEAPON_LONGBOW);
-		InsertIfEnabled(Features::Flickbot::ChargeRifle, WeaponIDs::WEAPON_CHARGE_RIFLE);
-		InsertIfEnabled(Features::Flickbot::Sentinel, WeaponIDs::WEAPON_SENTINEL);
+		InsertIfEnabled(Features::Flickbot::Longbow, WeaponIDs::LONGBOW);
+		InsertIfEnabled(Features::Flickbot::ChargeRifle, WeaponIDs::CHARGE_RIFLE);
+		InsertIfEnabled(Features::Flickbot::Sentinel, WeaponIDs::SENTINEL);
 
 		// Legendary
-		InsertIfEnabled(Features::Flickbot::Wingman, WeaponIDs::WEAPON_WINGMAN);
-		InsertIfEnabled(Features::Flickbot::EVA8, WeaponIDs::WEAPON_EVA8);
-		InsertIfEnabled(Features::Flickbot::Bocek, WeaponIDs::WEAPON_BOCEK);
-		InsertIfEnabled(Features::Flickbot::Kraber, WeaponIDs::WEAPON_KRABER);
-		InsertIfEnabled(Features::Flickbot::Knife, WeaponIDs::WEAPON_KNIFE);
+		InsertIfEnabled(Features::Flickbot::Wingman, WeaponIDs::WINGMAN);
+		InsertIfEnabled(Features::Flickbot::EVA8, WeaponIDs::EVA8);
+		InsertIfEnabled(Features::Flickbot::Bocek, WeaponIDs::BOCEK);
+		InsertIfEnabled(Features::Flickbot::Kraber, WeaponIDs::KRABER);
+		InsertIfEnabled(Features::Flickbot::Knife, WeaponIDs::KNIFE);
 	}
 
 	void Update() {

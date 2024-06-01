@@ -281,6 +281,16 @@ struct Menu
 								ImGui::SetTooltip("Aims At Only Visible Enemies.");
 						}
 
+						ImGui::Checkbox("Spectator Check", &Features::Aimbot::SpectatorCheck);
+						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+							ImGui::SetTooltip("Disables Aimbot When Being Spectated.");
+						if (Features::Aimbot::SpectatorCheck) {
+							ImGui::SameLine();
+							ImGui::Checkbox("Spectator Notifier", &Features::Aimbot::SpectatorNotifier);
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+								ImGui::SetTooltip("Notifies You When You Are Being Spectated & That Aimbot Is Disabled.");
+						}
+
 						ImGui::Text("Targeting Options");
 						ImGui::Checkbox("Allow Target Switching", &Features::Aimbot::TargetSwitching);
 						const char* PriorityIndex[] = { "Closest To Crosshair", "Closest To LocalPlayer", "Both" };
@@ -452,6 +462,15 @@ struct Menu
 						ImGui::Checkbox("Team Check##Aimbot", &Features::Aimbot::TeamCheck);
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Disable this if doing 1v1s in the firing range.\nMay not work with Grinder Aim Method.");
+						ImGui::Checkbox("Spectator Check", &Features::Aimbot::SpectatorCheck);
+						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+							ImGui::SetTooltip("Disables Aimbot When Being Spectated.");
+						if (Features::Aimbot::SpectatorCheck) {
+							ImGui::SameLine();
+							ImGui::Checkbox("Spectator Notifier", &Features::Aimbot::SpectatorNotifier);
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+								ImGui::SetTooltip("Notifies You When You Are Being Spectated & That Aimbot Is Disabled.");
+						}
 					}
 					ImGui::EndChildFrame();
 				}
@@ -1637,21 +1656,11 @@ struct Menu
 				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 					ImGui::SetTooltip("Items Will Glow Through Walls.\nIncludes Deathboxes.");
 				if (Features::Glow::Item::ItemGlow) {
-					/*const char* ItemGlowBodyStyleIndex[] = { "Clear", "Light", "Solid", "Light To Dark Fade" };
+					const char* ItemGlowBodyStyleIndex[] = { "Clear", "Light", "Solid", "Light To Dark Fade" };
 					ImGui::ComboBox("Inside Style", &Features::Glow::Item::SelectedInsideStyle, ItemGlowBodyStyleIndex, IM_ARRAYSIZE(ItemGlowBodyStyleIndex));
 					const char* ItemGlowOutlineIndex[] = { "None", "Light 1", "Light 2", "Solid", "Gold", "Orange", "Pulsing", "Light Red (Visible Only)", "Red", "Fading (Visible Only)", "Soft", "Visible Only" };
 					ImGui::ComboBox("Outline Style", &Features::Glow::Item::SelectedOutlineStyle, ItemGlowOutlineIndex, IM_ARRAYSIZE(ItemGlowOutlineIndex));
 					ImGui::MainSliderInt("Glow Thickness", &Features::Glow::Item::ItemGlowThickness, 0, 250);
-					ImGui::Text("Item Glow Toggles");
-
-					ImGui::Checkbox("Common", &Features::Glow::Item::Common);
-					ImGui::Checkbox("Rare", &Features::Glow::Item::Rare);
-					ImGui::Checkbox("Epic", &Features::Glow::Item::Epic);
-					ImGui::Checkbox("Gold", &Features::Glow::Item::Gold);
-					ImGui::Checkbox("Legendary", &Features::Glow::Item::Legendary);
-					ImGui::Checkbox("Weapons", &Features::Glow::Item::Weapons);
-					ImGui::Checkbox("Ammo", &Features::Glow::Item::Ammo);
-					ImGui::Checkbox("Deathboxes", &Features::Glow::Item::Deathbox);*/
 				}
 
 				ImGui::EndChildFrame();
@@ -1761,6 +1770,10 @@ struct Menu
 					if (Features::Sense::Enemy::DrawSkeleton) {
 						ImGui::SameLine();
 						ImGui::Checkbox("Skeleton Outline", &Features::Sense::Enemy::SkeletonOutline);
+						const char* SkeletonDetail[] = { "Detailed", "Simple" };
+						ImGui::ComboBox("Skeleton Detail", &Features::Sense::Enemy::SkeletonDetail, SkeletonDetail, IM_ARRAYSIZE(SkeletonDetail));
+						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+							ImGui::SetTooltip("How Detailed The Skeleton Is.");
 						ImGui::MainSliderFloat("Skeleton Thickness", &Features::Sense::Enemy::SkeletonThickness, 1, 10, "%.0f");
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 							ImGui::SetTooltip("Changes the thickness of the bones");
@@ -1784,16 +1797,22 @@ struct Menu
 						const char* BarStyleIndex[] = { "Side", "Top", "Seer" };
 						ImGui::ComboBox("Bar Style", &Features::Sense::Enemy::BarStyle, BarStyleIndex, IM_ARRAYSIZE(BarStyleIndex));
 						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-							ImGui::SetTooltip("Where AND What Style Of Health + Shield Bar Will Be.\nSeer = Seer's Ability.");
+							ImGui::SetTooltip("What Style Of Health + Shield Bar Will Be.\nSeer = Seer's Ability.");
 
 						if (!Features::Sense::Enemy::BarStyle == 2) {
 							Features::Sense::Enemy::DrawSeer = false;
 						}
 
 						if (Features::Sense::Enemy::BarStyle == 0 or Features::Sense::Enemy::BarStyle == 1) {
+							ImGui::Checkbox("Draw Health Bar", &Features::Sense::Enemy::HealthBar);
+							ImGui::SameLine();
+							ImGui::Checkbox("Draw Shield Bar", &Features::Sense::Enemy::ShieldBar);
+						}
+
+						/*if (Features::Sense::Enemy::BarStyle == 0 or Features::Sense::Enemy::BarStyle == 1) {
 							const char* BarModeIndex[] = { "Health Only", "Shield Only", "Health & Shield" };
 							ImGui::ComboBox("Bar Mode", &Features::Sense::Enemy::BarMode, BarModeIndex, IM_ARRAYSIZE(BarModeIndex));
-						}
+						}*/
 
 						if (Features::Sense::Enemy::BarStyle == 2) { // Seer
 							ImGui::Checkbox("Draw Seer", &Features::Sense::Enemy::DrawSeer);
@@ -2428,27 +2447,38 @@ struct Menu
 				ImGui::Text("Mini Map");
 				ImGui::Checkbox("Enabled##MiniMap", &Features::Radar::MiniMap);
 				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-					ImGui::SetTooltip("Toggle the mini map radar on the top left of the screen");
+					ImGui::SetTooltip("Toggle a mini map radar");
 				if (Features::Radar::MiniMap) {
 					ImGui::TextColored(ImVec4(0.99, 0, 0, 0.99), "May not be on-point.");
 					ImGui::Separator();
 					ImGui::Text("Range");
-					ImGui::MainSliderFloat("Mini Map Radar Range", &Features::Radar::MiniMapRange, 0, 180, "%.0f");
+					ImGui::MainSliderFloat("Mini Map Radar Range", &Features::Radar::MiniMapRange, 1, 200, "%.0f");
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 						ImGui::SetTooltip("Mini Map range from 0 to 200.");
 
+					ImGui::Text("Radar Settings");
+					ImGui::TextColored(ImVec4(0.99, 0, 0, 0.99), "Turn on Mini Map Guides and allign with your player's arrow on the in-game minimap.");
+					ImGui::MainSliderInt("Mini Map Width", &Features::Radar::MiniMapScaleX, 0, 2560);
+					ImGui::MainSliderInt("Mini Map Height", &Features::Radar::MiniMapScaleY, 0, 1440);
 					ImGui::Checkbox("Mini Map Guides", &Features::Radar::MiniMapGuides);
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 						ImGui::SetTooltip("Toggle the mini map guides.");
-
-					ImGui::Text("Position");
-					ImGui::TextColored(ImVec4(0.99, 0, 0, 0.99), "Turn on Mini Map Guides and allign with your player's arrow on the in-game minimap.");
-					ImGui::MainSliderInt("Mini Map Position X", &Features::Radar::MiniMapScaleX, 0, 2560);
-					ImGui::MainSliderInt("Mini Map Position Y", &Features::Radar::MiniMapScaleY, 0, 1440);
+					ImGui::MainSliderFloat("Radar Window Rounding", &Features::Radar::RadarRounding, 0, 30, "%0.1f");
 
 					ImGui::Text("Enemy Identifier");
-					ImGui::MainSliderInt("Mini Map Radar Dot Size", &Features::Radar::MiniMapDotSize, 0, 10);
-					ImGui::ColorEdit4("Circle Color##Radar", Features::Radar::CircleColor, ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoInputs);
+					const char* EnemyIdentifierIndex[] = { "Arrowhead", "Circle" };
+					ImGui::ComboBox("Selected Enemy Identifier", &Features::Radar::EnemyIdentifier, EnemyIdentifierIndex, IM_ARRAYSIZE(EnemyIdentifierIndex));
+					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+						ImGui::SetTooltip("What Shape The Enemy Will Be On The Radar");
+					ImGui::MainSliderInt("Enemy Identifier Size", &Features::Radar::IdentifierSize, 0, 10);
+					ImGui::Checkbox("Draw Enemy View Angles", &Features::Radar::EnemyViewAngles);
+					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+						ImGui::SetTooltip("Draw A Line Showing The Direction (View Angle) The Enemy Is Looking");
+					if (Features::Radar::EnemyViewAngles) {
+						ImGui::MainSliderFloat("Enemy View Angles Length", &Features::Radar::EnemyViewAnglesLength, 1, 100, "%0.f");
+						ImGui::ColorEdit4("View Angle Line Color##Radar", Features::Radar::EnemyViewAnglesColor, ColorEditFlags);
+					}
+					ImGui::ColorEdit4("Background Color##Radar", Features::Radar::BackgroundColor, ColorEditFlags);
 				}
 
 				ImGui::Text("ALGS Style Map");
@@ -2574,6 +2604,22 @@ struct Menu
 				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 					ImGui::SetTooltip("Delay Between Inputting Space.");
 			}
+
+			ImGui::Checkbox("Auto Wall Jump", &Features::Misc::WallJump);
+			if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+				ImGui::SetTooltip("Automatically Jump From A Wall Using A Key Bind.");
+			if (Features::Misc::WallJump) {
+				int WallJumpBind = static_cast<int>(Features::Misc::WallJumpBind);
+				ImGui::ComboBox("Wall Jump Bind", &WallJumpBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
+				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+					ImGui::SetTooltip("Bind For Auto Wall Jump.\nYou Must Let Go Of Forward (W) Before Pressing!.");
+				Features::Misc::WallJumpBind = static_cast<InputKeyType>(WallJumpBind);
+			}
+			
+			ImGui::Checkbox("Auto Tap Strafe", &Features::Misc::AutoTapStrafe);
+			if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+				ImGui::SetTooltip("Automatic Tap Strafe.\nUseful In The Air/For Superglides");
+
 			DoubleSpacing();
 
 			ImGui::EndChildFrame();
@@ -2722,11 +2768,13 @@ struct Menu
 			ImGui::BeginChildFrame(1, ImVec2(WindowWidth - 220, WindowHeight - 110), true);
 			{
 				ImGui::Spacing();
-				/*ImGui::Text("Main Settings");
-				ImGui::Checkbox("Gamemode Check", &Features::Settings::GamemodeCheck);
+				ImGui::Text("Menu Settings");
+
+				int MenuBind = static_cast<int>(Features::Settings::MenuBind);
+				ImGui::ComboBox("Menu Bind", &MenuBind, InputKeyTypeNames, IM_ARRAYSIZE(InputKeyTypeNames));
 				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-					ImGui::SetTooltip("Depending On What Gamemode You Are Playing, You Will Need To Toggle This On Or Off.\nOn: Trios, Duos, Ranked, Gun Run Or Firing Range\nOff: Control, Team Deathmatch");*/
-				// No Longer Needed
+					ImGui::SetTooltip("Key Bind For Opening The Menu");
+				Features::Settings::MenuBind = static_cast<InputKeyType>(MenuBind);
 
 				ImGui::Text("Overlay Settings");
 				ImGui::Checkbox("Enable Overlay", &Features::Settings::OverlayEnabled);
@@ -2736,11 +2784,17 @@ struct Menu
 					ImGui::Checkbox("Anti Aliased Lines", &Features::Settings::AntiAliasedLines);
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 						ImGui::SetTooltip("Smoothes Out ESP Features\nDisabled Looks More Pixelated Than Enabled");
+					ImGui::Checkbox("Draw Keybind Notifier", &Features::Settings::ShowKeybinds);
+					if (Features::Settings::ShowKeybinds) {
+						ImGui::ColorEdit4("Keybind Color", Features::Settings::KeybindColor, ColorEditFlags);
+						if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+							ImGui::SetTooltip("The Color Of The Text Indicating When A Key Is Active");
+					}
 				}
 
-				ImGui::Checkbox("Dead Check", &Features::Settings::DeadCheck);
+				/*ImGui::Checkbox("Dead Check", &Features::Settings::DeadCheck);
 				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-						ImGui::SetTooltip("Displays Glow & ESP If You Are Dead/Spectating");
+					ImGui::SetTooltip("Displays Glow & ESP If You Are Dead/Spectating");*/
 
 				ImGui::Checkbox("FPS Cap", &Features::Settings::FPSCap);
 				if (Features::Settings::FPSCap) {
@@ -2752,6 +2806,27 @@ struct Menu
 					exit(0);
 				}*/
 				// Removed this since it doesn't delete the temp binary if the run.sh script is executed
+
+				// Dev
+				Space();
+				ImGui::Text("Dev Options");
+				ImGui::Checkbox("Enable Dev Options", &Features::Dev::Enabled);
+				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+					ImGui::SetTooltip("For Experimenting/Development/Updating");
+				if (Features::Dev::Enabled) {
+					ImGui::Checkbox("Draw Local Player Weapon IDs", &Features::Dev::LocalWeapon);
+					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+						ImGui::SetTooltip("For Updating Weapons.hpp");
+					ImGui::Checkbox("Draw Player Weapon IDs", &Features::Dev::EnemyWeapon);
+					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+						ImGui::SetTooltip("For Updating/Testing Weapons.hpp");
+					ImGui::Checkbox("Draw Player Bone Ids", &Features::Dev::SkeletonIDs);
+					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+						ImGui::SetTooltip("For Finding Bone IDs\nHitboxType.hpp\nNOTE: ID VARIES DEPENDING ON THE MODEL/LEGEND");
+					if (Features::Dev::SkeletonIDs) {
+						ImGui::MainSliderInt("Bone Index Range", &Features::Dev::BoneRange, 0, 250);
+					}
+				}
 
 				ImGui::EndChildFrame();
 			}
