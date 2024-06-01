@@ -9,7 +9,9 @@ Instructions are down below
 
 **Never cheat on a main account, its not worth it**
 
-**This Cheat Is Now Being Sold Online. Don't Be Stupid, Don't Get Scammed.**
+# This Cheat Is Now Being Sold Online. Don't Be Stupid, Don't Get Scammed.
+
+# Information
 
 <details>
 <summary><b>Feature List (Outdated)</b></summary>
