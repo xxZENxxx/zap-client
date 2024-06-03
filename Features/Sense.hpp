@@ -1066,6 +1066,7 @@ struct Sense {
 				else if (SkeletonDetail == 1) { // Simple
 					Vector2D Neck, Stomach, Leftshoulder, Leftelbow, Lefthand, Rightshoulder, RightelbowBone, Righthand, LeftThighs, Leftknees, Leftleg, RightThighs, Rightknees, Rightleg;
 					// Head bone is HeadPositionW2S
+					GameCamera->WorldToScreen(p->GetBonePosition(HitboxType::Neck), Neck);
 					GameCamera->WorldToScreen(p->GetBonePosition(HitboxType::Stomach), Stomach);
 					GameCamera->WorldToScreen(p->GetBonePosition(HitboxType::Leftshoulder), Leftshoulder);
 					GameCamera->WorldToScreen(p->GetBonePosition(HitboxType::Leftelbow), Leftelbow);
