@@ -1,5 +1,5 @@
 # zap-client [Apex External Cheat For Linux]
-**Updated to Game Version v3.0.74.20 (Season 21) (03.07.24)**
+**Updated to Game Version v3.0.75.30 (Season 21) (23.07.24)**
 
 By **Gerosity**
 
@@ -30,6 +30,9 @@ Instructions are down below
 
 <details>
 <summary><b>Changelog</b></summary>
+    
+    23.07.24
+    Updated Offsets To Latest Version (Game Version v3.0.75.30)
 
     25.06.24 - Version 1.1.4
     Updated Offsets To Latest Version (Game Version v3.0.72.12)
