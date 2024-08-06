@@ -1,5 +1,5 @@
 # zap-client [Apex External Cheat For Linux]
-**Updated to Game Version v3.0.76.22 (Season 21) (23.07.24)**
+**Updated to Game Version v3.0.76.22 (Season 22) (06.08.24)**
 
 By **Gerosity**
 
