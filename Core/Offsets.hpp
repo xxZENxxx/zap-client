@@ -1,31 +1,31 @@
 #pragma once
 #include <string>
-// https://www.unknowncheats.me/forum/apex-legends/319804-apex-legends-reversal-structs-offsets.html
+
  
 std::string CheatVersion = "Version 1.1.4";
-std::string GameVersion = "v3.0.80.16"; // [Miscellaneous]->GameVersion
+std::string GameVersion = "v3.0.80.27"; // [Miscellaneous]->GameVersion
  
 // Core
 constexpr long OFF_REGION = 0x140000000; // [Static]->Region
-constexpr long OFF_LEVEL = 0x17f66c4; // [Miscellaneous]->LevelName
-constexpr long OFF_LOCAL_PLAYER = 0x23F52B8; // [Miscellaneous]->LocalPlayer
-constexpr long OFF_ENTITY_LIST = 0x1f22028; // [Miscellaneous]->cl_entitylist
+constexpr long OFF_LEVEL = 0x18356c4; // [Miscellaneous]->LevelName
+constexpr long OFF_LOCAL_PLAYER = 0x24342B8; // [Miscellaneous]->LocalPlayer
+constexpr long OFF_ENTITY_LIST = 0x1F61048; // [Miscellaneous]->cl_entitylist
 constexpr long OFF_NAME_INDEX = 0x38; // NameIndex
-constexpr long OFF_NAME_LIST = 0xd3e54d0; // [Miscellaneous]->NameList
+constexpr long OFF_NAME_LIST = 0xd425fe0; // [Miscellaneous]->NameList
 constexpr long OFF_GAMEMODE = 0x0242d460; // [ConVars]->mp_gamemode
 constexpr long OFF_SQUAD_ID = 0x0344; // [RecvTable.DT_BaseEntity]->m_squadID
-constexpr long OFF_GLOBAL_VARS = 0x17f61c0; // [Miscellaneous]->GlobalVars
+constexpr long OFF_GLOBAL_VARS = 0x18351C0; // [Miscellaneous]->GlobalVars
  
 // HUD
-constexpr long OFF_VIEWRENDER = 0x76a7c38; // [Miscellaneous]->ViewRender
+constexpr long OFF_VIEWRENDER = 0x76E8738; // [Miscellaneous]->ViewRender
 constexpr long OFF_VIEWMATRIX = 0x11a350; // [Miscellaneous]->ViewMatrix
  
 // Buttons
-constexpr long OFF_INATTACK = 0x076a7d20; // [Buttons]->in_attack
-constexpr long OFF_IN_JUMP = 0x076a7e28; // [Buttons]->in_jump
-constexpr long OFF_IN_DUCK = 0x076a7f30; // [Buttons]->in_duck
-constexpr long OFF_IN_FORWARD = 0x076a7c70; // [Buttons]->in_forward
-constexpr long OFF_IN_BACKWARD = 0x076a7c98; // [Buttons]->in_backward
+constexpr long OFF_INATTACK = 0x76e8820; // [Buttons]->in_attack
+constexpr long OFF_IN_JUMP = 0x76e8940; // [Buttons]->in_jump
+constexpr long OFF_IN_DUCK = 0x76e8a30; // [Buttons]->in_duck
+constexpr long OFF_IN_FORWARD = 0x76e8770; // [Buttons]->in_forward
+constexpr long OFF_IN_BACKWARD = 0x76e8798; // [Buttons]->in_backward
 constexpr long OFF_TRAVERSAL_START_TIME = 0x2b70; // [RecvTable.DT_LocalPlayerExclusive]->m_traversalStartTime
 constexpr long OFF_TRAVERSAL_PROGRESS = 0x2b6c; // [RecvTable.DT_LocalPlayerExclusive]->m_traversalProgress
 constexpr long OFF_WALL_RUN_START_TIME = 0x3674; // [RecvTable.DT_LocalPlayerExclusive]->m_wallRunStartTime
@@ -52,7 +52,7 @@ constexpr long OFF_VIEW_ANGLES = 0x2534 - 0x14; // [DataMap.C_Player]->m_ammoPoo
 constexpr long OFF_PUNCH_ANGLES = 0x2438; // [DataMap.C_Player]->m_currentFrameLocalPlayer.m_vecPunchWeapon_Angle
 constexpr long OFF_YAW = 0x223c - 0x8; // [DataMap.C_Player]->m_currentFramePlayer.m_ammoPoolCount - 0x8
 constexpr long OFF_MODELNAME = 0x0030; // [DataMap.C_BaseEntity]->m_ModelName
-constexpr long OFF_OBSERVER_LIST = 0x1f24048;   //observerList: 48 8B 0D ? ? ? ? 48 85 C9 74 ? 48 8B 01 FF ? ? 48 85 C0 74 ? 48 63 4E 38
+constexpr long OFF_OBSERVER_LIST = 0x1F63068;   //observerList: 48 8B 0D ? ? ? ? 48 85 C9 74 ? 48 8B 01 FF ? ? 48 85 C0 74 ? 48 63 4E 38
 constexpr long OFF_OBSERVER_LIST_IN_ARRAY = 0x974; // 0x964 before
 constexpr long OFF_SKY_DIVE_STATUS = 0x4784; // [DataMap.C_Player]->m_skydiveState
 constexpr long OFF_DUCK_STATUS = 0x2a60; // [DataMap.C_Player]->m_duckState
