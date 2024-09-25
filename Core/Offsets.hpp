@@ -21,11 +21,11 @@ constexpr long OFF_VIEWRENDER = 0x76e88b8; // [Miscellaneous]->ViewRender
 constexpr long OFF_VIEWMATRIX = 0x11a350; // [Miscellaneous]->ViewMatrix
  
 // Buttons
-constexpr long OFF_INATTACK = 0x76e8820; // [Buttons]->in_attack
-constexpr long OFF_IN_JUMP = 0x76e8940; // [Buttons]->in_jump
-constexpr long OFF_IN_DUCK = 0x76e8a30; // [Buttons]->in_duck
-constexpr long OFF_IN_FORWARD = 0x76e8770; // [Buttons]->in_forward
-constexpr long OFF_IN_BACKWARD = 0x76e8798; // [Buttons]->in_backward
+constexpr long OFF_INATTACK = 0x76e89c0; // [Buttons]->in_attack
+constexpr long OFF_IN_JUMP = 0x76e8aa8; // [Buttons]->in_jump
+constexpr long OFF_IN_DUCK = 0x76e8bb0; // [Buttons]->in_duck
+constexpr long OFF_IN_FORWARD = 0x76e88f0; // [Buttons]->in_forward
+constexpr long OFF_IN_BACKWARD = 0x76e8918; // [Buttons]->in_backward
 constexpr long OFF_TRAVERSAL_START_TIME = 0x2b70; // [RecvTable.DT_LocalPlayerExclusive]->m_traversalStartTime
 constexpr long OFF_TRAVERSAL_PROGRESS = 0x2b6c; // [RecvTable.DT_LocalPlayerExclusive]->m_traversalProgress
 constexpr long OFF_WALL_RUN_START_TIME = 0x3674; // [RecvTable.DT_LocalPlayerExclusive]->m_wallRunStartTime
