@@ -11,8 +11,8 @@ constexpr long OFF_LEVEL = 0x18356c4; // [Miscellaneous]->LevelName
 constexpr long OFF_LOCAL_PLAYER = 0x24342b8; // [Miscellaneous]->LocalPlayer
 constexpr long OFF_ENTITY_LIST = 0xd426160; // [Miscellaneous]->cl_entitylist
 constexpr long OFF_NAME_INDEX = 0x38; // NameIndex
-constexpr long OFF_NAME_LIST = 0xd425fe0; // [Miscellaneous]->NameList
-constexpr long OFF_GAMEMODE = 0x0242d460; // [ConVars]->mp_gamemode
+constexpr long OFF_NAME_LIST = 0xd426160; // [Miscellaneous]->NameList
+constexpr long OFF_GAMEMODE = 0x0246c460; // [ConVars]->mp_gamemode
 constexpr long OFF_SQUAD_ID = 0x0344; // [RecvTable.DT_BaseEntity]->m_squadID
 constexpr long OFF_GLOBAL_VARS = 0x18351C0; // [Miscellaneous]->GlobalVars
  
